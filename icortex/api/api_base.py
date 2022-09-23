@@ -63,6 +63,7 @@ class APIBase:
             required=False,
             help="Do not print the generated code.",
         )
+        self.prompt_parser.usage = "/your prompt goes here [-e] [-r] [-i] [-p] ..."
 
     def find_cached_response(
         self,

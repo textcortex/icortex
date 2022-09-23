@@ -72,8 +72,6 @@ class TextCortexAPI(APIBase):
             required=False,
         )
 
-        self.prompt_parser.usage = "/your prompt goes here [-e] [-r] [-i] [-p] ..."
-
     def generate(
         self,
         prompt: str,
