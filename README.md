@@ -8,6 +8,7 @@ To install the ICortex Kernel, run the following in the main project directory:
 
 ```
 pip install .
+python -m icortex.install
 ```
 
 This will change once the package is deployed to PyPI.

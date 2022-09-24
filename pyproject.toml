@@ -11,6 +11,8 @@ jupyter-client = "^7.3.5"
 ipykernel = "^6.15.3"
 Pygments = "^2.13.0"
 openai = "^0.23.0"
+jupyter-console = "^6.4.4"
+toml = "^0.10.2"
 
 
 [build-system]

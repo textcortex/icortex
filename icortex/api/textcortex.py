@@ -28,14 +28,16 @@ api_key = "your-api-key-goes-here"
 
 
 class TextCortexAPI(APIBase):
+    name = "textcortex"
+
     def __init__(self, config: t.Dict):
         super(TextCortexAPI, self).__init__()
 
         try:
-            self.textcortex_api_key = config["api_key"]
+            self.api_key = config["api_key"]
         except KeyError:
             print(MISSING_API_KEY_MSG)
-            raise Exception("Missing TextCortex API key")
+            raise Exception("Missing API key")
 
         # Add TextCortex specific arguments
         self.prompt_parser.description = "TextCortex Python code generator."
@@ -61,7 +63,7 @@ class TextCortexAPI(APIBase):
             type=int,
             default=DEFAULT_TOKEN_COUNT,
             required=False,
-            help=f"Maximum token count that the API should attempt to generage. Default: {DEFAULT_TOKEN_COUNT}",
+            help=f"Maximum token count that the API should attempt to generate. Default: {DEFAULT_TOKEN_COUNT}",
         )
         self.prompt_parser.add_argument(
             "-l",
@@ -93,7 +95,7 @@ class TextCortexAPI(APIBase):
             "word_count": args.token_count,
             "n_gen": args.n_gen,
             "source_language": args.language,
-            "api_key": self.textcortex_api_key,
+            "api_key": self.api_key,
         }
         headers = {"Content-Type": "application/json"}
 
@@ -101,10 +103,13 @@ class TextCortexAPI(APIBase):
         cached_payload = copy.deepcopy(payload)
         del cached_payload["api_key"]
         cached_request_dict = {
-            "type": "POST",
-            "path": ICORTEX_ENDPOINT_URI,
-            "headers": headers,
-            "data": cached_payload,
+            "api": "textcortex",
+            "params": {
+                "type": "POST",
+                "path": ICORTEX_ENDPOINT_URI,
+                "headers": headers,
+                "data": cached_payload,
+            },
         }
 
         # If the the same request is found in the cache, return the cached response

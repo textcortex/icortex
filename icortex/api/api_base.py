@@ -8,6 +8,8 @@ import typing as t
 
 
 class APIBase:
+    name = "base"
+
     def __init__(self):
         # Create the prompt parser and add default arguments
         # Each child class will need to add their specific arguments
@@ -87,6 +89,9 @@ class APIBase:
         cache = self._read_cache(DEFAULT_CACHE_PATH)
         cache.append({"request": request_dict, "response": response_dict})
         return self._write_cache(cache, cache_path)
+
+    def generate(self, prompt: str):
+        raise NotImplementedError
 
     def _read_cache(self, cache_path):
         # Check whether the cache file already exists
