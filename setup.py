@@ -1,5 +1,5 @@
 import os
-from setuptools import setup
+from setuptools import find_packages, setup
 from setuptools.command.install import install
 
 
@@ -18,7 +18,7 @@ class PostInstallCommand(install):
 setup(
     name="icortex",
     version="0.0.1",
-    packages=["icortex"],
+    packages=find_packages(exclude=["tests", "tests.*"]),
     description="Jupyter kernel that allows you generate code from natural language prompts",
     long_description=readme,
     author="TextCortex Team",

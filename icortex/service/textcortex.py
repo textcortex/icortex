@@ -5,8 +5,8 @@ import shlex
 
 import typing as t
 
-from ..config import *
-from .service_base import ServiceBase, ServiceOption
+from icortex.config import *
+from icortex.service import ServiceBase, ServiceOption
 
 ICORTEX_ENDPOINT_URI = "https://api.textcortex.com/hemingwai/generate_text_v2"
 MISSING_API_KEY_MSG = """The ICortex prompt requires an API key from TextCortex in order to work.

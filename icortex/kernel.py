@@ -5,7 +5,7 @@
 from ipykernel.ipkernel import IPythonKernel
 
 
-from .exec import is_prompt, extract_prompt
+from icortex.exec import is_prompt, extract_prompt
 
 
 class ICortexKernel(IPythonKernel):

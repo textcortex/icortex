@@ -8,18 +8,20 @@ To install the ICortex Kernel, run the following in the main project directory:
 
 ```
 pip install .
-python -m icortex.install
+icortex
 ```
 
 This will change once the package is deployed to PyPI.
 
 ## Launching ICortex
 
-You can launch ICortex directly in Jupyter console:
+You can launch the ICortex shell directly in your terminal:
 
 ```bash
-jupyter console --kernel icortex
+icortex
 ```
+
+If there is no configuration file `icortex.toml` in the project directory, the shell will prompt you to create one step by step.
 
 Or you can create a new Jupyter notebook. Start the JupyterLab server with
 

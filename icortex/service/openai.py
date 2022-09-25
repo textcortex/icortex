@@ -3,8 +3,8 @@ import shlex
 
 import typing as t
 
-from ..config import *
-from .service_base import ServiceBase, ServiceOption
+from icortex.config import *
+from icortex.service import ServiceBase, ServiceOption
 
 MISSING_API_KEY_MSG = """The ICortex prompt requires an API key from OpenAI in order to work.
 

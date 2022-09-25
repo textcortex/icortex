@@ -5,9 +5,9 @@ from pygments import highlight
 from pygments.formatters import Terminal256Formatter
 from pygments.lexers import PythonLexer
 
-from .service import get_service
-from .pypi import install_missing_packages, get_missing_modules
-from .config import *
+from icortex.service import get_service
+from icortex.pypi import install_missing_packages, get_missing_modules
+from icortex.config import *
 
 
 def is_prompt(input: str):
@@ -38,10 +38,10 @@ def execute_interactive(
     code: str,
     execute: bool = False,
     auto_install_packages: bool = DEFAULT_AUTO_INSTALL_PACKAGES,
-    hide_code: bool = DEFAULT_HIDE_CODE,
+    quiet: bool = DEFAULT_QUIET,
     nonint: bool = False,
 ):
-    if not hide_code:
+    if not quiet:
         print(highlight_python(code))
 
     # Missing modules are modules that are still missing regardless of
@@ -123,6 +123,6 @@ def eval_prompt(prompt_with_args: str):
         code_,
         execute=args.execute,
         auto_install_packages=args.auto_install_packages,
-        hide_code=args.hide_code,
+        quiet=args.quiet,
         nonint=args.nonint,
     )

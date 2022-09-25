@@ -40,6 +40,13 @@ def _is_root():
         return False  # assume not an admin on non-Unix platforms
 
 
+def is_kernel_installed():
+    ksm = KernelSpecManager()
+
+    paths = ksm.find_kernel_specs()
+    return "icortex" in paths
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser()
     ap.add_argument(

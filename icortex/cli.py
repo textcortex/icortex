@@ -2,11 +2,21 @@ import os
 import argparse
 import toml
 import click
+from jupyter_console.app import ZMQTerminalIPythonApp
 from icortex.service import service_dict, get_service
 from icortex.config import DEFAULT_SERVICE, DEFAULT_ICORTEX_CONFIG_PATH
+from icortex.install import is_kernel_installed, main as install_kernel
+
+# Jupyter devs did not make this easy
+# TODO: Make less hacky
+class ZMQTerminalICortexApp(ZMQTerminalIPythonApp):
+    def parse_command_line(self, argv=None):
+        argv = ["--kernel", "icortex"]
+        super(ZMQTerminalIPythonApp, self).parse_command_line(argv)
+        self.build_kernel_argv(self.extra_args)
 
 
-def initialize_config(path):
+def initialize_config(path: str):
     sorted_services = sorted(service_dict.keys())
     sorted_services.remove(DEFAULT_SERVICE)
     sorted_services = [DEFAULT_SERVICE] + sorted_services
@@ -37,27 +47,40 @@ def initialize_config(path):
         toml.dump(toml_dict, f)
 
 
-parser = argparse.ArgumentParser()
+def get_parser():
+    parser = argparse.ArgumentParser()
 
-parser.add_argument(
-    "-i",
-    "--init",
-    action="store_true",
-    help="Initialize ICortex configuration file in the current directory",
-)
-parser.add_argument(
-    "-c",
-    "--config",
-    type=str,
-    help="Path to the configuration TOML file.",
-    default=DEFAULT_ICORTEX_CONFIG_PATH,
-)
+    parser.add_argument(
+        "-i",
+        "--init",
+        action="store_true",
+        help="Initialize ICortex configuration file in the current directory",
+    )
+    parser.add_argument(
+        "-c",
+        "--config",
+        type=str,
+        help="Path to the configuration TOML file.",
+        default=DEFAULT_ICORTEX_CONFIG_PATH,
+    )
+    return parser
 
 
 def main():
+    parser = get_parser()
     args = parser.parse_args()
+
+    # Install kernel if it's not already
+    if not is_kernel_installed():
+        install_kernel()
+
+    # If no config file exists, initialize it
     if args.init or not os.path.exists(args.config):
         initialize_config(args.config)
+
+    # Launch shell
+    if not args.init:
+        ZMQTerminalICortexApp.launch_instance()
 
 
 if __name__ == "__main__":

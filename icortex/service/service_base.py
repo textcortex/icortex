@@ -3,7 +3,7 @@ import argparse
 import json
 import click
 
-from ..config import *
+from icortex.config import *
 
 import typing as t
 
@@ -92,8 +92,8 @@ class ServiceBase:
             help=f"Non-interactive, do not ask any questions.",
         )
         self.prompt_parser.add_argument(
-            "-h",
-            "--hide-code",
+            "-q",
+            "--quiet",
             action="store_true",
             required=False,
             help="Do not print the generated code.",
