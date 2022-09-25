@@ -41,12 +41,12 @@ class ServiceOption:
 class ServiceBase:
     name: str = "base"
     description: str = "Base class for a code generation service"
+    # Each child class will need to add their specific arguments
+    # by extending `options`
     options: t.Dict[str, ServiceOption] = {}
 
     def __init__(self, config: t.Dict):
         # Create the prompt parser and add default arguments
-        # Each child class will need to add their specific arguments
-        # by extending self.prompt_parser.
         self.prompt_parser = argparse.ArgumentParser(
             add_help=False,
         )

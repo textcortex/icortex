@@ -3,7 +3,7 @@ import argparse
 import toml
 import click
 from jupyter_console.app import ZMQTerminalIPythonApp
-from icortex.service import service_dict, get_service
+from icortex.services import service_dict, get_service
 from icortex.config import DEFAULT_SERVICE, DEFAULT_ICORTEX_CONFIG_PATH
 from icortex.install import is_kernel_installed, main as install_kernel
 

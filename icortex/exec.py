@@ -5,7 +5,7 @@ from pygments import highlight
 from pygments.formatters import Terminal256Formatter
 from pygments.lexers import PythonLexer
 
-from icortex.service import get_service
+from icortex.services import get_service
 from icortex.pypi import install_missing_packages, get_missing_modules
 from icortex.config import *
 
