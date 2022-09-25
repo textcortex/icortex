@@ -19,10 +19,10 @@ setup(
     name="icortex",
     version="0.0.1",
     packages=["icortex"],
-    description="Jupyter kernel for using code generation API's",
+    description="Jupyter kernel that allows you generate code from natural language prompts",
     long_description=readme,
     author="TextCortex Team",
-    author_email="ceyhun@textcortex.com",
+    author_email="onur@textcortex.com",
     url="https://github.com/textcortex/icortex",
     install_requires=["jupyter_client", "IPython", "ipykernel"],
     classifiers=[
@@ -31,4 +31,7 @@ setup(
         "Programming Language :: Python :: 3",
     ],
     cmdclass={"install": PostInstallCommand},
+    entry_points={
+        "console_scripts": ["icortex=icortex.cli:main"],
+    },
 )

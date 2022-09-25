@@ -1,16 +1,49 @@
 import os
 import argparse
 import json
+import click
 
 from ..config import *
 
 import typing as t
 
 
-class APIBase:
-    name = "base"
+class ServiceOption:
+    def __init__(
+        self,
+        type_: t.Any,
+        default: t.Any = None,
+        help: str = None,
+        secret: bool = False,
+        argparse_args: t.List = [],
+        argparse_kwargs: t.Dict = {},
+        require_arg: bool = False,
+    ):
+        self.type = type_
+        self.default = default  # Default value
+        self.help = help
+        self.argparse_args = [*argparse_args]
+        self.argparse_kwargs = {**argparse_kwargs}
+        self.secret = secret
+        self.require_arg = require_arg
+        if require_arg:
+            self.argparse_kwargs["required"] = True
+        if self.help is not None:
+            help_str = self.help
+            if self.default is not None:
+                help_str += f" Default: {repr(self.default)}"
+            self.argparse_kwargs["help"] = help_str
+        if self.default is not None:
+            assert isinstance(default, type_)
+            self.argparse_kwargs["default"] = self.default
 
-    def __init__(self):
+
+class ServiceBase:
+    name: str = "base"
+    description: str = "Base class for a code generation service"
+    options: t.Dict[str, ServiceOption] = {}
+
+    def __init__(self, config: t.Dict):
         # Create the prompt parser and add default arguments
         # Each child class will need to add their specific arguments
         # by extending self.prompt_parser.
@@ -67,6 +100,18 @@ class APIBase:
         )
         self.prompt_parser.usage = "/your prompt goes here [-e] [-r] [-i] [-p] ..."
 
+        self.prompt_parser.description = self.description
+
+        # Add service-specific options
+        for key, opt in self.options.items():
+            if config[key]:
+                opt.default = config[key]
+            if opt.secret == False and len(opt.argparse_args) > 0:
+                self.prompt_parser.add_argument(
+                    *opt.argparse_args,
+                    **opt.argparse_kwargs,
+                )
+
     def find_cached_response(
         self,
         request_dict: t.Dict,
@@ -92,6 +137,27 @@ class APIBase:
 
     def generate(self, prompt: str):
         raise NotImplementedError
+
+    def config_dialog(self, skip_defaults=False):
+        return_dict = {}
+        for key, opt in self.options.items():
+            if isinstance(opt, ServiceOption):
+                if skip_defaults and opt.default is not None:
+                    user_val = opt.default
+                else:
+                    kwargs = {"type": opt.type}
+                    if opt.default is not None:
+                        kwargs["default"] = (opt.default,)
+                    if opt.help is not None:
+                        prompt = f"{key} ({opt.help})"
+                    else:
+                        prompt = f"{key}"
+                    user_val = click.prompt(prompt, **kwargs)
+            else:
+                raise ValueError(f"Dict entry is not ServiceOption: {opt}")
+
+            return_dict[key] = user_val
+        return return_dict
 
     def _read_cache(self, cache_path):
         # Check whether the cache file already exists

@@ -5,7 +5,7 @@ from pygments import highlight
 from pygments.formatters import Terminal256Formatter
 from pygments.lexers import PythonLexer
 
-from .api import get_api
+from .service import get_service
 from .pypi import install_missing_packages, get_missing_modules
 from .config import *
 
@@ -98,24 +98,24 @@ def eval_prompt(prompt_with_args: str):
         icortex_config = toml.load(DEFAULT_ICORTEX_CONFIG_PATH)
     except FileNotFoundError:
         # If config file doesn't exist, default to TextCortex
-        icortex_config = {"api": "textcortex", "textcortex": {}}
+        icortex_config = {"service": "textcortex", "textcortex": {}}
 
-    # Initialize the API object
-    api_name = icortex_config["api"]
-    api_config = icortex_config[api_name]
-    api_class = get_api(api_name)
-    api = api_class(api_config)
+    # Initialize the Service object
+    service_name = icortex_config["service"]
+    service_config = icortex_config[service_name]
+    service_class = get_service(service_name)
+    service = service_class(service_config)
 
     # Print help if the user has typed `/help`
     argv = shlex.split(prompt_with_args)
-    args = api.prompt_parser.parse_args(argv)
+    args = service.prompt_parser.parse_args(argv)
     prompt = " ".join(args.prompt)
     if prompt == "help":
-        api.prompt_parser.print_help()
+        service.prompt_parser.print_help()
         return
 
     # Otherwise, generate with the prompt
-    response = api.generate(prompt_with_args)
+    response = service.generate(prompt_with_args)
     # TODO: Account for multiple response values
     code_: str = response[0]["text"]
 
