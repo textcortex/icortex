@@ -1,9 +1,9 @@
 # ICortex
 
-ICortex is a [Jupyter kernel](https://jupyter-client.readthedocs.io/en/latest/kernels.html) that supercharges your Jupyter Notebook workflow by letting you use code generation services e.g. TextCortex's ICortex API, GitHub's Codex API, HuggingFace transformers running locally to **automatically generate Python code from user prompts**.
+ICortex is a [Jupyter kernel](https://jupyter-client.readthedocs.io/en/latest/kernels.html) that supercharges your Jupyter Notebook workflow by letting you use code generation services e.g. TextCortex's ICortex API, OpenAI's Codex API, HuggingFace transformers running locally to **generate Python code automatically from user prompts**.
 
-- It is a drop-in replacement for the IPython kernel—prompts start with a forward slash `/` and every other line is treated as regular Python code.
-- It is interactive—install missing packages directly, decide whether to execute the generated code or not directly in the Jupyter Notebook cell.
+- It is a drop-in replacement for the IPython kernel. Prompts start with a forward slash `/` otherwise the line is treated as regular Python code.
+- It is interactive—install missing packages directly, decide whether to execute the generated code or not, directly in the Jupyter Notebook cell.
 - It is fully extensible—if you think we are missing a model or an API, you can request it by creating an issue, or implement it yourself by subclassing `ServiceBase` under [`icortex/services`](icortex/services).
 
 ## Installation

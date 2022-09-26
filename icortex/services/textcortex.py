@@ -59,7 +59,7 @@ class TextCortexService(ServiceBase):
     }
 
     def __init__(self, config: t.Dict):
-        super(TextCortexService, self).__init__()
+        super(TextCortexService, self).__init__(config)
 
         try:
             self.api_key = config["api_key"]
