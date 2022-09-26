@@ -8,28 +8,15 @@ import typing as t
 from icortex.config import *
 from icortex.services import ServiceBase, ServiceOption
 
-ICORTEX_ENDPOINT_URI = "https://api.textcortex.com/hemingwai/generate_text_v2"
-MISSING_API_KEY_MSG = """The ICortex prompt requires an API key from TextCortex in order to work.
-
-1.  Visit https://app.textcortex.com/user/dashboard/settings/api-key to view your API key.
-    If you do not have an account, you can sign up at https://app.textcortex.com/user/signup.
-
-2.  Create a file icortex.toml in in the same directory as your Jupyter Notebook with
-    the following lines:
-
-service = "textcortex"
-[textcortex]
-api_key = "your-api-key-goes-here"
-"""
 
 
-class TextCortexService(ServiceBase):
-    name = "textcortex"
+class HuggingFaceService(ServiceBase):
+    name = "huggingface"
     description = "TextCortex Python code generator"
     options = {
-        "api_key": ServiceOption(
+        "model": ServiceOption(
             str,
-            help="If you don't have an API key already, generate one at https://app.textcortex.com/user/dashboard/settings/api-key ",  # Leave a space at the end
+            help="If you don't have an API key already, generate one at https://app.textcortex.com/user/dashboard/settings/api-key",
             secret=True,
         ),
         "tempereature": ServiceOption(
@@ -59,13 +46,8 @@ class TextCortexService(ServiceBase):
     }
 
     def __init__(self, config: t.Dict):
-        super(TextCortexService, self).__init__(config)
+        super(HuggingFaceService, self).__init__(config)
 
-        try:
-            self.api_key = config["api_key"]
-        except KeyError:
-            print(MISSING_API_KEY_MSG)
-            raise Exception("Missing API key")
 
     def generate(
         self,
@@ -79,11 +61,11 @@ class TextCortexService(ServiceBase):
             argv.remove("-m")
 
         args = self.prompt_parser.parse_args(argv)
-        prompt_text = " ".join(args.prompt)
+
         # Prepare request data
         payload = {
             "template_name": "code_cortex_python",
-            "prompt": {"instruction": prompt_text},
+            "prompt": {"instruction": prompt},
             "temperature": args.temperature,
             "word_count": args.token_count,
             "n_gen": args.n_gen,
@@ -94,24 +76,24 @@ class TextCortexService(ServiceBase):
 
         # Create a dict of the request for cache storage
         cached_payload = copy.deepcopy(payload)
-        del cached_payload["api_key"]
-        cached_request_dict = {
-            "service": "textcortex",
-            "params": {
-                "type": "POST",
-                "path": ICORTEX_ENDPOINT_URI,
-                "headers": headers,
-                "data": cached_payload,
-            },
-        }
+        # del cached_payload["api_key"]
+        # cached_request_dict = {
+        #     "service": "textcortex",
+        #     "params": {
+        #         "type": "POST",
+        #         "path": ICORTEX_ENDPOINT_URI,
+        #         "headers": headers,
+        #         "data": cached_payload,
+        #     },
+        # }
 
         # If the the same request is found in the cache, return the cached response
-        if not args.regenerate:
-            cached_response = self.find_cached_response(
-                cached_request_dict, cache_path=DEFAULT_CACHE_PATH
-            )
-            if cached_response is not None:
-                return cached_response["generated_text"]
+        # if not args.regenerate:
+        #     cached_response = self.find_cached_response(
+        #         cached_request_dict, cache_path=DEFAULT_CACHE_PATH
+        #     )
+        #     if cached_response is not None:
+        #         return cached_response["generated_text"]
 
         # Otherwise, make the API call
         response = requests.request(
@@ -119,13 +101,13 @@ class TextCortexService(ServiceBase):
         )
 
         response_dict = response.json()
-        if response_dict["status"] == "success":
-            self.cache_response(
-                cached_request_dict, response_dict, cache_path=DEFAULT_CACHE_PATH
-            )
+        # if response_dict["status"] == "success":
+        self.cache_response(
+            cached_request_dict, response_dict, cache_path=DEFAULT_CACHE_PATH
+        )
 
-            return response_dict["generated_text"]
-        elif response_dict["status"] == "fail":
-            raise Exception(
-                f"There was an issue with generation: {response_dict['message']}"
-            )
+        #     return response_dict["generated_text"]
+        # elif response_dict["status"] == "fail":
+        #     raise Exception(
+        #         f"There was an issue with generation: {response_dict['message']}"
+        #     )

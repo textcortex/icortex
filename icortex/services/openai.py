@@ -5,6 +5,7 @@ import typing as t
 
 from icortex.config import *
 from icortex.services import ServiceBase, ServiceOption
+from icortex.helper import unescape
 
 MISSING_API_KEY_MSG = """The ICortex prompt requires an API key from OpenAI in order to work.
 
@@ -23,8 +24,6 @@ def create_prompt(input: str, prefix: str, suffix: str):
     return prefix + input + suffix
 
 
-def unescape(s):
-    return s.encode("utf-8").decode("unicode_escape")
 
 
 class OpenAIService(ServiceBase):

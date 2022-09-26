@@ -24,7 +24,7 @@ setup(
     author="TextCortex Team",
     author_email="onur@textcortex.com",
     url="https://github.com/textcortex/icortex",
-    install_requires=["jupyter_client", "IPython", "ipykernel"],
+    install_requires=open("requirements.txt", "r").readlines(),
     classifiers=[
         "Intended Audience :: Developers",
         "License :: OSI Approved :: BSD License",

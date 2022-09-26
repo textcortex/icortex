@@ -8,6 +8,11 @@ from icortex.config import *
 import typing as t
 
 
+def is_str_repr(s: str):
+    quotes = ["'", '"']
+    return len(s) >= 2 and s[0] in quotes and s[-1] in quotes
+
+
 class ServiceOption:
     def __init__(
         self,
@@ -44,6 +49,7 @@ class ServiceBase:
     # Each child class will need to add their specific arguments
     # by extending `options`
     options: t.Dict[str, ServiceOption] = {}
+    hidden: bool = False
 
     def __init__(self, config: t.Dict):
         # Create the prompt parser and add default arguments
@@ -147,12 +153,16 @@ class ServiceBase:
                 else:
                     kwargs = {"type": opt.type}
                     if opt.default is not None:
-                        kwargs["default"] = (opt.default,)
+                        kwargs["default"] = repr(opt.default)
                     if opt.help is not None:
                         prompt = f"{key} ({opt.help})"
                     else:
                         prompt = f"{key}"
                     user_val = click.prompt(prompt, **kwargs)
+                    # If the input is a string representation, evaluate it
+                    # This is for when the user wants to type in a string with escape characters
+                    if opt.type == str and is_str_repr(user_val):
+                        user_val = eval(user_val)
             else:
                 raise ValueError(f"Dict entry is not ServiceOption: {opt}")
 

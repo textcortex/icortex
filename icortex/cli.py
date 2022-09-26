@@ -1,4 +1,5 @@
 import os
+import sys
 import argparse
 import toml
 import click
@@ -17,12 +18,14 @@ class ZMQTerminalICortexApp(ZMQTerminalIPythonApp):
 
 
 def initialize_config(path: str):
-    sorted_services = sorted(service_dict.keys())
+    sorted_services = sorted(
+        [key for key, val in service_dict.items() if not val.hidden]
+    )
     sorted_services.remove(DEFAULT_SERVICE)
     sorted_services = [DEFAULT_SERVICE] + sorted_services
 
     service_name = click.prompt(
-        "Which code generation service would you like to use? Options: "
+        "Which code generation service would you like to use?\nOptions: "
         + ", ".join(sorted_services)
         + "\nDefault",
         type=str,
@@ -66,9 +69,12 @@ def get_parser():
     return parser
 
 
-def main():
+def main(argv=None):
+    if argv is None:
+        argv = sys.argv[1:]
+
     parser = get_parser()
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
 
     # Install kernel if it's not already
     if not is_kernel_installed():
