@@ -1,6 +1,6 @@
 # ICortex Kernel
 
-![Github Actions Status](https://github.com/jupyter/notebook/workflows/Build/badge.svg)
+![Github Actions Status](https://github.com/textcortex/icortex/workflows/Build/badge.svg)
 
 ICortex is a [Jupyter kernel](https://jupyter-client.readthedocs.io/en/latest/kernels.html) that supercharges your Jupyter Notebook workflow by letting you use code generation services e.g. TextCortex's ICortex API, OpenAI's Codex API, HuggingFace transformers running locally to **generate Python code automatically from user prompts**.
 
