@@ -25,6 +25,15 @@ setup(
     author_email="onur@textcortex.com",
     url="https://github.com/textcortex/icortex",
     install_requires=open("requirements.txt", "r").readlines(),
+    extras_require={
+        "huggingface": [
+            "torch",
+            "transformers",
+        ],
+        "openai": [
+            "openai",
+        ]
+    },
     classifiers=[
         "Intended Audience :: Developers",
         "License :: OSI Approved :: BSD License",

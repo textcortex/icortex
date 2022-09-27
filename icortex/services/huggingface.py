@@ -2,7 +2,6 @@ import shlex
 
 import typing as t
 
-from transformers import AutoTokenizer, AutoModelForCausalLM
 
 from icortex.config import *
 from icortex.helper import unescape
@@ -67,6 +66,8 @@ class HuggingFaceAutoService(ServiceBase):
         super(HuggingFaceAutoService, self).__init__(config)
 
         import torch
+        from transformers import AutoTokenizer, AutoModelForCausalLM
+
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
 
         if "model" in config:
@@ -151,6 +152,7 @@ class HuggingFaceAutoService(ServiceBase):
             early_stopping=True,
         )
         return self.tokenizer.decode(generated_ids[0], skip_special_tokens=True)
+
 
 # TODO
 # [x] Keep the ServiceBase object in memory and don't create a new one every time
