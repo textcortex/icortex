@@ -2,7 +2,6 @@ import shlex
 
 import typing as t
 
-import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM
 
 from icortex.config import *
@@ -67,6 +66,7 @@ class HuggingFaceAutoService(ServiceBase):
     def __init__(self, config: t.Dict):
         super(HuggingFaceAutoService, self).__init__(config)
 
+        import torch
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
 
         if "model" in config:

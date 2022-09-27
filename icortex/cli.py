@@ -60,13 +60,13 @@ def get_parser():
         action="store_true",
         help="Initialize ICortex configuration file in the current directory",
     )
-    # parser.add_argument(
-    #     "-c",
-    #     "--config",
-    #     type=str,
-    #     help="Path to the configuration TOML file.",
-    #     default=DEFAULT_ICORTEX_CONFIG_PATH,
-    # )
+    parser.add_argument(
+        "-c",
+        "--config",
+        type=str,
+        help="Path to the configuration TOML file.",
+        default=DEFAULT_ICORTEX_CONFIG_PATH,
+    )
     return parser
 
 
@@ -86,10 +86,10 @@ def main(argv=None):
         install_kernel()
 
     # If no config file exists, initialize it
-    # if args.init or not os.path.exists(args.config):
-    #    initialize_config(args.config)
-    if args.init or not os.path.exists(DEFAULT_ICORTEX_CONFIG_PATH):
-        initialize_config(DEFAULT_ICORTEX_CONFIG_PATH)
+    if args.init or not os.path.exists(args.config):
+       initialize_config(args.config)
+    # if args.init or not os.path.exists(DEFAULT_ICORTEX_CONFIG_PATH):
+        # initialize_config(DEFAULT_ICORTEX_CONFIG_PATH)
 
     # print(ICortexKernel.config_path)
     # Launch shell

@@ -21,6 +21,7 @@ n
         config_path = tmpdir.join("icortex.toml")
 
         main(["--init", "--config", str(config_path)])
+        # main(["--init"])
         assert (
             open(config_path, "r").read()
             == """service = \"echo\"

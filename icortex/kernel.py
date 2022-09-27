@@ -28,16 +28,13 @@ class ICortexKernel(IPythonKernel, SingletonConfigurable):
     banner = (
         "A prompt-based kernel for interfacing with code-generating language models"
     )
-    config_path = None
 
     def __init__(self, **kwargs):
 
         super().__init__(**kwargs)
 
-        if self.config_path is not None:
-            config_path = self.config_path
-        else:
-            config_path = DEFAULT_ICORTEX_CONFIG_PATH
+        # TODO: pass the --config flag from icortex somehow
+        config_path = DEFAULT_ICORTEX_CONFIG_PATH
 
         try:
             icortex_config = toml.load(config_path)
