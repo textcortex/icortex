@@ -7,8 +7,8 @@ from icortex.config import *
 from icortex.helper import unescape
 from icortex.services import ServiceBase, ServiceOption
 
-
-DEFAULT_MODEL = "facebook/incoder-1B"
+# DEFAULT_MODEL = "facebook/incoder-1B"
+DEFAULT_MODEL = "Salesforce/codegen-350M-mono"
 
 
 def create_prompt(input: str, prefix: str, suffix: str):
@@ -16,7 +16,7 @@ def create_prompt(input: str, prefix: str, suffix: str):
 
 
 class HuggingFaceAutoService(ServiceBase):
-    name = "hfauto"
+    name = "huggingface"
     description = "TextCortex Python code generator"
     options = {
         "model": ServiceOption(
@@ -44,7 +44,7 @@ class HuggingFaceAutoService(ServiceBase):
         ),
         "prompt_prefix": ServiceOption(
             str,
-            default=r"# ",
+            default=r"",
             help=f"String to prepend to your prompt.",
             argparse_args=["--prompt-prefix"],
         ),
@@ -57,7 +57,7 @@ class HuggingFaceAutoService(ServiceBase):
         "stop": ServiceOption(
             str,
             default="```",
-            help=f"Up to 4 sequences where the API will stop generating further tokens. The returned text will not contain the stop sequence.",
+            help=f"A sequence where the API will stop generating further tokens. The returned text will not contain the stop sequence.",
             argparse_args=["--stop"],
         ),
     }
@@ -69,6 +69,7 @@ class HuggingFaceAutoService(ServiceBase):
         from transformers import AutoTokenizer, AutoModelForCausalLM
 
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
+        self.token_id_cache = {}
 
         if "model" in config:
             model_name_or_path = config["model"]
@@ -77,6 +78,7 @@ class HuggingFaceAutoService(ServiceBase):
 
         self.tokenizer = AutoTokenizer.from_pretrained(model_name_or_path)
 
+        print("Loading HuggingFace model ", model_name_or_path)
         self.model = (
             AutoModelForCausalLM.from_pretrained(model_name_or_path)
             .eval()
@@ -105,6 +107,7 @@ class HuggingFaceAutoService(ServiceBase):
         # Prepare request data
         payload = {
             "prompt": prompt_text,
+            "stop": args.stop,
             "temperature": args.temperature,
             "max_length": args.max_length,
             # "n_gen": args.n_gen,
@@ -137,23 +140,47 @@ class HuggingFaceAutoService(ServiceBase):
     def _generate(
         self,
         prompt=None,
+        stop="```",
         max_length=64,
         temperature=0.2,
         num_return_sequences=1,
     ):
+        # Tokenize input
         input_ids = self.tokenizer(prompt, return_tensors="pt").input_ids.to(
             self.device
         )
+        # Generate
         generated_ids = self.model.generate(
             input_ids,
             max_length=max_length,
             temperature=temperature,
             num_return_sequences=num_return_sequences,
             early_stopping=True,
+            eos_token_id=self.get_token_id(stop),
         )
-        return self.tokenizer.decode(generated_ids[0], skip_special_tokens=True)
+        output = self.tokenizer.decode(generated_ids[0], skip_special_tokens=True)
+
+        # Postprocess
+        output = output[: -len(stop)]
+        output = output[len(prompt) :]
+        output = output.rstrip()
+
+        return output
+
+    def get_token_id(self, seq):
+        if seq in self.token_id_cache:
+            return self.token_id_cache[seq]
+
+        result = self.tokenizer(seq)
+        ids = result["input_ids"][1:]
+        assert len(ids) == 1
+        token_id = ids[0]
+        self.token_id_cache[seq] = token_id
+
+        return token_id
+
 
 
 # TODO
-# [x] Keep the ServiceBase object in memory and don't create a new one every time
+# [x] Keep the ServiceBase object in memory and don't create a new one at every request
 # [ ] Model config is pulled during config dialog

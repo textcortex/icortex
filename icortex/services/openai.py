@@ -90,7 +90,7 @@ class OpenAIService(ServiceBase):
         "stop": ServiceOption(
             str,
             default="```",
-            help=f"Up to 4 sequences where the API will stop generating further tokens. The returned text will not contain the stop sequence.",
+            help=f"A sequence where the API will stop generating further tokens. The returned text will not contain the stop sequence.",
             argparse_args=["--stop"],
         ),
     }

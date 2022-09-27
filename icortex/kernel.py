@@ -61,8 +61,8 @@ class ICortexKernel(IPythonKernel, SingletonConfigurable):
             # Escape triple double quotes
             prompt = prompt.replace('"""', r"\"\"\"")
             code = f'''from icortex import eval_prompt
-eval_prompt("""{prompt}""")
-            '''
+code = eval_prompt("""{prompt}""")
+exec(code)'''
         else:
             code = input
 

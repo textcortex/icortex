@@ -24,7 +24,7 @@ def install_my_kernel_spec(user=True, prefix=None, uninstall=False):
 
             print("Installing Jupyter kernel spec")
             ksm.install_kernel_spec(
-                td, "icortex", user=user, replace=True, prefix=prefix
+                td, "icortex", user=user, prefix=prefix
             )
     else:
         try:

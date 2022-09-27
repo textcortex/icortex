@@ -8,7 +8,7 @@ service_dict = {
     "echo": EchoService,
     "textcortex": TextCortexService,
     "openai": OpenAIService,
-    "hfauto": HuggingFaceAutoService,
+    "huggingface": HuggingFaceAutoService,
 }
 
 

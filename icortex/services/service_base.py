@@ -24,23 +24,35 @@ class ServiceOption:
         argparse_kwargs: t.Dict = {},
         require_arg: bool = False,
     ):
-        self.type = type_
-        self.default = default  # Default value
-        self.help = help
         self.argparse_args = [*argparse_args]
         self.argparse_kwargs = {**argparse_kwargs}
+        self.type = type_
+        self.help = help
+        self.set_default(default)
+        self.set_help(help)
         self.secret = secret
         self.require_arg = require_arg
         if require_arg:
             self.argparse_kwargs["required"] = True
-        if self.help is not None:
-            help_str = self.help
+
+    def set_default(self, val):
+        if val is None:
+            self.default = None
+            return
+        assert isinstance(val, self.type)
+        self.default = val
+        self.argparse_kwargs["default"] = val
+        # Update the help string
+        self.set_help(self.help)
+
+    def set_help(self, help: str):
+        if help is not None:
+            help_str = help
             if self.default is not None:
                 help_str += f" Default: {repr(self.default)}"
             self.argparse_kwargs["help"] = help_str
-        if self.default is not None:
-            assert isinstance(default, type_)
-            self.argparse_kwargs["default"] = self.default
+        else:
+            self.help = None
 
 
 class ServiceBase:
@@ -113,7 +125,7 @@ class ServiceBase:
             # If user has specified a value for the option, use that
             # Otherwise, the default value will be used
             if key in config:
-                opt.default = config[key]
+                opt.set_default(config[key])
 
             # Omit secret arguments from the parser, but still read them
             if opt.secret == False and len(opt.argparse_args) > 0:
