@@ -7,6 +7,7 @@ from jupyter_console.app import ZMQTerminalIPythonApp
 from icortex.services import service_dict, get_service
 from icortex.config import DEFAULT_SERVICE, DEFAULT_ICORTEX_CONFIG_PATH
 from icortex.install import is_kernel_installed, main as install_kernel
+from icortex.kernel import ICortexKernel
 
 # Jupyter devs did not make this easy
 # TODO: Make less hacky
@@ -59,14 +60,18 @@ def get_parser():
         action="store_true",
         help="Initialize ICortex configuration file in the current directory",
     )
-    parser.add_argument(
-        "-c",
-        "--config",
-        type=str,
-        help="Path to the configuration TOML file.",
-        default=DEFAULT_ICORTEX_CONFIG_PATH,
-    )
+    # parser.add_argument(
+    #     "-c",
+    #     "--config",
+    #     type=str,
+    #     help="Path to the configuration TOML file.",
+    #     default=DEFAULT_ICORTEX_CONFIG_PATH,
+    # )
     return parser
+
+
+def read_config(path):
+    return toml.load(open(path, "r"))
 
 
 def main(argv=None):
@@ -81,9 +86,12 @@ def main(argv=None):
         install_kernel()
 
     # If no config file exists, initialize it
-    if args.init or not os.path.exists(args.config):
-        initialize_config(args.config)
+    # if args.init or not os.path.exists(args.config):
+    #    initialize_config(args.config)
+    if args.init or not os.path.exists(DEFAULT_ICORTEX_CONFIG_PATH):
+        initialize_config(DEFAULT_ICORTEX_CONFIG_PATH)
 
+    # print(ICortexKernel.config_path)
     # Launch shell
     if not args.init:
         ZMQTerminalICortexApp.launch_instance()

@@ -2,13 +2,18 @@
 # https://jupyter-client.readthedocs.io/en/latest/wrapperkernels.html
 # https://github.com/jupyter/jupyter/wiki/Jupyter-kernels
 
+import toml
+
 from ipykernel.ipkernel import IPythonKernel
+from traitlets.config.configurable import SingletonConfigurable
+
+from icortex.services import get_service
+from icortex.helper import is_prompt, extract_prompt
+
+from icortex.config import DEFAULT_ICORTEX_CONFIG_PATH
 
 
-from icortex.exec import is_prompt, extract_prompt
-
-
-class ICortexKernel(IPythonKernel):
+class ICortexKernel(IPythonKernel, SingletonConfigurable):
     implementation = "ICortex"
     implementation_version = "0.0.1"
     language = "no-op"
@@ -23,6 +28,28 @@ class ICortexKernel(IPythonKernel):
     banner = (
         "A prompt-based kernel for interfacing with code-generating language models"
     )
+    config_path = None
+
+    def __init__(self, **kwargs):
+
+        super().__init__(**kwargs)
+
+        if self.config_path is not None:
+            config_path = self.config_path
+        else:
+            config_path = DEFAULT_ICORTEX_CONFIG_PATH
+
+        try:
+            icortex_config = toml.load(config_path)
+        except FileNotFoundError:
+            # If config file doesn't exist, default to echo
+            icortex_config = {"service": "echo", "echo": {}}
+
+        # Initialize the Service object
+        service_name = icortex_config["service"]
+        service_config = icortex_config[service_name]
+        service_class = get_service(service_name)
+        self.service = service_class(service_config)
 
     async def do_execute(
         self,
@@ -52,6 +79,15 @@ eval_prompt("""{prompt}""")
             user_expressions=user_expressions,
             allow_stdin=allow_stdin,
         )
+
+
+def get_icortex_kernel() -> ICortexKernel:
+    """Get the global ICortexKernel instance.
+
+    Returns None if no ICortexKernel instance is registered.
+    """
+    if ICortexKernel.initialized():
+        return ICortexKernel.instance()
 
 
 if __name__ == "__main__":

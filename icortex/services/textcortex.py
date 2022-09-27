@@ -32,7 +32,7 @@ class TextCortexService(ServiceBase):
             help="If you don't have an API key already, generate one at https://app.textcortex.com/user/dashboard/settings/api-key ",  # Leave a space at the end
             secret=True,
         ),
-        "tempereature": ServiceOption(
+        "temperature": ServiceOption(
             float,
             default=0.1,
             help=f"Temperature controls the amount of randomness in the generated output. Must be between 0 and 1.",
@@ -96,7 +96,7 @@ class TextCortexService(ServiceBase):
         cached_payload = copy.deepcopy(payload)
         del cached_payload["api_key"]
         cached_request_dict = {
-            "service": "textcortex",
+            "service": self.name,
             "params": {
                 "type": "POST",
                 "path": ICORTEX_ENDPOINT_URI,

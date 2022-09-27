@@ -110,8 +110,12 @@ class ServiceBase:
 
         # Add service-specific options
         for key, opt in self.options.items():
-            if config[key]:
+            # If user has specified a value for the option, use that
+            # Otherwise, the default value will be used
+            if key in config:
                 opt.default = config[key]
+
+            # Omit secret arguments from the parser, but still read them
             if opt.secret == False and len(opt.argparse_args) > 0:
                 self.prompt_parser.add_argument(
                     *opt.argparse_args,

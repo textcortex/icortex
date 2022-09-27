@@ -5,17 +5,9 @@ from pygments import highlight
 from pygments.formatters import Terminal256Formatter
 from pygments.lexers import PythonLexer
 
-from icortex.services import get_service
 from icortex.pypi import install_missing_packages, get_missing_modules
+from icortex.kernel import get_icortex_kernel
 from icortex.config import *
-
-
-def is_prompt(input: str):
-    return input.strip()[0] == "/"
-
-
-def extract_prompt(input: str):
-    return input.strip()[1:].strip()
 
 
 def yes_no_input(message: str, default_no=False):
@@ -93,18 +85,7 @@ This might be due to an installer issue, please resolve manually.""",
 
 
 def eval_prompt(prompt_with_args: str):
-    # Read ICortex config every time a prompt is evaluated
-    try:
-        icortex_config = toml.load(DEFAULT_ICORTEX_CONFIG_PATH)
-    except FileNotFoundError:
-        # If config file doesn't exist, default to TextCortex
-        icortex_config = {"service": "textcortex", "textcortex": {}}
-
-    # Initialize the Service object
-    service_name = icortex_config["service"]
-    service_config = icortex_config[service_name]
-    service_class = get_service(service_name)
-    service = service_class(service_config)
+    service = get_icortex_kernel().service
 
     # Print help if the user has typed `/help`
     argv = shlex.split(prompt_with_args)

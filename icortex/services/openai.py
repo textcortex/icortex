@@ -24,8 +24,6 @@ def create_prompt(input: str, prefix: str, suffix: str):
     return prefix + input + suffix
 
 
-
-
 class OpenAIService(ServiceBase):
     name = "openai"
     description = "OpenAI Python code generator that uses the Codex API."
@@ -139,7 +137,7 @@ class OpenAIService(ServiceBase):
         }
 
         cached_request_dict = {
-            "service": "openai",
+            "service": self.name,
             "params": request_dict,
         }
 
