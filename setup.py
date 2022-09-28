@@ -1,18 +1,8 @@
-import os
 from setuptools import find_packages, setup
-from setuptools.command.install import install
 
 
 with open("README.md") as f:
     readme = f.read()
-
-
-class PostInstallCommand(install):
-    def run(self) -> None:
-        install.run(self)
-        from icortex.install import main as install_kernel
-
-        install_kernel([])
 
 
 setup(
@@ -52,7 +42,6 @@ setup(
         "Programming Language :: Python :: 3.9",
         "Topic :: Scientific/Engineering :: Artificial Intelligence",
     ],
-    cmdclass={"install": PostInstallCommand},
     keywords=[
         "copilot",
         "tabnine",
