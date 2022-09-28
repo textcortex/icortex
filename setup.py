@@ -10,9 +10,9 @@ with open("README.md") as f:
 class PostInstallCommand(install):
     def run(self) -> None:
         install.run(self)
-        # from icortex.install import main as install_kernel
+        from icortex.install import main as install_kernel
 
-        # install_kernel([])
+        install_kernel([])
 
 
 setup(
