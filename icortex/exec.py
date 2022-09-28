@@ -1,5 +1,4 @@
 import shlex
-import toml
 
 from pygments import highlight
 from pygments.formatters import Terminal256Formatter
@@ -93,8 +92,7 @@ def eval_prompt(prompt_with_args: str):
     args = service.prompt_parser.parse_args(argv)
     prompt = " ".join(args.prompt)
     if prompt == "help":
-        service.prompt_parser.print_help()
-        return
+        return "from icortex import print_help\nprint_help()"
 
     # Otherwise, generate with the prompt
     response = service.generate(prompt_with_args)

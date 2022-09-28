@@ -34,6 +34,8 @@ class ServiceOption:
         self.require_arg = require_arg
         if require_arg:
             self.argparse_kwargs["required"] = True
+        if self.type is not None:
+            self.argparse_kwargs["type"] = self.type
 
     def set_default(self, val):
         if val is None:

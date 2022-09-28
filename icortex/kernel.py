@@ -86,6 +86,10 @@ def get_icortex_kernel() -> ICortexKernel:
     if ICortexKernel.initialized():
         return ICortexKernel.instance()
 
+def print_help() -> None:
+    icortex_kernel = get_icortex_kernel()
+    if icortex_kernel is not None:
+        icortex_kernel.service.prompt_parser.print_help()
 
 if __name__ == "__main__":
     from ipykernel.kernelapp import IPKernelApp

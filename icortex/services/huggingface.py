@@ -1,5 +1,5 @@
+import re
 import shlex
-
 import typing as t
 
 
@@ -15,13 +15,41 @@ def create_prompt(input: str, prefix: str, suffix: str):
     return prefix + input + suffix
 
 
+# Map from initializer classes to pretrained model filenames
+PRETRAINED_FILENAMES = {
+    "AutoModelForCausalLM": [
+        "pytorch_model.bin",
+        "tf_model.h5",
+        "model.ckpt",
+        "flax_model.msgpack",
+        r"model*.pt",
+    ],
+    "ORTModelForCausalLM": [
+        r"model*.onnx",
+    ],
+}
+
+
+def get_model_initializer(model_id):
+    from huggingface_hub.hf_api import list_repo_files
+
+    files = list_repo_files(model_id)
+
+    for initializer, candidates in PRETRAINED_FILENAMES.items():
+        for candidate in candidates:
+            for file in files:
+                if re.match(candidate, file) is not None:
+                    return initializer
+    return None
+
+
 class HuggingFaceAutoService(ServiceBase):
     name = "huggingface"
-    description = "TextCortex Python code generator"
+    description = "Service to generate code using HuggingFace models"
     options = {
         "model": ServiceOption(
             str,
-            help="Model name or path",
+            help="Model id",
             default=DEFAULT_MODEL,
         ),
         "temperature": ServiceOption(
@@ -66,24 +94,39 @@ class HuggingFaceAutoService(ServiceBase):
         super(HuggingFaceAutoService, self).__init__(config)
 
         import torch
-        from transformers import AutoTokenizer, AutoModelForCausalLM
+        from transformers import AutoTokenizer
 
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
         self.token_id_cache = {}
 
         if "model" in config:
-            model_name_or_path = config["model"]
+            model_id = config["model"]
         else:
-            model_name_or_path = DEFAULT_MODEL
+            model_id = DEFAULT_MODEL
 
-        self.tokenizer = AutoTokenizer.from_pretrained(model_name_or_path)
+        initializer = get_model_initializer(model_id)
 
-        print("Loading HuggingFace model ", model_name_or_path)
-        self.model = (
-            AutoModelForCausalLM.from_pretrained(model_name_or_path)
-            .eval()
-            .to(self.device)
-        )
+        # Tokenizer is always initialized with AutoTokenizer
+        self.tokenizer = AutoTokenizer.from_pretrained(model_id)
+
+        # For the model itself, we need to use the respective auto initializers
+        # print("Loading HuggingFace model ", model_id)
+
+        if initializer == "AutoModelForCausalLM":
+            from transformers import AutoModelForCausalLM
+
+            self.model = AutoModelForCausalLM.from_pretrained(model_id)
+
+            if hasattr(self.model, "eval"):
+                self.model = self.model.eval().to(self.device)
+        elif initializer == "ORTModelForCausalLM":
+            from optimum.onnxruntime import ORTModelForCausalLM
+
+            self.model = ORTModelForCausalLM.from_pretrained(model_id)
+        else:
+            raise Exception(
+                f"Could not find an appropriate initializer for model {model_id}"
+            )
 
     def generate(
         self,
@@ -178,7 +221,6 @@ class HuggingFaceAutoService(ServiceBase):
         self.token_id_cache[seq] = token_id
 
         return token_id
-
 
 
 # TODO

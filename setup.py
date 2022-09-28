@@ -10,9 +10,9 @@ with open("README.md") as f:
 class PostInstallCommand(install):
     def run(self) -> None:
         install.run(self)
-        os.system("python -m icortex.install")
-        # from icortex.install import main
-        # main()
+        from icortex.install import main as install_kernel
+
+        install_kernel([])
 
 
 setup(
@@ -29,10 +29,13 @@ setup(
         "huggingface": [
             "torch",
             "transformers",
+            "optimum",
+            "onnx",
+            "onnxruntime",
         ],
         "openai": [
             "openai",
-        ]
+        ],
     },
     classifiers=[
         "Intended Audience :: Developers",
