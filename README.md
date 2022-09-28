@@ -13,11 +13,9 @@ ICortex is a [Jupyter kernel](https://jupyter-client.readthedocs.io/en/latest/ke
 To install the ICortex Kernel, run the following in the main project directory:
 
 ```
-pip install .
+pip install icortex
 icortex
 ```
-
-This will change once the package is deployed to PyPI.
 
 ## Launching ICortex
 
@@ -42,7 +40,7 @@ and choose ICortex as your kernel when creating a new notebook.
 To execute a prompt with ICortex, use the `/` character (forward slash, also used to denote division) as a prefix. Copy and paste the following prompt into a cell and try to run it:
 
 ```
-/ print Hello World. Then print the Fibonacci numbers till 100, all in the same line -e
+/print Hello World. Then print the Fibonacci numbers till 100, all in the same line
 ```
 
 If all goes well, you should see an output similar to the following:
@@ -58,9 +56,7 @@ Hello World.
 1 1 2 3 5 8 13 21 34 55 89
 ```
 
-ICortex first printed the code generated code, executed it, and returned the output below the cell. This is because we gave it the `-e` option, which stands for `--execute`. You can omit this flag next time when you just want to display the generated code without executing.
-
-To see all the options you can use with ICortex, simply run:
+You can make the kernel attempt to auto-install packages and auto-execute the returned code.
 
 ```
 /help
@@ -79,9 +75,3 @@ This removes the package, however, it may still leave the kernel spec in Jupyter
 ```
 jupyter kernelspec uninstall icortex -y
 ```
-
-
-<!-- This is useful to run this together with the install command when debugging the library:
-
-```bash
-sudo jupyter kernelspec uninstall icortex -y; sudo jupyter kernelspec install ICortex; jupyter console --kernel icortex  -->
