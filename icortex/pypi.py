@@ -36,7 +36,7 @@ def get_missing_modules(code):
     missing_modules = [
         module for module in imported_modules if not module_exists(module)
     ]
-    return missing_modules
+    return list(set(missing_modules))
 
 def install_missing_packages(code):
     missing_modules = get_missing_modules(code)

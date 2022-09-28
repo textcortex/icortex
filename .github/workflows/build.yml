@@ -37,7 +37,10 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Install the package
       run: |
-        python setup.py install
+        pip install .
     - name: Test with pytest
       run: |
         pytest
+    - name: Check if the main script is installed
+      run: |
+        icortex --help

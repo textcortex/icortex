@@ -8,7 +8,7 @@ from ipykernel.ipkernel import IPythonKernel
 from traitlets.config.configurable import SingletonConfigurable
 
 from icortex.services import get_service
-from icortex.helper import is_prompt, extract_prompt
+from icortex.helper import is_prompt, extract_prompt, escape_quotes
 
 from icortex.config import DEFAULT_ICORTEX_CONFIG_PATH
 
@@ -59,7 +59,7 @@ class ICortexKernel(IPythonKernel, SingletonConfigurable):
         if is_prompt(input):
             prompt = extract_prompt(input)
             # Escape triple double quotes
-            prompt = prompt.replace('"""', r"\"\"\"")
+            prompt = escape_quotes(prompt)
             code = f'''from icortex import eval_prompt
 code = eval_prompt("""{prompt}""")
 exec(code)'''
@@ -86,10 +86,12 @@ def get_icortex_kernel() -> ICortexKernel:
     if ICortexKernel.initialized():
         return ICortexKernel.instance()
 
+
 def print_help() -> None:
     icortex_kernel = get_icortex_kernel()
     if icortex_kernel is not None:
         icortex_kernel.service.prompt_parser.print_help()
+
 
 if __name__ == "__main__":
     from ipykernel.kernelapp import IPKernelApp

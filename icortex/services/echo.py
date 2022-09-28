@@ -2,7 +2,7 @@ import shlex
 
 from icortex.config import *
 from icortex.services import ServiceBase, ServiceOption
-from icortex.helper import unescape
+from icortex.helper import escape_quotes
 
 
 class EchoService(ServiceBase):
@@ -52,7 +52,7 @@ class EchoService(ServiceBase):
                 return cached_response["generated_text"]
 
         desired_output = args.prefix + " ".join(args.prompt)
-        code = 'print("""' + desired_output.replace('"""', r"\"\"\"") + '""")'
+        code = 'print("""' + escape_quotes(desired_output) + '""")'
 
         response_dict = {"generated_text": [{"text": code}]}
 
