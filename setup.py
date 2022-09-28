@@ -17,7 +17,21 @@ setup(
     url="https://github.com/textcortex/icortex",
     license="Apache",
     python_requires=">=3.7.0",
-    install_requires=open("requirements.txt", "r").readlines(),
+    install_requires=[
+        "click",
+        "entrypoints",
+        "ipykernel",
+        "ipython",
+        "ipywidgets",
+        "jupyter-client",
+        "jupyter-console",
+        "jupyter-core",
+        "jupyterlab-widgets",
+        "openai",
+        "pygments",
+        "toml",
+        "traitlets",
+    ],
     extras_require={
         "huggingface": [
             "torch",
