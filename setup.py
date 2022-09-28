@@ -10,9 +10,9 @@ with open("README.md") as f:
 class PostInstallCommand(install):
     def run(self) -> None:
         install.run(self)
-        from icortex.install import main as install_kernel
+        # from icortex.install import main as install_kernel
 
-        install_kernel([])
+        # install_kernel([])
 
 
 setup(
@@ -24,7 +24,21 @@ setup(
     author="TextCortex Team",
     author_email="onur@textcortex.com",
     url="https://github.com/textcortex/icortex",
-    install_requires=open("requirements.txt", "r").readlines(),
+    python_requires=">=3.7.0",
+    install_requires=[
+        "click",
+        "ipykernel",
+        "ipython",
+        "ipywidgets",
+        "jupyter-client",
+        "jupyter-console",
+        "jupyter-core",
+        "jupyterlab-widgets",
+        "openai",
+        "pygments",
+        "toml",
+        "traitlets",
+    ],
     extras_require={
         "huggingface": [
             "torch",

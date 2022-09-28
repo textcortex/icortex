@@ -2,10 +2,14 @@ import re
 import shlex
 import typing as t
 
-
 from icortex.config import *
 from icortex.helper import unescape
 from icortex.services import ServiceBase, ServiceOption
+
+# TODO
+# [x] Keep the ServiceBase object in memory and don't create a new one at every request
+# [ ] Model config is pulled during config dialog
+
 
 # DEFAULT_MODEL = "facebook/incoder-1B"
 DEFAULT_MODEL = "Salesforce/codegen-350M-mono"
@@ -221,8 +225,3 @@ class HuggingFaceAutoService(ServiceBase):
         self.token_id_cache[seq] = token_id
 
         return token_id
-
-
-# TODO
-# [x] Keep the ServiceBase object in memory and don't create a new one at every request
-# [ ] Model config is pulled during config dialog
