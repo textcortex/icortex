@@ -1,33 +1,57 @@
 # ICortex Kernel
 
 ![Github Actions Status](https://github.com/textcortex/icortex/workflows/Build/badge.svg)
+[![License](https://img.shields.io/github/license/textcortex/icortex.svg?color=blue)](https://github.com/textcortex/icortex/blob/main/LICENSE)
 
-ICortex is a [Jupyter kernel](https://jupyter-client.readthedocs.io/en/latest/kernels.html) that supercharges your Jupyter Notebook workflow by letting you use code generation services e.g. TextCortex's ICortex API, OpenAI's Codex API, HuggingFace transformers running locally to **generate Python code automatically from user prompts**.
+ICortex is a [Jupyter kernel](https://jupyter-client.readthedocs.io/en/latest/kernels.html) that supercharges your Jupyter Notebook workflow by letting you generate **generate Python code automatically from natural language prompts**.
 
-- It is a drop-in replacement for the IPython kernel. Prompts start with a forward slash `/` otherwise the line is treated as regular Python code.
-- It is interactive—install missing packages directly, decide whether to execute the generated code or not, directly in the Jupyter Notebook cell.
-- It is fully extensible—if you think we are missing a model or an API, you can request it by creating an issue, or implement it yourself by subclassing `ServiceBase` under [`icortex/services`](icortex/services).
+It is ...
+
+- a drop-in replacement for the IPython kernel. Prompts start with a forward slash `/`—otherwise the line is treated as regular Python code.
+- interactive—install missing packages directly, decide whether to execute the generated code or not, directly in the Jupyter Notebook cell.
+- fully extensible—if you think we are missing a model or an API, you can request it by creating an issue, or implement it yourself by subclassing `ServiceBase` under [`icortex/services`](icortex/services).
 
 ## Installation
 
 To install the ICortex Kernel, run the following in the main project directory:
 
-```
+```sh
 pip install icortex
-icortex
 ```
 
-## Launching ICortex
+This install the Python package and the `icortex` command line interface. You will need to run `icortex` once to install the kernel spec to Jupyter.
 
-You can launch the ICortex shell directly in your terminal:
+## Using ICortex
+
+Before you can use ICortex in Jupyter, you need to configure it for your current project.
+
+To do that, simply launch the ICortex shell in your terminal:
 
 ```bash
 icortex
 ```
 
-If there is no configuration file `icortex.toml` in the project directory, the shell will prompt you to create one step by step.
+The shell will instruct you step by step and create a configuration file `icortex.toml` in your current directory.
 
-Or you can create a new Jupyter notebook. Start the JupyterLab server with
+### Choosing a code generation service
+
+ICortex supports different code generation services such as the TextCortex code generation API, OpenAI Codex API, local HuggingFace transformers, and so on.
+
+To use the TextCortex code generation API,
+
+1. [sign up on the website](https://app.textcortex.com/user/signup),
+2. [generate an API key on the dashboard](https://app.textcortex.com/user/dashboard/settings/api-key),
+3. and proceed to configure `icortex` for your current project:
+
+[![asciicast](https://asciinema.org/a/sTU1EaGFfi3jdSV8Ih7vulsfT.svg)](https://asciinema.org/a/sTU1EaGFfi3jdSV8Ih7vulsfT)
+
+If you use up the starter credits and would like to continue testing out ICortex, [hit us up on our Discord on #icortex channel](https://discord.textcortex.com) and we will charge your account with more free credits.
+
+You can also try out different services e.g. OpenAI's Codex API, if you have access. You can also run code generation models from HuggingFace locally, which we have optimized to run on the CPU—though these produce lower quality outputs due to being smaller.
+
+### Launch JupyterLab
+
+Now that ICortex is configured for your project, you can launch JupyterLab:
 
 ```bash
 jupyter lab
@@ -40,10 +64,10 @@ and choose ICortex as your kernel when creating a new notebook.
 To execute a prompt with ICortex, use the `/` character (forward slash, also used to denote division) as a prefix. Copy and paste the following prompt into a cell and try to run it:
 
 ```
-/print Hello World. Then print the Fibonacci numbers till 100, all in the same line
+/print Hello World. Then print the Fibonacci numbers till 100
 ```
 
-If all goes well, you should see an output similar to the following:
+Depending on the response, you should see an output similar to the following:
 
 ```
 print('Hello World.', end=' ')
@@ -56,7 +80,7 @@ Hello World.
 1 1 2 3 5 8 13 21 34 55 89
 ```
 
-You can make the kernel attempt to auto-install packages and auto-execute the returned code.
+You can also specify options with command line flags, e.g. to auto-install packages, auto-execute the returned code and so on. To see the complete list of options for your chosen service, run:
 
 ```
 /help

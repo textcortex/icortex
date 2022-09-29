@@ -10,8 +10,6 @@ from icortex.services import ServiceBase, ServiceOption
 # [x] Keep the ServiceBase object in memory and don't create a new one at every request
 # [ ] Model config is pulled during config dialog
 
-
-# DEFAULT_MODEL = "facebook/incoder-1B"
 DEFAULT_MODEL = "Salesforce/codegen-350M-mono"
 
 

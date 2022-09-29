@@ -10,6 +10,7 @@ MODULES_TO_PACKAGES = {
     "sklearn": "sklearn",
     "matplotlib": "matplotlib",
     "pandas": "pandas",
+    "ethereumetl": "ethereum-etl",
 }
 
 
