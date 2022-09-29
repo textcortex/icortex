@@ -2,6 +2,7 @@
 
 ![Github Actions Status](https://github.com/textcortex/icortex/workflows/Build/badge.svg)
 [![License](https://img.shields.io/github/license/textcortex/icortex.svg?color=blue)](https://github.com/textcortex/icortex/blob/main/LICENSE)
+[![](https://dcbadge.vercel.app/api/server/QtfGgKneHX?style=flat)](https://discord.textcortex.com/)
 
 ICortex is a [Jupyter kernel](https://jupyter-client.readthedocs.io/en/latest/kernels.html) that supercharges your Jupyter Notebook workflow by letting you generate **generate Python code automatically from natural language prompts**.
 
@@ -9,7 +10,9 @@ It is ...
 
 - a drop-in replacement for the IPython kernel. Prompts start with a forward slash `/`—otherwise the line is treated as regular Python code.
 - interactive—install missing packages directly, decide whether to execute the generated code or not, directly in the Jupyter Notebook cell.
-- fully extensible—if you think we are missing a model or an API, you can request it by creating an issue, or implement it yourself by subclassing `ServiceBase` under [`icortex/services`](icortex/services).
+- open source and fully extensible—if you think we are missing a model or an API, you can request it by creating an issue, or implement it yourself by subclassing `ServiceBase` under [`icortex/services`](icortex/services).
+
+ICortex is currently in alpha, so expect breaking changes. We are giving free credits to our first users—[join our Discord](https://discord.textcortex.com/) to help us shape this product.
 
 ## Installation
 
