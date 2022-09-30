@@ -35,8 +35,6 @@ def run_dialog(
     if not quiet:
         print(highlight_python(code))
 
-    # Missing modules are modules that are still missing regardless of
-    # whether the user tried to auto-install them or not
     missing_modules = get_missing_modules(code)
 
     if len(missing_modules) > 0 and not auto_install_packages and not nonint:
@@ -57,8 +55,8 @@ def run_dialog(
             )
             return ""
 
-    # Missing modules are modules that are still missing regardless of
-    # whether the user tried to auto-install them or not
+    # Modules that are still missing regardless of
+    # whether the user tried to auto-install them or not:
     still_missing_modules = get_missing_modules(code)
 
     if not execute and not nonint and len(still_missing_modules) == 0:

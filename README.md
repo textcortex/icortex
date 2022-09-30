@@ -4,7 +4,7 @@
 [![License](https://img.shields.io/github/license/textcortex/icortex.svg?color=blue)](https://github.com/textcortex/icortex/blob/main/LICENSE)
 [![](https://dcbadge.vercel.app/api/server/QtfGgKneHX?style=flat)](https://discord.textcortex.com/)
 
-ICortex is a [Jupyter kernel](https://jupyter-client.readthedocs.io/en/latest/kernels.html) that supercharges your Jupyter Notebook workflow by letting you generate **generate Python code automatically from natural language prompts**.
+ICortex is a [Jupyter kernel](https://jupyter-client.readthedocs.io/en/latest/kernels.html) that supercharges your Jupyter Notebook workflow by letting you generate Python code automatically from natural language prompts.
 
 It is ...
 
@@ -88,6 +88,10 @@ You can also specify options with command line flags, e.g. to auto-install packa
 ```
 /help
 ```
+
+## Getting help
+
+To get support, join our [Discord](https://discord.textcortex.com/).
 
 ## Uninstalling
 
