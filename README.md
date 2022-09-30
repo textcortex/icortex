@@ -4,7 +4,9 @@
 [![License](https://img.shields.io/github/license/textcortex/icortex.svg?color=blue)](https://github.com/textcortex/icortex/blob/main/LICENSE)
 [![](https://dcbadge.vercel.app/api/server/QtfGgKneHX?style=flat)](https://discord.textcortex.com/)
 
-ICortex is a [Jupyter kernel](https://jupyter-client.readthedocs.io/en/latest/kernels.html) that supercharges your Jupyter Notebook workflow by letting you generate Python code automatically from natural language prompts.
+ICortex is a [Jupyter kernel](https://jupyter-client.readthedocs.io/en/latest/kernels.html) that supercharges your Jupyter Notebook workflow by letting you generate Python code automatically from natural language prompts:
+
+https://user-images.githubusercontent.com/2453968/193281898-8f2b4311-2a3a-4bbf-a7d4-b31fcd4f5e08.mp4
 
 It is ...
 
