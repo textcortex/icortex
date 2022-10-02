@@ -7,6 +7,8 @@ from icortex.config import *
 
 import typing as t
 
+from icortex.helper import prompt_input
+
 
 def is_str_repr(s: str):
     quotes = ["'", '"']
@@ -176,7 +178,7 @@ class ServiceBase:
                         prompt = f"{key} ({opt.help})"
                     else:
                         prompt = f"{key}"
-                    user_val = click.prompt(prompt, **kwargs)
+                    user_val = prompt_input(prompt, **kwargs)
                     # If the input is a string representation, evaluate it
                     # This is for when the user wants to type in a string with escape characters
                     if opt.type == str and is_str_repr(user_val):

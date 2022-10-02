@@ -6,19 +6,8 @@ from pygments.lexers import PythonLexer
 
 from icortex.pypi import install_missing_packages, get_missing_modules
 from icortex.kernel import get_icortex_kernel
+from icortex.helper import yes_no_input
 from icortex.config import *
-
-
-def yes_no_input(message: str, default_no=False):
-    if not default_no:
-        message += " [Y/n]"
-    else:
-        message += " [y/N]"
-
-    print(message)
-    user_input = input()
-
-    return (user_input == "" and not default_no) or user_input.strip().lower() == "y"
 
 
 def highlight_python(code: str):

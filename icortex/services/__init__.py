@@ -14,7 +14,7 @@ service_dict = {
 }
 
 
-def get_service(name: str):
+def get_service(name: str) -> t.Type[ServiceBase]:
     return service_dict[name]
 
 
