@@ -2,16 +2,13 @@
 # https://jupyter-client.readthedocs.io/en/latest/wrapperkernels.html
 # https://github.com/jupyter/jupyter/wiki/Jupyter-kernels
 
-import click
-from icortex.cli import init_config, read_config
+import typing as t
 
 from ipykernel.ipkernel import IPythonKernel
 from traitlets.config.configurable import SingletonConfigurable
 
-from icortex.services import get_service
-from icortex.helper import is_prompt, extract_prompt, escape_quotes, yes_no_input
-
-from icortex.config import DEFAULT_ICORTEX_CONFIG_PATH
+from icortex.helper import extract_cli, is_cli, is_prompt, extract_prompt, escape_quotes
+from icortex.services import ServiceBase
 
 
 class ICortexKernel(IPythonKernel, SingletonConfigurable):
@@ -44,7 +41,13 @@ class ICortexKernel(IPythonKernel, SingletonConfigurable):
         user_expressions=None,
         allow_stdin=True,
     ):
-        if is_prompt(input_):
+        if is_cli(input_):
+            prompt = extract_cli(input_)
+            prompt = escape_quotes(prompt)
+            code = f'''from icortex import eval_cli
+eval_cli("""{prompt}""")
+'''
+        elif is_prompt(input_):
             prompt = extract_prompt(input_)
             prompt = escape_quotes(prompt)
 
@@ -75,35 +78,8 @@ exec(code)'''
             allow_stdin=allow_stdin,
         )
 
-    def set_service(self, config_path=DEFAULT_ICORTEX_CONFIG_PATH):
-        # TODO: pass the --config flag from icortex somehow
-        icortex_config = read_config(config_path)
-        if not icortex_config:
-            # configure_now = tes_no_(
-            #     "ICortex is not configured. Would you like to configure now?",
-            #     default=True,
-            #     standalone_mode=False,
-            # )
-            configure_now = yes_no_input(
-                "ICortex is not configured. Would you like to configure it now?",
-                default=True,
-            )
-            if configure_now:
-                init_config(config_path)
-                return self.set_service(config_path=config_path)
-            else:
-                return False
-        # try:
-        #     icortex_config = toml.load(config_path)
-        # except FileNotFoundError:
-        #     # If config file doesn't exist, default to echo
-        #     icortex_config = {"service": "echo", "echo": {}}
-
-        # Initialize the Service object
-        service_name = icortex_config["service"]
-        service_config = icortex_config[service_name]
-        service_class = get_service(service_name)
-        self.service = service_class(service_config)
+    def set_service(self, service: t.Type[ServiceBase]):
+        self.service = service
         return True
 
 
@@ -114,13 +90,6 @@ def get_icortex_kernel() -> ICortexKernel:
     """
     if ICortexKernel.initialized():
         return ICortexKernel.instance()
-
-
-def set_icortex_service():
-    kernel = get_icortex_kernel()
-    if kernel is not None:
-        return kernel.set_service()
-    return False
 
 
 def print_help() -> None:

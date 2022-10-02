@@ -31,6 +31,7 @@ def get_imported_modules(code):
     modules = re.findall(regex, code)
     return modules
 
+
 def get_missing_modules(code):
     imported_modules = get_imported_modules(code)
 
@@ -39,6 +40,7 @@ def get_missing_modules(code):
     ]
     return list(set(missing_modules))
 
+
 def install_missing_packages(code):
     missing_modules = get_missing_modules(code)
 
@@ -46,7 +48,7 @@ def install_missing_packages(code):
     for module in missing_modules:
         package = module_to_pypi_package(module)
         if package is not None:
-            result = pip.main(['install', package])
+            result = pip.main(["install", package])
             if result != 0:
                 unresolved_modules.append(module)
         else:

@@ -1,14 +1,15 @@
 import os
+import shlex
 import sys
 import argparse
 import toml
+from icortex.kernel import get_icortex_kernel
 from jupyter_console.app import ZMQTerminalIPythonApp
 from icortex.services import get_available_services, get_service
-from icortex.config import DEFAULT_SERVICE, DEFAULT_ICORTEX_CONFIG_PATH
+from icortex.config import DEFAULT_ICORTEX_CONFIG_PATH
 from icortex.install import is_kernel_installed, main as install_kernel
-from icortex.helper import prompt_input, yes_no_input
-
-# from icortex.kernel import ICortexKernel
+from icortex.helper import yes_no_input, prompt_input
+from icortex.config import DEFAULT_SERVICE, DEFAULT_ICORTEX_CONFIG_PATH
 
 # Jupyter devs did not make this easy
 # TODO: Make less hacky
@@ -19,24 +20,34 @@ class ZMQTerminalICortexApp(ZMQTerminalIPythonApp):
         self.build_kernel_argv(self.extra_args)
 
 
-def ask_which_service() -> str:
-    sorted_services = get_available_services()
-    service_name = prompt_input(
-        "Which code generation service would you like to use?\nOptions: "
-        + ", ".join(sorted_services)
-        + "\nDefault",
-        type=str,
-        default=DEFAULT_SERVICE,
-    )
-    return service_name
+def set_service(config_path=DEFAULT_ICORTEX_CONFIG_PATH):
+    # TODO: pass the --config flag from icortex somehow
+    kernel = get_icortex_kernel()
+    if kernel is None:
+        return False
+
+    icortex_config = read_config(config_path)
+    if not icortex_config:
+        configure_now = yes_no_input(
+            "ICortex is not configured. Would you like to configure it now?",
+            default=True,
+        )
+        if configure_now:
+            init_config(config_path)
+            return set_service(config_path=config_path)
+        else:
+            return False
+
+    # Initialize the Service object
+    service_name = icortex_config["service"]
+    service_config = icortex_config[service_name]
+    service_class = get_service(service_name)
+
+    kernel.set_service(service_class(service_config))
+    return True
 
 
-def init_config(path: str):
-    service_name = ask_which_service()
-    return set_service(path, service_name)
-
-
-def set_service(path, service_name):
+def set_service_config(path: str, service_name: str) -> bool:
     try:
         service = get_service(service_name)
     except KeyError:
@@ -58,15 +69,53 @@ def set_service(path, service_name):
 
     success = write_config(path, dict)
     if success:
-        print(f"Initialized service {service_name} successfully.")
+        print(f"Set service to {service_name} successfully.")
+        kernel = get_icortex_kernel()
+        if kernel is not None:
+            set_service(config_path=DEFAULT_ICORTEX_CONFIG_PATH)
         return True
     else:
         raise Exception("Could not write configuration file")
 
 
-def get_parser():
-    # parser = argparse.ArgumentParser()
+def ask_which_service() -> str:
+    sorted_services = get_available_services()
+    service_name = prompt_input(
+        "Which code generation service would you like to use?\nOptions: "
+        + ", ".join(sorted_services)
+        + "\nDefault",
+        type=str,
+        default=DEFAULT_SERVICE,
+    )
+    return service_name
 
+
+def init_config(path: str):
+    service_name = ask_which_service()
+    return set_service_config(path, service_name)
+
+
+def read_config(path: str):
+    try:
+        return toml.load(open(path, "r"))
+    except FileNotFoundError:
+        return {}
+
+
+def write_config(path: str, dict):
+    with open(path, "w") as f:
+        toml.dump(dict, f)
+    return True
+
+
+def get_parser():
+    service_names = get_available_services()
+    parser = argparse.ArgumentParser()
+    subparsers = parser.add_subparsers(dest="command")
+
+    parser_init = subparsers.add_parser(
+        "init", help="Initialize ICortex configuration in the current directory"
+    )
     # parser.add_argument(
     #     "-c",
     #     "--config",
@@ -75,13 +124,6 @@ def get_parser():
     #     default=DEFAULT_ICORTEX_CONFIG_PATH,
     # )
 
-    service_names = get_available_services()
-    parser = argparse.ArgumentParser()
-    subparsers = parser.add_subparsers(dest="command")
-
-    parser_init = subparsers.add_parser(
-        "init", help="Initialize ICortex in the current directory"
-    )
     parser_init.add_argument(
         "--force", action="store_true", help="Force overwrite an existing configuration"
     )
@@ -112,31 +154,27 @@ def get_parser():
 
 def service_cli(args):
     if args.service_command == "set":
-        set_service(DEFAULT_ICORTEX_CONFIG_PATH, args.service_name)
+        set_service_config(DEFAULT_ICORTEX_CONFIG_PATH, args.service_name)
     elif args.service_command == "init":
-        init_config(DEFAULT_ICORTEX_CONFIG_PATH)
+        set_service_config(DEFAULT_ICORTEX_CONFIG_PATH)
 
 
-def read_config(path):
-    try:
-        return toml.load(open(path, "r"))
-    except FileNotFoundError:
-        return {}
+def set_icortex_service(config_path=DEFAULT_ICORTEX_CONFIG_PATH):
+    kernel = get_icortex_kernel()
+    if kernel is not None:
+        return set_service(config_path=config_path)
+    return False
 
 
-def write_config(path: str, dict):
-    with open(path, "w") as f:
-        toml.dump(dict, f)
-    return True
-
-
-def main(argv=None):
+def main(argv=None, prog=None):
     if argv is None:
         argv = sys.argv[1:]
 
     parser = get_parser()
+    if prog is not None:
+        parser.prog = prog
+
     args = parser.parse_args(argv)
-    print(args)
 
     # Install kernel if it's not already
     if not is_kernel_installed():
@@ -160,7 +198,19 @@ def main(argv=None):
 
     # Launch shell
     if args.command == "shell" or args.command is None:
-        ZMQTerminalICortexApp.launch_instance()
+        kernel = get_icortex_kernel()
+        if kernel is None:
+            ZMQTerminalICortexApp.launch_instance()
+        else:
+            print("The ICortex shell is already running, skipping.")
+
+
+def eval_cli(prompt: str):
+    argv = shlex.split(prompt)
+    try:
+        return main(argv=argv, prog="//")
+    except:
+        return None
 
 
 if __name__ == "__main__":
