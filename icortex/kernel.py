@@ -2,15 +2,13 @@
 # https://jupyter-client.readthedocs.io/en/latest/wrapperkernels.html
 # https://github.com/jupyter/jupyter/wiki/Jupyter-kernels
 
-import toml
+import typing as t
 
 from ipykernel.ipkernel import IPythonKernel
 from traitlets.config.configurable import SingletonConfigurable
 
-from icortex.services import get_service
-from icortex.helper import is_prompt, extract_prompt, escape_quotes
-
-from icortex.config import DEFAULT_ICORTEX_CONFIG_PATH
+from icortex.helper import extract_cli, is_cli, is_prompt, extract_prompt, escape_quotes
+from icortex.services import ServiceBase
 
 
 class ICortexKernel(IPythonKernel, SingletonConfigurable):
@@ -32,39 +30,42 @@ class ICortexKernel(IPythonKernel, SingletonConfigurable):
     def __init__(self, **kwargs):
 
         super().__init__(**kwargs)
-
-        # TODO: pass the --config flag from icortex somehow
-        config_path = DEFAULT_ICORTEX_CONFIG_PATH
-
-        try:
-            icortex_config = toml.load(config_path)
-        except FileNotFoundError:
-            # If config file doesn't exist, default to echo
-            icortex_config = {"service": "echo", "echo": {}}
-
-        # Initialize the Service object
-        service_name = icortex_config["service"]
-        service_config = icortex_config[service_name]
-        service_class = get_service(service_name)
-        self.service = service_class(service_config)
+        self.service = None
+        # self.set_service()
 
     async def do_execute(
         self,
-        input,
+        input_,
         silent,
         store_history=True,
         user_expressions=None,
         allow_stdin=True,
     ):
-        if is_prompt(input):
-            prompt = extract_prompt(input)
-            # Escape triple double quotes
+        if is_cli(input_):
+            prompt = extract_cli(input_)
             prompt = escape_quotes(prompt)
-            code = f'''from icortex import eval_prompt
+            code = f'''from icortex import eval_cli
+eval_cli("""{prompt}""")
+'''
+        elif is_prompt(input_):
+            prompt = extract_prompt(input_)
+            prompt = escape_quotes(prompt)
+
+            if self.service is None:
+                code = f'''from icortex import set_icortex_service, eval_prompt
+success = set_icortex_service()
+if success:
+    code = eval_prompt("""{prompt}""")
+    exec(code)
+else:
+    print(\'No service selected. Run `//service init` to initialize a service.\')
+'''
+            else:
+                code = f'''from icortex import eval_prompt
 code = eval_prompt("""{prompt}""")
 exec(code)'''
         else:
-            code = input
+            code = input_
 
         # TODO: KeyboardInterrupt does not kill coroutines, fix
         # Until then, try not to use Ctrl+C while a cell is executing
@@ -76,6 +77,10 @@ exec(code)'''
             user_expressions=user_expressions,
             allow_stdin=allow_stdin,
         )
+
+    def set_service(self, service: t.Type[ServiceBase]):
+        self.service = service
+        return True
 
 
 def get_icortex_kernel() -> ICortexKernel:

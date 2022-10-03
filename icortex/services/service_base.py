@@ -3,9 +3,11 @@ import argparse
 import json
 import click
 
-from icortex.config import *
+from icortex.defaults import *
 
 import typing as t
+
+from icortex.helper import prompt_input
 
 
 def is_str_repr(s: str):
@@ -13,7 +15,7 @@ def is_str_repr(s: str):
     return len(s) >= 2 and s[0] in quotes and s[-1] in quotes
 
 
-class ServiceOption:
+class ServiceVariable:
     def __init__(
         self,
         type_: t.Any,
@@ -61,8 +63,8 @@ class ServiceBase:
     name: str = "base"
     description: str = "Base class for a code generation service"
     # Each child class will need to add their specific arguments
-    # by extending `options`
-    options: t.Dict[str, ServiceOption] = {}
+    # by extending `variables`
+    variables: t.Dict[str, ServiceVariable] = {}
     hidden: bool = False
 
     def __init__(self, config: t.Dict):
@@ -122,18 +124,18 @@ class ServiceBase:
 
         self.prompt_parser.description = self.description
 
-        # Add service-specific options
-        for key, opt in self.options.items():
-            # If user has specified a value for the option, use that
+        # Add service-specific variables
+        for key, var in self.variables.items():
+            # If user has specified a value for the variable, use that
             # Otherwise, the default value will be used
             if key in config:
-                opt.set_default(config[key])
+                var.set_default(config[key])
 
             # Omit secret arguments from the parser, but still read them
-            if opt.secret == False and len(opt.argparse_args) > 0:
+            if var.secret == False and len(var.argparse_args) > 0:
                 self.prompt_parser.add_argument(
-                    *opt.argparse_args,
-                    **opt.argparse_kwargs,
+                    *var.argparse_args,
+                    **var.argparse_kwargs,
                 )
 
     def find_cached_response(
@@ -164,28 +166,37 @@ class ServiceBase:
 
     def config_dialog(self, skip_defaults=False):
         return_dict = {}
-        for key, opt in self.options.items():
-            if isinstance(opt, ServiceOption):
-                if skip_defaults and opt.default is not None:
-                    user_val = opt.default
+        for key, var in self.variables.items():
+            if isinstance(var, ServiceVariable):
+                if skip_defaults and var.default is not None:
+                    user_val = var.default
                 else:
-                    kwargs = {"type": opt.type}
-                    if opt.default is not None:
-                        kwargs["default"] = repr(opt.default)
-                    if opt.help is not None:
-                        prompt = f"{key} ({opt.help})"
+                    kwargs = {"type": var.type}
+                    if var.default is not None:
+                        kwargs["default"] = repr(var.default)
+                    if var.help is not None:
+                        prompt = f"{key} ({var.help})"
                     else:
                         prompt = f"{key}"
-                    user_val = click.prompt(prompt, **kwargs)
+                    user_val = prompt_input(prompt, **kwargs)
                     # If the input is a string representation, evaluate it
                     # This is for when the user wants to type in a string with escape characters
-                    if opt.type == str and is_str_repr(user_val):
+                    if var.type == str and is_str_repr(user_val):
                         user_val = eval(user_val)
             else:
-                raise ValueError(f"Dict entry is not ServiceOption: {opt}")
+                raise ValueError(f"Dict entry is not ServiceVariable: {var}")
 
             return_dict[key] = user_val
         return return_dict
+
+    def get_variable(self, var_name: str):
+        for key, var in self.variables.items():
+            if key == var_name:
+                return var
+        return None
+
+    def get_variable_names(self):
+        return [var.name for var in self.variables]
 
     def _read_cache(self, cache_path):
         # Check whether the cache file already exists

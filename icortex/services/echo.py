@@ -1,7 +1,7 @@
 import shlex
 
-from icortex.config import *
-from icortex.services import ServiceBase, ServiceOption
+from icortex.defaults import *
+from icortex.services import ServiceBase, ServiceVariable
 from icortex.helper import escape_quotes
 
 
@@ -9,8 +9,8 @@ class EchoService(ServiceBase):
     name = "echo"
     description = "Service used for testing"
     hidden = True
-    options = {
-        "prefix": ServiceOption(
+    variables = {
+        "prefix": ServiceVariable(
             str,
             help="Prefix to add to the input before printing",
             default=">>> ",

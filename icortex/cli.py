@@ -1,13 +1,13 @@
 import os
+import shlex
 import sys
 import argparse
-import toml
-import click
+from icortex.kernel import get_icortex_kernel
 from jupyter_console.app import ZMQTerminalIPythonApp
-from icortex.services import service_dict, get_service
-from icortex.config import DEFAULT_SERVICE, DEFAULT_ICORTEX_CONFIG_PATH
+from icortex.services import get_available_services
+from icortex.defaults import DEFAULT_ICORTEX_CONFIG_PATH
 from icortex.install import is_kernel_installed, main as install_kernel
-from icortex.kernel import ICortexKernel
+from icortex.config import ICortexConfig
 
 # Jupyter devs did not make this easy
 # TODO: Make less hacky
@@ -18,83 +18,197 @@ class ZMQTerminalICortexApp(ZMQTerminalIPythonApp):
         self.build_kernel_argv(self.extra_args)
 
 
-def initialize_config(path: str):
-    sorted_services = sorted(
-        [key for key, val in service_dict.items() if not val.hidden]
+def get_parser(prog=None):
+    service_names = get_available_services()
+    parser = argparse.ArgumentParser(add_help=False)
+    if prog is not None:
+        parser.prog = prog
+
+    subparsers = parser.add_subparsers(dest="command")
+
+    ######################
+    # Initialize ICortex #
+    ######################
+
+    # //init
+    parser_init = subparsers.add_parser(
+        "init",
+        help="Initialize ICortex configuration in the current directory",
+        add_help=False,
     )
-    sorted_services.remove(DEFAULT_SERVICE)
-    sorted_services = [DEFAULT_SERVICE] + sorted_services
 
-    service_name = click.prompt(
-        "Which code generation service would you like to use?\nOptions: "
-        + ", ".join(sorted_services)
-        + "\nDefault",
-        type=str,
-        default=DEFAULT_SERVICE,
+    parser_init.add_argument(
+        "--force", action="store_true", help="Force overwrite an existing configuration"
     )
 
-    try:
-        service = get_service(service_name)
-    except KeyError:
-        print(f"Service does not exist: {service_name}")
-        quit()
-
-    print(f"Selected service: {service_name}")
-    skip_defaults = click.confirm("Use default options?", default=True)
-    service_config = service.config_dialog(service, skip_defaults=skip_defaults)
-
-    toml_dict = {"service": service_name, service_name: {}}
-    for key, val in service_config.items():
-        toml_dict[service_name][key] = val
-
-    with open(path, "w") as f:
-        toml.dump(toml_dict, f)
-
-
-def get_parser():
-    parser = argparse.ArgumentParser()
-
-    parser.add_argument(
-        "-i",
-        "--init",
-        action="store_true",
-        help="Initialize ICortex configuration file in the current directory",
-    )
-    parser.add_argument(
-        "-c",
+    parser_init.add_argument(
         "--config",
         type=str,
         help="Path to the configuration TOML file.",
         default=DEFAULT_ICORTEX_CONFIG_PATH,
     )
-    return parser
+
+    ##########################
+    # Shell related commands #
+    ##########################
+
+    # //shell
+    parser_shell = subparsers.add_parser(
+        "shell",
+        help="Start ICortex shell",
+        add_help=False,
+    )
+
+    ########
+    # Help #
+    ########
+
+    # //help
+    parser_help = subparsers.add_parser(
+        "help",
+        help="Print help",
+        add_help=False,
+    )
+
+    ############################
+    # Service related commands #
+    ############################
+
+    # //service
+    parser_service = subparsers.add_parser(
+        "service",
+        help="Set and configure code generation services",
+        add_help=False,
+    )
+    parser_service_commands = parser_service.add_subparsers(
+        dest="service_command",
+        required=True,
+    )
+
+    # //service set <service_name>
+    parser_service_commands_set = parser_service_commands.add_parser(
+        "set",
+        help="Set the service to be used for code generation",
+        add_help=False,
+    )
+    parser_service_commands_set.add_argument(
+        "service_name",
+        choices=service_names,
+        help="Name of the service to be used for code generation",
+    )
+
+    # //service show <service_name>
+    parser_service_commands_show = parser_service_commands.add_parser(
+        "show",
+        help="Show current service",
+        add_help=False,
+    )
+
+    # //service help
+    parser_service_commands_help = parser_service_commands.add_parser(
+        "help",
+        help="Print help for //service",
+        add_help=False,
+    )
+
+    # //service set-var <variable_name> <variable_value>
+    parser_service_commands_set_var = parser_service_commands.add_parser(
+        "set-var",
+        help="Set a variable for the current service",
+        add_help=False,
+    )
+    parser_service_commands_set_var.add_argument(
+        "variable_name",
+        help="Name of the variable to be changed",
+    )
+    parser_service_commands_set_var.add_argument(
+        "variable_value",
+        type=str,
+        help="New value for the variable",
+    )
+
+    # //service init <service_name>
+    # Used to re-spawn the config dialog if some config for the service
+    # already exists
+    parser_service_commands_init = parser_service_commands.add_parser(
+        "init",
+        help="Initialize the configuration for the given service",
+        add_help=False,
+    )
+    parser_service_commands_init.add_argument(
+        "service_name",
+        choices=service_names,
+        help="Name of the service to be used for code generation",
+    )
+    if prog is not None:
+        parser_init.prog = prog
+        for action in parser._actions:
+            if isinstance(action, argparse._SubParsersAction):
+                for _, subparser in action.choices.items():
+                    subparser.prog = prog
+
+    return parser, parser_service
 
 
-def read_config(path):
-    return toml.load(open(path, "r"))
+def set_icortex_service(config_path=DEFAULT_ICORTEX_CONFIG_PATH):
+    kernel = get_icortex_kernel()
+    if kernel is not None:
+        return ICortexConfig(DEFAULT_ICORTEX_CONFIG_PATH).set_service()
+    return False
 
 
-def main(argv=None):
+def main(argv=None, prog=None):
     if argv is None:
         argv = sys.argv[1:]
 
-    parser = get_parser()
+    parser, parser_service = get_parser(prog=prog)
     args = parser.parse_args(argv)
 
     # Install kernel if it's not already
     if not is_kernel_installed():
         install_kernel()
 
-    # If no config file exists, initialize it
-    if args.init or not os.path.exists(args.config):
-       initialize_config(args.config)
-    # if args.init or not os.path.exists(DEFAULT_ICORTEX_CONFIG_PATH):
-        # initialize_config(DEFAULT_ICORTEX_CONFIG_PATH)
+    if "config" in args:
+        config_path = args.config
+    else:
+        config_path = DEFAULT_ICORTEX_CONFIG_PATH
 
-    # print(ICortexKernel.config_path)
-    # Launch shell
-    if not args.init:
-        ZMQTerminalICortexApp.launch_instance()
+    config = ICortexConfig(config_path)
+
+    if args.command == "init":
+        # If no config file exists, initialize it
+        if os.path.exists(config_path) and not args.force:
+            print(f"The file {config_path} already exists. Use --force to overwrite.")
+        else:
+            config.init_config()
+    elif args.command == "service":
+        if args.service_command == "set":
+            config.set_service_config(args.service_name)
+        elif args.service_command == "set-var":
+            config.set_service_var(args.variable_name, args.variable_value)
+        elif args.service_command == "show":
+            print(config.format_current_service())
+        elif args.service_command == "init":
+            config.set_service_config(args.service_name, hard_init=True)
+        elif args.service_command == "help":
+            parser_service.print_help()
+    elif args.command == "help":
+        parser.print_help()
+    elif args.command == "shell" or args.command is None:
+        kernel = get_icortex_kernel()
+        if kernel is None:
+            ZMQTerminalICortexApp.launch_instance()
+        else:
+            # print("The ICortex shell is already running, skipping.")
+            parser.print_help()
+
+
+def eval_cli(prompt: str):
+    argv = shlex.split(prompt)
+    try:
+        return main(argv=argv, prog="//")
+    except SystemExit:
+        return
 
 
 if __name__ == "__main__":

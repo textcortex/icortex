@@ -24,7 +24,7 @@ To install the ICortex Kernel, run the following in the main project directory:
 pip install icortex
 ```
 
-This install the Python package and the `icortex` command line interface. You will need to run `icortex` once to install the kernel spec to Jupyter.
+This will install the Python package and the `icortex` command line interface. You will need to run `icortex` once to install the kernel spec to Jupyter.
 
 ## Using ICortex
 
@@ -85,7 +85,7 @@ Hello World.
 1 1 2 3 5 8 13 21 34 55 89
 ```
 
-You can also specify options with command line flags, e.g. to auto-install packages, auto-execute the returned code and so on. To see the complete list of options for your chosen service, run:
+You can also specify variables or options with command line flags, e.g. to auto-install packages, auto-execute the returned code and so on. To see the complete list of variables for your chosen service, run:
 
 ```
 /help

@@ -2,15 +2,15 @@ import re
 import shlex
 import typing as t
 
-from icortex.config import *
+from icortex.defaults import *
 from icortex.helper import unescape
-from icortex.services import ServiceBase, ServiceOption
+from icortex.services import ServiceBase, ServiceVariable
 
 # TODO
 # [x] Keep the ServiceBase object in memory and don't create a new one at every request
 # [ ] Model config is pulled during config dialog
 
-DEFAULT_MODEL = "Salesforce/codegen-350M-mono"
+DEFAULT_MODEL = "TextCortex/codegen-350M-optimized"
 
 
 def create_prompt(input: str, prefix: str, suffix: str):
@@ -48,43 +48,43 @@ def get_model_initializer(model_id):
 class HuggingFaceAutoService(ServiceBase):
     name = "huggingface"
     description = "Service to generate code using HuggingFace models"
-    options = {
-        "model": ServiceOption(
+    variables = {
+        "model": ServiceVariable(
             str,
             help="Model id",
             default=DEFAULT_MODEL,
         ),
-        "temperature": ServiceOption(
+        "temperature": ServiceVariable(
             float,
             default=0.2,
             help=f"Temperature controls the amount of randomness in the generated output. Must be between 0 and 1.",
             argparse_args=["-t", "--temperature"],
         ),
-        "n_gen": ServiceOption(
+        "n_gen": ServiceVariable(
             int,
             default=1,
             help=f"Number of outputs to be generated.",
             argparse_args=["-n", "--n-gen"],
         ),
-        "max_length": ServiceOption(
+        "max_length": ServiceVariable(
             int,
             default=256,
             help=f"Maximum token count that the API should attempt to generate.",
             argparse_args=["-c", "--max_length"],
         ),
-        "prompt_prefix": ServiceOption(
+        "prompt_prefix": ServiceVariable(
             str,
             default=r"",
             help=f"String to prepend to your prompt.",
             argparse_args=["--prompt-prefix"],
         ),
-        "prompt_suffix": ServiceOption(
+        "prompt_suffix": ServiceVariable(
             str,
             default=r"\n```python3\n",
             help=f"String to append to your prompt.",
             argparse_args=["--prompt-suffix"],
         ),
-        "stop": ServiceOption(
+        "stop": ServiceVariable(
             str,
             default="```",
             help=f"A sequence where the API will stop generating further tokens. The returned text will not contain the stop sequence.",

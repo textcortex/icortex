@@ -3,8 +3,8 @@ import shlex
 
 import typing as t
 
-from icortex.config import *
-from icortex.services import ServiceBase, ServiceOption
+from icortex.defaults import *
+from icortex.services import ServiceBase, ServiceVariable
 from icortex.helper import unescape
 
 MISSING_API_KEY_MSG = """The ICortex prompt requires an API key from OpenAI in order to work.
@@ -27,67 +27,67 @@ def create_prompt(input: str, prefix: str, suffix: str):
 class OpenAIService(ServiceBase):
     name = "openai"
     description = "OpenAI Python code generator that uses the Codex API."
-    options = {
-        "api_key": ServiceOption(
+    variables = {
+        "api_key": ServiceVariable(
             str,
             help="If you don't have an API key already, generate one in the OpenAI web interface, https://beta.openai.com/account/api-keys",
             secret=True,
         ),
-        "model": ServiceOption(
+        "model": ServiceVariable(
             str,
             default="code-davinci-002",
             help=f"Model to use.",
             argparse_args=["--model"],  # "-m", TODO: Resolve the module name flag issue
         ),
-        "temperature": ServiceOption(
+        "temperature": ServiceVariable(
             float,
             default=0.1,
             help=f"What sampling temperature to use. Higher values means the model will take more risks. Try 0.9 for more creative applications, and 0 (argmax sampling) for ones with a well-defined answer.",
             argparse_args=["-t", "--temperature"],
         ),
-        "max_tokens": ServiceOption(
+        "max_tokens": ServiceVariable(
             int,
             default=256,
             help=f"The maximum number of tokens to generate in the completion.",
             argparse_args=["-c", "--max-tokens"],
         ),
-        "top_p": ServiceOption(
+        "top_p": ServiceVariable(
             float,
             default=1.0,
             argparse_args=["--top-p"],
             help=f"An alternative to sampling with temperature, called nucleus sampling, where the model considers the results of the tokens with top_p probability mass. So 0.1 means only the tokens comprising the top 10 percent probability mass are considered.",
         ),
-        "n": ServiceOption(
+        "n": ServiceVariable(
             int,
             default=1,
             help=f"Number of outputs to be generated.",
             argparse_args=["-n", "--n-gen"],
         ),
-        "frequency_penalty": ServiceOption(
+        "frequency_penalty": ServiceVariable(
             float,
             default=0.0,
             help=f"Number between -2.0 and 2.0. Positive values penalize new tokens based on their existing frequency in the text so far, decreasing the model's likelihood to repeat the same line verbatim.",
             argparse_args=["--frequency-penalty"],
         ),
-        "presence_penalty": ServiceOption(
+        "presence_penalty": ServiceVariable(
             float,
             default=0.0,
             help=f"Number between -2.0 and 2.0. Positive values penalize new tokens based on whether they appear in the text so far, increasing the model's likelihood to talk about new topics.",
             argparse_args=["--presence-penalty"],
         ),
-        "prompt_prefix": ServiceOption(
+        "prompt_prefix": ServiceVariable(
             str,
             default=r"# ",
             help=f"String to prepend to your prompt.",
             argparse_args=["--prompt-prefix"],
         ),
-        "prompt_suffix": ServiceOption(
+        "prompt_suffix": ServiceVariable(
             str,
             default=r"\n```python3\n",
             help=f"String to append to your prompt.",
             argparse_args=["--prompt-suffix"],
         ),
-        "stop": ServiceOption(
+        "stop": ServiceVariable(
             str,
             default="```",
             help=f"A sequence where the API will stop generating further tokens. The returned text will not contain the stop sequence.",
