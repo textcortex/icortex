@@ -43,4 +43,4 @@ jobs:
         pytest
     - name: Check if the main script is installed
       run: |
-        icortex --help
+        icortex help
