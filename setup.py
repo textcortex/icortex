@@ -7,7 +7,7 @@ with open("README.md") as f:
 
 setup(
     name="icortex",
-    version="0.0.1",
+    version="0.0.2",
     packages=find_packages(exclude=["tests", "tests.*"]),
     description="Jupyter kernel that allows you generate code from natural language prompts",
     long_description=readme,

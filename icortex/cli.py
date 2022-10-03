@@ -20,7 +20,7 @@ class ZMQTerminalICortexApp(ZMQTerminalIPythonApp):
 
 def get_parser(prog=None):
     service_names = get_available_services()
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(add_help=False)
     if prog is not None:
         parser.prog = prog
 
@@ -32,7 +32,9 @@ def get_parser(prog=None):
 
     # //init
     parser_init = subparsers.add_parser(
-        "init", help="Initialize ICortex configuration in the current directory"
+        "init",
+        help="Initialize ICortex configuration in the current directory",
+        add_help=False,
     )
 
     # parser.add_argument(
@@ -52,7 +54,22 @@ def get_parser(prog=None):
     ##########################
 
     # //shell
-    parser_shell = subparsers.add_parser("shell", help="Start ICortex shell")
+    parser_shell = subparsers.add_parser(
+        "shell",
+        help="Start ICortex shell",
+        add_help=False,
+    )
+
+    ########
+    # Help #
+    ########
+
+    # //help
+    parser_help = subparsers.add_parser(
+        "help",
+        help="Print help",
+        add_help=False,
+    )
 
     ############################
     # Service related commands #
@@ -60,7 +77,9 @@ def get_parser(prog=None):
 
     # //service
     parser_service = subparsers.add_parser(
-        "service", help="Set and configure code generation services"
+        "service",
+        help="Set and configure code generation services",
+        add_help=False,
     )
     parser_service_commands = parser_service.add_subparsers(
         dest="service_command",
@@ -69,7 +88,9 @@ def get_parser(prog=None):
 
     # //service set <service_name>
     parser_service_commands_set = parser_service_commands.add_parser(
-        "set", help="Set the service to be used for code generation"
+        "set",
+        help="Set the service to be used for code generation",
+        add_help=False,
     )
     parser_service_commands_set.add_argument(
         "service_name",
@@ -79,12 +100,23 @@ def get_parser(prog=None):
 
     # //service show <service_name>
     parser_service_commands_show = parser_service_commands.add_parser(
-        "show", help="Show current service"
+        "show",
+        help="Show current service",
+        add_help=False,
+    )
+
+    # //service help
+    parser_service_commands_help = parser_service_commands.add_parser(
+        "help",
+        help="Print help for //service",
+        add_help=False,
     )
 
     # //service set-var <variable_name> <variable_value>
     parser_service_commands_set_var = parser_service_commands.add_parser(
-        "set-var", help="Set a variable for the current service"
+        "set-var",
+        help="Set a variable for the current service",
+        add_help=False,
     )
     parser_service_commands_set_var.add_argument(
         "variable_name",
@@ -100,7 +132,9 @@ def get_parser(prog=None):
     # Used to re-spawn the config dialog if some config for the service
     # already exists
     parser_service_commands_init = parser_service_commands.add_parser(
-        "init", help="Initialize the configuration for the given service"
+        "init",
+        help="Initialize the configuration for the given service",
+        add_help=False,
     )
     parser_service_commands_init.add_argument(
         "service_name",
@@ -114,22 +148,7 @@ def get_parser(prog=None):
                 for _, subparser in action.choices.items():
                     subparser.prog = prog
 
-    return parser
-
-
-def service_cli(args):
-    if args.service_command == "set":
-        ICortexConfig(DEFAULT_ICORTEX_CONFIG_PATH).set_service_config(args.service_name)
-    if args.service_command == "set-var":
-        ICortexConfig(DEFAULT_ICORTEX_CONFIG_PATH).set_service_var(
-            args.variable_name, args.variable_value
-        )
-    if args.service_command == "show":
-        print(ICortexConfig(DEFAULT_ICORTEX_CONFIG_PATH).format_current_service())
-    elif args.service_command == "init":
-        ICortexConfig(DEFAULT_ICORTEX_CONFIG_PATH).set_service_config(
-            args.service_name, hard_init=True
-        )
+    return parser, parser_service
 
 
 def set_icortex_service(config_path=DEFAULT_ICORTEX_CONFIG_PATH):
@@ -143,7 +162,7 @@ def main(argv=None, prog=None):
     if argv is None:
         argv = sys.argv[1:]
 
-    parser = get_parser(prog=prog)
+    parser, parser_service = get_parser(prog=prog)
     # if prog is not None:
     #     parser.prog = prog
 
@@ -161,20 +180,32 @@ def main(argv=None, prog=None):
             )
         else:
             ICortexConfig(DEFAULT_ICORTEX_CONFIG_PATH).init_config()
-
-    if args.command == "service":
-        service_cli(args)
-
-    # if args.init or not os.path.exists(DEFAULT_ICORTEX_CONFIG_PATH):
-    # init_service(DEFAULT_ICORTEX_CONFIG_PATH)
-
-    # Launch shell
-    if args.command == "shell" or args.command is None:
+    elif args.command == "service":
+        if args.service_command == "set":
+            ICortexConfig(DEFAULT_ICORTEX_CONFIG_PATH).set_service_config(
+                args.service_name
+            )
+        elif args.service_command == "set-var":
+            ICortexConfig(DEFAULT_ICORTEX_CONFIG_PATH).set_service_var(
+                args.variable_name, args.variable_value
+            )
+        elif args.service_command == "show":
+            print(ICortexConfig(DEFAULT_ICORTEX_CONFIG_PATH).format_current_service())
+        elif args.service_command == "init":
+            ICortexConfig(DEFAULT_ICORTEX_CONFIG_PATH).set_service_config(
+                args.service_name, hard_init=True
+            )
+        elif args.service_command == "help":
+            parser_service.print_help()
+    elif args.command == "help":
+        parser.print_help()
+    elif args.command == "shell" or args.command is None:
         kernel = get_icortex_kernel()
         if kernel is None:
             ZMQTerminalICortexApp.launch_instance()
         else:
-            print("The ICortex shell is already running, skipping.")
+            # print("The ICortex shell is already running, skipping.")
+            parser.print_help()
 
 
 def eval_cli(prompt: str):
