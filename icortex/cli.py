@@ -37,16 +37,15 @@ def get_parser(prog=None):
         add_help=False,
     )
 
-    # parser.add_argument(
-    #     "-c",
-    #     "--config",
-    #     type=str,
-    #     help="Path to the configuration TOML file.",
-    #     default=DEFAULT_ICORTEX_CONFIG_PATH,
-    # )
-
     parser_init.add_argument(
         "--force", action="store_true", help="Force overwrite an existing configuration"
+    )
+
+    parser_init.add_argument(
+        "--config",
+        type=str,
+        help="Path to the configuration TOML file.",
+        default=DEFAULT_ICORTEX_CONFIG_PATH,
     )
 
     ##########################
@@ -163,38 +162,34 @@ def main(argv=None, prog=None):
         argv = sys.argv[1:]
 
     parser, parser_service = get_parser(prog=prog)
-    # if prog is not None:
-    #     parser.prog = prog
-
     args = parser.parse_args(argv)
 
     # Install kernel if it's not already
     if not is_kernel_installed():
         install_kernel()
 
-    # If no config file exists, initialize it
+    if "config" in args:
+        config_path = args.config
+    else:
+        config_path = DEFAULT_ICORTEX_CONFIG_PATH
+
+    config = ICortexConfig(config_path)
+
     if args.command == "init":
-        if os.path.exists(DEFAULT_ICORTEX_CONFIG_PATH) and not args.force:
-            print(
-                f"The file {DEFAULT_ICORTEX_CONFIG_PATH} already exists. Use --force to overwrite."
-            )
+        # If no config file exists, initialize it
+        if os.path.exists(config_path) and not args.force:
+            print(f"The file {config_path} already exists. Use --force to overwrite.")
         else:
-            ICortexConfig(DEFAULT_ICORTEX_CONFIG_PATH).init_config()
+            config.init_config()
     elif args.command == "service":
         if args.service_command == "set":
-            ICortexConfig(DEFAULT_ICORTEX_CONFIG_PATH).set_service_config(
-                args.service_name
-            )
+            config.set_service_config(args.service_name)
         elif args.service_command == "set-var":
-            ICortexConfig(DEFAULT_ICORTEX_CONFIG_PATH).set_service_var(
-                args.variable_name, args.variable_value
-            )
+            config.set_service_var(args.variable_name, args.variable_value)
         elif args.service_command == "show":
-            print(ICortexConfig(DEFAULT_ICORTEX_CONFIG_PATH).format_current_service())
+            print(config.format_current_service())
         elif args.service_command == "init":
-            ICortexConfig(DEFAULT_ICORTEX_CONFIG_PATH).set_service_config(
-                args.service_name, hard_init=True
-            )
+            config.set_service_config(args.service_name, hard_init=True)
         elif args.service_command == "help":
             parser_service.print_help()
     elif args.command == "help":
