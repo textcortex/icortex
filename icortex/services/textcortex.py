@@ -85,7 +85,7 @@ class TextCortexService(ServiceBase):
             "template_name": "code_cortex_python",
             "prompt": {"instruction": prompt_text},
             "temperature": args.temperature,
-            "word_count": args.token_count,
+            "token_count": args.token_count,
             "n_gen": args.n_gen,
             "source_language": args.language,
             "api_key": self.api_key,

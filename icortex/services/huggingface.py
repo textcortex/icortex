@@ -10,7 +10,7 @@ from icortex.services import ServiceBase, ServiceVariable
 # [x] Keep the ServiceBase object in memory and don't create a new one at every request
 # [ ] Model config is pulled during config dialog
 
-DEFAULT_MODEL = "Salesforce/codegen-350M-mono"
+DEFAULT_MODEL = "TextCortex/codegen-350M-optimized"
 
 
 def create_prompt(input: str, prefix: str, suffix: str):

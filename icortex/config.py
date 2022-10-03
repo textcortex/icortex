@@ -59,8 +59,6 @@ class ICortexConfig:
             print(f"Service does not exist: {service_name}")
             return False
 
-        print(f"Selected service: {service_name}")
-
         self.dict["service"] = service_name
 
         # Initialize service config if it's not already
