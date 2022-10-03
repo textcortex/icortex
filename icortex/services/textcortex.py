@@ -5,10 +5,10 @@ import shlex
 
 import typing as t
 
-from icortex.config import *
-from icortex.services import ServiceBase, ServiceOption
+from icortex.defaults import *
+from icortex.services import ServiceBase, ServiceVariable
 
-ICORTEX_ENDPOINT_URI = "https://api.textcortex.com/hemingwai/generate_text_v2"
+ICORTEX_ENDPOINT_URI = "https://api.textcortex.com/hemingwai/generate_text_v3"
 MISSING_API_KEY_MSG = """The ICortex prompt requires an API key from TextCortex in order to work.
 
 1.  Visit https://app.textcortex.com/user/dashboard/settings/api-key to view your API key.
@@ -26,31 +26,31 @@ api_key = "your-api-key-goes-here"
 class TextCortexService(ServiceBase):
     name = "textcortex"
     description = "TextCortex Python code generator"
-    options = {
-        "api_key": ServiceOption(
+    variables = {
+        "api_key": ServiceVariable(
             str,
             help="If you don't have an API key already, generate one at https://app.textcortex.com/user/dashboard/settings/api-key ",  # Leave a space at the end
             secret=True,
         ),
-        "temperature": ServiceOption(
+        "temperature": ServiceVariable(
             float,
             default=0.1,
             help=f"Temperature controls the amount of randomness in the generated output. Must be between 0 and 1.",
             argparse_args=["-t", "--temperature"],
         ),
-        "n_gen": ServiceOption(
+        "n_gen": ServiceVariable(
             int,
             default=1,
             help=f"Number of outputs to be generated.",
             argparse_args=["-n", "--n-gen"],
         ),
-        "token_count": ServiceOption(
+        "token_count": ServiceVariable(
             int,
             default=256,
             help=f"Maximum token count that the API should attempt to generate.",
             argparse_args=["-c", "--token-count"],
         ),
-        "language": ServiceOption(
+        "language": ServiceVariable(
             str,
             default="en",
             help=f"ISO 639-1 code of the language that the prompt is in.",

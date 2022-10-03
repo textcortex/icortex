@@ -7,7 +7,7 @@ from pygments.lexers import PythonLexer
 from icortex.pypi import install_missing_packages, get_missing_modules
 from icortex.kernel import get_icortex_kernel
 from icortex.helper import yes_no_input
-from icortex.config import *
+from icortex.defaults import *
 
 
 def highlight_python(code: str):

@@ -85,7 +85,7 @@ Hello World.
 1 1 2 3 5 8 13 21 34 55 89
 ```
 
-You can also specify options with command line flags, e.g. to auto-install packages, auto-execute the returned code and so on. To see the complete list of options for your chosen service, run:
+You can also specify variables or options with command line flags, e.g. to auto-install packages, auto-execute the returned code and so on. To see the complete list of variables for your chosen service, run:
 
 ```
 /help

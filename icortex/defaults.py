@@ -1,0 +1,8 @@
+
+# Default parameters
+DEFAULT_ICORTEX_CONFIG_PATH = "icortex.toml"
+DEFAULT_CACHE_PATH = "cache.json"
+DEFAULT_REGENERATE = False
+DEFAULT_AUTO_INSTALL_PACKAGES = False
+DEFAULT_QUIET = False
+DEFAULT_SERVICE = "textcortex"

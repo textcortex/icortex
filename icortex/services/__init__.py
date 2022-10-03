@@ -1,9 +1,9 @@
-from icortex.services.service_base import ServiceBase, ServiceOption
+from icortex.services.service_base import ServiceBase, ServiceVariable
 from icortex.services.echo import EchoService
 from icortex.services.textcortex import TextCortexService
 from icortex.services.openai import OpenAIService
 from icortex.services.huggingface import HuggingFaceAutoService
-from icortex.config import DEFAULT_SERVICE
+from icortex.defaults import DEFAULT_SERVICE
 import typing as t
 
 service_dict = {
