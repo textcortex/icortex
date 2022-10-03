@@ -30,10 +30,10 @@ This will install the Python package and the `icortex` command line interface. Y
 
 Before you can use ICortex in Jupyter, you need to configure it for your current project.
 
-To do that, simply launch the ICortex shell in your terminal:
+To do that, simply run in your terminal:
 
 ```bash
-icortex
+icortex init
 ```
 
 The shell will instruct you step by step and create a configuration file `icortex.toml` in your current directory.
