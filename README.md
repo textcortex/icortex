@@ -4,14 +4,15 @@
 [![License](https://img.shields.io/github/license/textcortex/icortex.svg?color=blue)](https://github.com/textcortex/icortex/blob/main/LICENSE)
 [![](https://dcbadge.vercel.app/api/server/QtfGgKneHX?style=flat)](https://discord.textcortex.com/)
 
-ICortex is a [Jupyter kernel](https://jupyter-client.readthedocs.io/en/latest/kernels.html) that supercharges your Jupyter Notebook workflow by letting you generate Python code automatically from natural language prompts:
+ICortex is a [Jupyter kernel](https://jupyter-client.readthedocs.io/en/latest/kernels.html) that lets you program with plain English, by letting you generate Python code from natural language prompts:
 
 https://user-images.githubusercontent.com/2453968/193281898-8f2b4311-2a3a-4bbf-a7d4-b31fcd4f5e08.mp4
 
 It is ...
 
 - a drop-in replacement for the IPython kernel. Prompts start with a forward slash `/`—otherwise the line is treated as regular Python code.
-- interactive—install missing packages directly, decide whether to execute the generated code or not, directly in the Jupyter Notebook cell.
+- a [Natural Language Programming](https://en.wikipedia.org/wiki/Natural-language_programming) interface—prompts written in plain English automatically generate Python code which can then be executed in the global namespace.
+- interactive—install missing packages directly, decide whether to execute the generated code or not, and so on, directly in the Jupyter Notebook cell.
 - open source and fully extensible—if you think we are missing a model or an API, you can request it by creating an issue, or implement it yourself by subclassing `ServiceBase` under [`icortex/services`](icortex/services).
 
 ICortex is currently in alpha, so expect breaking changes. We are giving free credits to our first users—[join our Discord](https://discord.textcortex.com/) to help us shape this product.
@@ -30,17 +31,23 @@ This will install the Python package and the `icortex` command line interface. Y
 
 Before you can use ICortex in Jupyter, you need to configure it for your current project.
 
-To do that, simply run in your terminal:
+If you are using the terminal:
 
 ```bash
 icortex init
 ```
 
-The shell will instruct you step by step and create a configuration file `icortex.toml` in your current directory.
+Alternatively, you can initialize directly in a Jupyter Notebook ([instructions on how to start JupyterLab](https://jupyterlab.readthedocs.io/en/stable/getting_started/starting.html)):
+
+```
+//init
+```
+
+The shell will then instruct you step by step and create a configuration file `icortex.toml` in the current directory.
 
 ### Choosing a code generation service
 
-ICortex supports different code generation services such as the TextCortex code generation API, OpenAI Codex API, local HuggingFace transformers, and so on.
+ICortex supports different code generation services such as the TextCortex API, OpenAI Codex API, local HuggingFace transformers, and so on.
 
 To use the TextCortex code generation API,
 
@@ -54,17 +61,9 @@ If you use up the starter credits and would like to continue testing out ICortex
 
 You can also try out different services e.g. OpenAI's Codex API, if you have access. You can also run code generation models from HuggingFace locally, which we have optimized to run on the CPU—though these produce lower quality outputs due to being smaller.
 
-### Launch JupyterLab
-
-Now that ICortex is configured for your project, you can launch JupyterLab:
-
-```bash
-jupyter lab
-```
-
-and choose ICortex as your kernel when creating a new notebook.
-
 ## Usage
+
+### Executing prompts
 
 To execute a prompt with ICortex, use the `/` character (forward slash, also used to denote division) as a prefix. Copy and paste the following prompt into a cell and try to run it:
 
@@ -91,9 +90,39 @@ You can also specify variables or options with command line flags, e.g. to auto-
 /help
 ```
 
+### Using ICortex CLI
+
+ICortex comes with a full-fledged CLI similar to git or Docker CLI, which you can use to configure how you generate code in your project. To see all the commands you can invoke, run
+
+```sh
+icortex help
+```
+
+For example the command `icortex service` lets you configure the code generation service you would like to use. To see how to use each command, call them with `help`
+
+```
+icortex service help
+```
+
+### Accessing ICortex CLI inside Jupyter
+
+You can still access the `icortex` CLI in a Jupyter Notebook or shell by using the prefix `//`. For example running the following in the terminal switches to a local HuggingFace model:
+
+```
+icortex service set huggingface
+```
+
+To do the same in a Jupyter Notebook, you can run
+
+```
+//service set huggingface
+```
+
+in a cell, which initializes and switches to the new service directly in your Jupyter session.
+
 ## Getting help
 
-To get support, join our [Discord](https://discord.textcortex.com/).
+Feel free to ask questions in our [Discord](https://discord.textcortex.com/).
 
 ## Uninstalling
 
