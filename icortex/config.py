@@ -3,7 +3,6 @@ from icortex.defaults import DEFAULT_SERVICE
 
 from icortex.services import get_available_services, get_service
 from icortex.helper import yes_no_input, prompt_input
-from icortex.kernel import get_icortex_kernel
 from icortex.services.service_base import ServiceVariable
 
 
@@ -11,6 +10,10 @@ class ICortexConfig:
     def __init__(self, path: str):
         self.path = path
         self.read_config()
+        self.kernel = None
+
+    def set_kernel(self, kernel):
+        self.kernel = kernel
 
     def get_service_name(self):
         if "service" in self.dict:
@@ -45,8 +48,8 @@ class ICortexConfig:
         success = self.write_config()
         if success:
             print(f"Set variable {var_name} to {cast_value}.")
-            kernel = get_icortex_kernel()
-            if kernel is not None:
+            # kernel = get_icortex_kernel()
+            if self.kernel is not None:
                 self.set_service()
             return True
         else:
@@ -73,8 +76,8 @@ class ICortexConfig:
         success = self.write_config()
         if success:
             print(f"Set service to {service_name} successfully.")
-            kernel = get_icortex_kernel()
-            if kernel is not None:
+            # kernel = get_icortex_kernel()
+            if self.kernel is not None:
                 self.set_service()
             return True
         else:
@@ -82,8 +85,8 @@ class ICortexConfig:
 
     def set_service(self):
         # TODO: pass the --config flag from icortex somehow
-        kernel = get_icortex_kernel()
-        if kernel is None:
+        # kernel = get_icortex_kernel()
+        if self.kernel is None:
             return False
 
         if not self.dict:
@@ -102,7 +105,7 @@ class ICortexConfig:
         service_config = self.dict[service_name]
         service_class = get_service(service_name)
 
-        kernel.set_service(service_class(service_config))
+        self.kernel.set_service(service_class(service_config))
         return True
 
     def ask_which_service(self) -> str:

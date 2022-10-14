@@ -1,3 +1,8 @@
+from pygments import highlight
+from pygments.formatters import Terminal256Formatter
+from pygments.lexers import PythonLexer
+
+
 def unescape(s):
     return s.encode("utf-8").decode("unicode_escape")
 
@@ -45,3 +50,7 @@ def prompt_input(message: str, type=str, default=None):
         return default
     else:
         return type(user_input)
+
+
+def highlight_python(code: str):
+    return highlight(code, PythonLexer(), Terminal256Formatter())
