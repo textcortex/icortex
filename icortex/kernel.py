@@ -56,6 +56,7 @@ class ICortexKernel(IPythonKernel, SingletonConfigurable):
     ):
         self._forward_input(allow_stdin)
 
+        history_entry = None
         try:
             if is_cli(input_):
                 prompt = extract_cli(input_)
@@ -73,6 +74,11 @@ class ICortexKernel(IPythonKernel, SingletonConfigurable):
 
                     if success:
                         code = self.eval_prompt(prompt)
+                        history_entry = {
+                            "type": "prompt",
+                            "prompt": prompt,
+                            "input": code,
+                        }
                     else:
                         print(
                             "No service selected. Run `//service init <service_name>` to initialize a service."
@@ -80,10 +86,27 @@ class ICortexKernel(IPythonKernel, SingletonConfigurable):
                         code = ""
                 else:
                     code = self.eval_prompt(prompt)
+                    history_entry = {
+                        "type": "prompt",
+                        "prompt": prompt,
+                        "input": code,
+                    }
             else:
                 code = input_
+                history_entry = {
+                    "type": "code",
+                    "input": code,
+                }
+
         finally:
             self._restore_input()
+
+        scope = self.shell.user_ns
+
+        if DEFAULT_HISTORY_VAR not in scope:
+            scope[DEFAULT_HISTORY_VAR] = []
+
+        scope[DEFAULT_HISTORY_VAR].append(history_entry)
 
         # TODO: KeyboardInterrupt does not kill coroutines, fix
         # Until then, try not to use Ctrl+C while a cell is executing
@@ -114,7 +137,7 @@ class ICortexKernel(IPythonKernel, SingletonConfigurable):
         quiet: bool = DEFAULT_QUIET,
         nonint: bool = False,
     ):
-        scope = self.shell.user_ns
+        # scope = self.shell.user_ns
 
         if not quiet:
             print(highlight_python(code))
