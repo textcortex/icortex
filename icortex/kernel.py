@@ -55,15 +55,14 @@ eval_cli("""{prompt}""")
                 code = f'''from icortex import set_icortex_service, eval_prompt
 success = set_icortex_service()
 if success:
-    code = eval_prompt("""{prompt}""")
-    exec(code)
+    eval_prompt("""{prompt}""", globals())
 else:
     print(\'No service selected. Run `//service init` to initialize a service.\')
 '''
             else:
                 code = f'''from icortex import eval_prompt
-code = eval_prompt("""{prompt}""")
-exec(code)'''
+eval_prompt("""{prompt}""", globals())
+'''
         else:
             code = input_
 

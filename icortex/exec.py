@@ -16,6 +16,7 @@ def highlight_python(code: str):
 
 def run_dialog(
     code: str,
+    scope: dict,
     execute: bool = False,
     auto_install_packages: bool = DEFAULT_AUTO_INSTALL_PACKAGES,
     quiet: bool = DEFAULT_QUIET,
@@ -52,8 +53,7 @@ def run_dialog(
         execute = yes_no_input("Proceed to execute?")
 
     if execute and len(still_missing_modules) == 0:
-        # return exec(code)
-        return code
+        exec(code, scope)
     elif execute and len(still_missing_modules) > 0:
         if auto_install_packages:
             bermuda_modules = [
@@ -68,10 +68,12 @@ This might be due to an installer issue, please resolve manually.""",
         print(
             f"Skipping execution due to missing modules: {', '.join(still_missing_modules)}."
         )
-    return ""
+    return
 
 
-def eval_prompt(prompt_with_args: str):
+def eval_prompt(prompt_with_args: str, scope: dict):
+    import ipdb; ipdb.set_trace()
+
     service = get_icortex_kernel().service
 
     # Print help if the user has typed `/help`
@@ -86,10 +88,12 @@ def eval_prompt(prompt_with_args: str):
     # TODO: Account for multiple response values
     code_: str = response[0]["text"]
 
-    return run_dialog(
+    run_dialog(
         code_,
+        scope,
         execute=args.execute,
         auto_install_packages=args.auto_install_packages,
         quiet=args.quiet,
         nonint=args.nonint,
     )
+    return
