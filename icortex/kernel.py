@@ -6,6 +6,7 @@ import shlex
 import typing as t
 from icortex.config import ICortexConfig
 from icortex.cli import eval_cli
+from icortex.context import ICortexHistory
 
 from ipykernel.ipkernel import IPythonKernel
 from traitlets.config.configurable import SingletonConfigurable
@@ -19,7 +20,7 @@ from icortex.helper import (
     yes_no_input,
     highlight_python,
 )
-from icortex.services import ServiceBase
+from icortex.services import ServiceBase, ServiceInteraction
 from icortex.pypi import install_missing_packages, get_missing_modules
 from icortex.defaults import *
 
@@ -44,7 +45,8 @@ class ICortexKernel(IPythonKernel, SingletonConfigurable):
 
         super().__init__(**kwargs)
         self.service = None
-        # self.set_service()
+        scope = self.shell.user_ns
+        self.history = ICortexHistory(scope)
 
     async def do_execute(
         self,
@@ -56,7 +58,6 @@ class ICortexKernel(IPythonKernel, SingletonConfigurable):
     ):
         self._forward_input(allow_stdin)
 
-        history_entry = None
         try:
             if is_cli(input_):
                 prompt = extract_cli(input_)
@@ -73,40 +74,31 @@ class ICortexKernel(IPythonKernel, SingletonConfigurable):
                     success = conf.set_service()
 
                     if success:
-                        code = self.eval_prompt(prompt)
-                        history_entry = {
-                            "type": "prompt",
-                            "prompt": prompt,
-                            "input": code,
-                        }
+                        service_interaction = self.eval_prompt(prompt)
+                        code = service_interaction.get_code()
+
+                        # TODO: Store output once #12 is implemented
+                        self.history.add_prompt(
+                            input_, [], service_interaction.to_dict()
+                        )
                     else:
                         print(
                             "No service selected. Run `//service init <service_name>` to initialize a service."
                         )
                         code = ""
                 else:
-                    code = self.eval_prompt(prompt)
-                    history_entry = {
-                        "type": "prompt",
-                        "prompt": prompt,
-                        "input": code,
-                    }
+                    service_interaction = self.eval_prompt(prompt)
+                    code = service_interaction.get_code()
+                    # TODO: Store output once #12 is implemented
+                    self.history.add_prompt(input_, [], service_interaction.to_dict())
+
             else:
                 code = input_
-                history_entry = {
-                    "type": "code",
-                    "input": code,
-                }
+                # TODO: Store output once #12 is implemented
+                self.history.add_code(code, [])
 
         finally:
             self._restore_input()
-
-        scope = self.shell.user_ns
-
-        if DEFAULT_HISTORY_VAR not in scope:
-            scope[DEFAULT_HISTORY_VAR] = []
-
-        scope[DEFAULT_HISTORY_VAR].append(history_entry)
 
         # TODO: KeyboardInterrupt does not kill coroutines, fix
         # Until then, try not to use Ctrl+C while a cell is executing
@@ -132,12 +124,11 @@ class ICortexKernel(IPythonKernel, SingletonConfigurable):
     def _run_dialog(
         self,
         code: str,
-        execute: bool = False,
+        auto_execute: bool = DEFAULT_AUTO_EXECUTE,
         auto_install_packages: bool = DEFAULT_AUTO_INSTALL_PACKAGES,
         quiet: bool = DEFAULT_QUIET,
         nonint: bool = False,
-    ):
-        # scope = self.shell.user_ns
+    ) -> ServiceInteraction:
 
         if not quiet:
             print(highlight_python(code))
@@ -160,18 +151,20 @@ class ICortexKernel(IPythonKernel, SingletonConfigurable):
         Install them manually and try again.
         """
                 )
-                return ""
 
         # Modules that are still missing regardless of
         # whether the user tried to auto-install them or not:
         still_missing_modules = get_missing_modules(code)
 
-        if not execute and not nonint and len(still_missing_modules) == 0:
-            execute = yes_no_input("Proceed to execute?")
+        execute_yesno = False
+        if not auto_execute and not nonint and len(still_missing_modules) == 0:
+            execute_yesno = yes_no_input("Proceed to execute?")
 
+        execute = auto_execute or execute_yesno
+
+        did_execute = False
         if execute and len(still_missing_modules) == 0:
-            # exec(code, scope)
-            return code
+            did_execute = True
         elif execute and len(still_missing_modules) > 0:
             if auto_install_packages:
                 bermuda_modules = [
@@ -186,26 +179,37 @@ class ICortexKernel(IPythonKernel, SingletonConfigurable):
             print(
                 f"Skipping execution due to missing modules: {', '.join(still_missing_modules)}."
             )
-        return ""
 
-    def eval_prompt(self, prompt_with_args: str):
-        service = self.service
+        return ServiceInteraction(
+            name=self.service.name,
+            did_execute=did_execute,
+            outputs=[code],
+            unresolved_modules=unresolved_modules,
+            auto_execute=auto_execute,
+            quiet=quiet,
+            auto_install_packages=auto_install_packages,
+            missing_modules=missing_modules,
+            still_missing_modules=still_missing_modules,
+        )
 
+    def eval_prompt(self, prompt_with_args: str) -> ServiceInteraction:
         # Print help if the user has typed `/help`
         argv = shlex.split(prompt_with_args)
-        args = service.prompt_parser.parse_args(argv)
+        args = self.service.prompt_parser.parse_args(argv)
         prompt = " ".join(args.prompt)
         if prompt == "help":
             return "from icortex import print_help\nprint_help()"
 
         # Otherwise, generate with the prompt
-        response = service.generate(prompt_with_args)
+        response = self.service.generate(
+            prompt_with_args, context=self.history.get_dict()
+        )
         # TODO: Account for multiple response values
         code_: str = response[0]["text"]
 
         return self._run_dialog(
             code_,
-            execute=args.execute,
+            auto_execute=args.execute,
             auto_install_packages=args.auto_install_packages,
             quiet=args.quiet,
             nonint=args.nonint,

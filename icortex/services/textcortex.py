@@ -70,6 +70,7 @@ class TextCortexService(ServiceBase):
     def generate(
         self,
         prompt: str,
+        context: t.Dict[str, t.Any] = {},
     ):
         argv = shlex.split(prompt)
 
@@ -83,7 +84,10 @@ class TextCortexService(ServiceBase):
         # Prepare request data
         payload = {
             "template_name": "code_cortex_python",
-            "prompt": {"instruction": prompt_text},
+            "prompt": {
+                "instruction": prompt_text,
+                "context": context,
+            },
             "temperature": args.temperature,
             "token_count": args.token_count,
             "n_gen": args.n_gen,

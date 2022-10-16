@@ -133,6 +133,7 @@ class HuggingFaceAutoService(ServiceBase):
     def generate(
         self,
         prompt: str,
+        context: t.Dict[str, t.Any] = {},
     ):
         argv = shlex.split(prompt)
 
