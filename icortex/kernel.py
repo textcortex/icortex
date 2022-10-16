@@ -136,12 +136,13 @@ class ICortexKernel(IPythonKernel, SingletonConfigurable):
         missing_modules = get_missing_modules(code)
 
         if len(missing_modules) > 0 and not auto_install_packages and not nonint:
-            auto_install_packages = yes_no_input(
+            install_packages_yesno = yes_no_input(
                 f"The following modules are missing in your environment: {', '.join(missing_modules)}\nAttempt to find and install corresponding PyPI packages?"
             )
+        install_packages = auto_install_packages or install_packages_yesno
 
         unresolved_modules = []
-        if auto_install_packages:
+        if install_packages:
             # Unresolved modules are modules that cannot be mapped
             # to any PyPI packages according to the local data in this library
             unresolved_modules = install_missing_packages(code)
@@ -162,10 +163,8 @@ class ICortexKernel(IPythonKernel, SingletonConfigurable):
 
         execute = auto_execute or execute_yesno
 
-        did_execute = False
-        if execute and len(still_missing_modules) == 0:
-            did_execute = True
-        elif execute and len(still_missing_modules) > 0:
+        if execute and len(still_missing_modules) > 0:
+            execute = False
             if auto_install_packages:
                 bermuda_modules = [
                     module
@@ -182,14 +181,13 @@ class ICortexKernel(IPythonKernel, SingletonConfigurable):
 
         return ServiceInteraction(
             name=self.service.name,
-            did_execute=did_execute,
+            execute=execute,
             outputs=[code],
-            unresolved_modules=unresolved_modules,
-            auto_execute=auto_execute,
             quiet=quiet,
-            auto_install_packages=auto_install_packages,
+            install_packages=install_packages,
             missing_modules=missing_modules,
-            still_missing_modules=still_missing_modules,
+            # unresolved_modules=unresolved_modules,
+            # still_missing_modules=still_missing_modules,
         )
 
     def eval_prompt(self, prompt_with_args: str) -> ServiceInteraction:

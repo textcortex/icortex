@@ -99,6 +99,8 @@ class TextCortexService(ServiceBase):
         # Create a dict of the request for cache storage
         cached_payload = copy.deepcopy(payload)
         del cached_payload["api_key"]
+        # Delete the whole context for now:
+        del cached_payload["prompt"]["context"]
         cached_request_dict = {
             "service": self.name,
             "params": {
