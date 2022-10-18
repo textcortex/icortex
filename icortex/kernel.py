@@ -135,6 +135,7 @@ class ICortexKernel(IPythonKernel, SingletonConfigurable):
 
         missing_modules = get_missing_modules(code)
 
+        install_packages_yesno = False
         if len(missing_modules) > 0 and not auto_install_packages and not nonint:
             install_packages_yesno = yes_no_input(
                 f"The following modules are missing in your environment: {', '.join(missing_modules)}\nAttempt to find and install corresponding PyPI packages?"

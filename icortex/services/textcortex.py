@@ -83,7 +83,7 @@ class TextCortexService(ServiceBase):
         prompt_text = " ".join(args.prompt)
         # Prepare request data
         payload = {
-            "template_name": "code_cortex_python",
+            "template_name": "icortex",
             "prompt": {
                 "instruction": prompt_text,
                 "context": context,

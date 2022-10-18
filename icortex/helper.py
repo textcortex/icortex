@@ -3,31 +3,31 @@ from pygments.formatters import Terminal256Formatter
 from pygments.lexers import PythonLexer
 
 
-def unescape(s):
+def unescape(s) -> str:
     return s.encode("utf-8").decode("unicode_escape")
 
 
-def is_prompt(input: str):
+def is_prompt(input: str) -> bool:
     return input.strip()[0] == "/"
 
 
-def is_cli(input: str):
+def is_cli(input: str) -> bool:
     return input.strip()[:2] == "//"
 
 
-def escape_quotes(s: str):
+def escape_quotes(s: str) -> str:
     return s.replace('"', r"\"").replace("'", r"\'")
 
 
-def extract_prompt(input: str):
+def extract_prompt(input: str) -> str:
     return input.strip()[1:].strip()
 
 
-def extract_cli(input: str):
+def extract_cli(input: str) -> str:
     return input.strip()[2:].strip()
 
 
-def yes_no_input(message: str, default=True):
+def yes_no_input(message: str, default=True) -> bool:
     if default:
         message += " [Y/n]"
     else:
