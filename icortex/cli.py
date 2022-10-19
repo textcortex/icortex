@@ -2,7 +2,6 @@ import os
 import shlex
 import sys
 import argparse
-from icortex.kernel import get_icortex_kernel
 from jupyter_console.app import ZMQTerminalIPythonApp
 from icortex.services import get_available_services
 from icortex.defaults import DEFAULT_ICORTEX_CONFIG_PATH
@@ -150,14 +149,14 @@ def get_parser(prog=None):
     return parser, parser_service
 
 
-def set_icortex_service(config_path=DEFAULT_ICORTEX_CONFIG_PATH):
-    kernel = get_icortex_kernel()
-    if kernel is not None:
-        return ICortexConfig(DEFAULT_ICORTEX_CONFIG_PATH).set_service()
-    return False
+# def set_icortex_service(kernel, config_path=DEFAULT_ICORTEX_CONFIG_PATH):
+
+#     if kernel is not None:
+#         return ICortexConfig(DEFAULT_ICORTEX_CONFIG_PATH).set_service()
+#     return False
 
 
-def main(argv=None, prog=None):
+def main(argv=None, prog=None, kernel=None):
     if argv is None:
         argv = sys.argv[1:]
 
@@ -195,6 +194,7 @@ def main(argv=None, prog=None):
     elif args.command == "help":
         parser.print_help()
     elif args.command == "shell" or args.command is None:
+        from icortex.kernel import get_icortex_kernel
         kernel = get_icortex_kernel()
         if kernel is None:
             ZMQTerminalICortexApp.launch_instance()

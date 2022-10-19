@@ -1,7 +1,7 @@
+from abc import ABC, abstractmethod
 import os
 import argparse
 import json
-import click
 
 from icortex.defaults import *
 
@@ -59,7 +59,7 @@ class ServiceVariable:
             self.help = None
 
 
-class ServiceBase:
+class ServiceBase(ABC):
     name: str = "base"
     description: str = "Base class for a code generation service"
     # Each child class will need to add their specific arguments
@@ -161,7 +161,8 @@ class ServiceBase:
         cache.append({"request": request_dict, "response": response_dict})
         return self._write_cache(cache, cache_path)
 
-    def generate(self, prompt: str):
+    @abstractmethod
+    def generate(self, prompt: str, context: t.Dict[str, t.Any] = {}):
         raise NotImplementedError
 
     def config_dialog(self, skip_defaults=False):

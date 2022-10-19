@@ -1,6 +1,7 @@
 import re
 import importlib
 import pip
+import typing as t
 
 # A dictionary of popular module names mapped to their corresponding PyPI packages.
 # TODO: replace this with something more streamlined
@@ -32,7 +33,7 @@ def get_imported_modules(code):
     return modules
 
 
-def get_missing_modules(code):
+def get_missing_modules(code: str) -> t.List[str]:
     imported_modules = get_imported_modules(code)
 
     missing_modules = [

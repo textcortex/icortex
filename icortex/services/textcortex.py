@@ -70,6 +70,7 @@ class TextCortexService(ServiceBase):
     def generate(
         self,
         prompt: str,
+        context: t.Dict[str, t.Any] = {},
     ):
         argv = shlex.split(prompt)
 
@@ -82,8 +83,11 @@ class TextCortexService(ServiceBase):
         prompt_text = " ".join(args.prompt)
         # Prepare request data
         payload = {
-            "template_name": "code_cortex_python",
-            "prompt": {"instruction": prompt_text},
+            "template_name": "icortex",
+            "prompt": {
+                "instruction": prompt_text,
+                "context": context,
+            },
             "temperature": args.temperature,
             "token_count": args.token_count,
             "n_gen": args.n_gen,
@@ -95,6 +99,8 @@ class TextCortexService(ServiceBase):
         # Create a dict of the request for cache storage
         cached_payload = copy.deepcopy(payload)
         del cached_payload["api_key"]
+        # Delete the whole context for now:
+        del cached_payload["prompt"]["context"]
         cached_request_dict = {
             "service": self.name,
             "params": {
