@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "icortex"
-version = "0.0.1"
+version = "0.0.3"
 description = "Jupyter kernel that allows you generate Python code from natural language prompts"
 authors = ["TextCortex Team <onur@textcortex.com>"]
 license = "Apache"
