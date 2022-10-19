@@ -6,7 +6,7 @@
 
 ICortex is a [Jupyter kernel](https://jupyter-client.readthedocs.io/en/latest/kernels.html) that lets you program with plain English, by letting you generate Python code from natural language prompts:
 
-https://user-images.githubusercontent.com/2453968/193281898-8f2b4311-2a3a-4bbf-a7d4-b31fcd4f5e08.mp4
+https://user-images.githubusercontent.com/2453968/196814906-1a0de2a1-27a7-4aec-a960-0eb21fbe2879.mp4
 
 It is ...
 
