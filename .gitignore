@@ -138,3 +138,5 @@ Untitled*.ipynb
 tmp/
 lab/
 *.csv
+
+tmp*
