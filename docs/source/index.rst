@@ -34,7 +34,7 @@ It is …
 Get started
 -----------
 
-Visit :doc:`Quickstart<quickstart>` to see all the options you have to start using ICortex.
+Visit :doc:`Quickstart<quickstart>` to see all the ways you can start using ICortex.
 
 If you are experiencing any problems or bugs, `join our Discord <https://discord.textcortex.com/>`__ to get help.
 
