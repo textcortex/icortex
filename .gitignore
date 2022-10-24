@@ -140,3 +140,16 @@ lab/
 *.csv
 
 tmp*
+
+# lite
+.cache
+*.doit.db*
+lite/_/
+lite/pypi
+lite/jupyterlite-icortex/py_src/jupyterlite_icortex/labextension/
+lite/jupyterlite-icortex/pypi/
+lite/jupyterlite-icortex/src/_pypi.ts
+lite/jupyterlite-icortex/style/icortex.png
+lite/jupyterlite-icortex/LICENSE
+node_modules/
+*.tsbuildinfo

@@ -25,7 +25,9 @@ class ICortexConfig:
         service_name = self.get_service_name()
 
         if service_name is None:
-            print("No service selected. Initialize a service by running `service init`.")
+            print(
+                "No service selected. Initialize a service by running `service init`."
+            )
             return False
 
         try:
@@ -138,7 +140,7 @@ class ICortexConfig:
         output_dict = {}
         if "service" in self.dict:
             service_name = self.dict["service"]
-            output_dict["service"]= service_name
+            output_dict["service"] = service_name
             if service_name in self.dict:
                 output_dict[service_name] = self.dict[service_name]
 
