@@ -4,14 +4,14 @@
 [![License](https://img.shields.io/github/license/textcortex/icortex.svg?color=blue)](https://github.com/textcortex/icortex/blob/main/LICENSE)
 [![](https://dcbadge.vercel.app/api/server/QtfGgKneHX?style=flat)](https://discord.textcortex.com/)
 
-ICortex is a [Jupyter kernel](https://jupyter-client.readthedocs.io/en/latest/kernels.html) that lets you program with plain English, by letting you generate Python code from natural language prompts:
+ICortex is a [Jupyter kernel](https://jupyter-client.readthedocs.io/en/latest/kernels.html) that lets you program using plain English, by generating Python code from natural language prompts:
 
 https://user-images.githubusercontent.com/2453968/196814906-1a0de2a1-27a7-4aec-a960-0eb21fbe2879.mp4
 
 It is ...
 
 - a drop-in replacement for the IPython kernel. Prompts start with a forward slash `/`—otherwise the line is treated as regular Python code.
-- a [Natural Language Programming](https://en.wikipedia.org/wiki/Natural-language_programming) interface—prompts written in plain English automatically generate Python code which can then be executed in the global namespace.
+- an interface for [Natural Language Programming](https://en.wikipedia.org/wiki/Natural-language_programming) interface—prompts written in plain English automatically generate Python code which can then be executed globally.
 - interactive—install missing packages directly, decide whether to execute the generated code or not, and so on, directly in the Jupyter Notebook cell.
 - open source and fully extensible—if you think we are missing a model or an API, you can request it by creating an issue, or implement it yourself by subclassing `ServiceBase` under [`icortex/services`](icortex/services).
 

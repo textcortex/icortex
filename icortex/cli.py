@@ -195,6 +195,7 @@ def main(argv=None, prog=None, kernel=None):
         parser.print_help()
     elif args.command == "shell" or args.command is None:
         from icortex.kernel import get_icortex_kernel
+
         kernel = get_icortex_kernel()
         if kernel is None:
             ZMQTerminalICortexApp.launch_instance()
