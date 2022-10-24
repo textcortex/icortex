@@ -7,9 +7,9 @@ from jupyter_client.kernelspec import KernelSpecManager
 from IPython.utils.tempdir import TemporaryDirectory
 
 kernel_json = {
-    "argv": [sys.executable, "-m", "icortex", "-f", "{connection_file}"],
+    "argv": [sys.executable, "-m", "icortex.kernel", "-f", "{connection_file}"],
     "display_name": "ICortex",
-    "language": "text",
+    "language": "python",
 }
 
 

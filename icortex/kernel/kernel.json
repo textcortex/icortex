@@ -1,0 +1,5 @@
+{
+  "argv": ["python", "-m", "icortex.kernel", "-f", "{connection_file}"],
+  "display_name": "ICortex",
+  "language": "python"
+}

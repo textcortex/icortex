@@ -44,7 +44,7 @@ classifiers = [
 icortex = "icortex.cli:main"
 
 [tool.poetry.dependencies]
-python = "^3.10"
+python = ">=3.7,<3.11"
 entrypoints = "^0.4"
 ipykernel = "^6.16.0"
 ipython = "^8.5.0"
