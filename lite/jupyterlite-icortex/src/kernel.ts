@@ -174,15 +174,16 @@ export class ICortexKernel extends BaseKernel implements IKernel {
         name: 'python',
         nbconvert_exporter: 'python',
         pygments_lexer: 'ipython3',
-        version: '3.8'
+        version: '3.10'
       },
       protocol_version: '5.3',
       status: 'ok',
-      banner: 'icortex: literate programming in ipython',
+      banner:
+        'ICortex: Generate Python code from natural language prompts using large language models',
       help_links: [
         {
-          text: 'icortex: literate programming in ipython',
-          url: 'https://icortex.github.io'
+          text: 'ICortex: Generate Python code from natural language prompts using large language models',
+          url: 'https://icortex.ai'
         },
         {
           text: 'Python (WASM) Kernel',

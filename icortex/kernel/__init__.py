@@ -23,23 +23,24 @@ from icortex.helper import (
 from icortex.services import ServiceBase, ServiceInteraction
 from icortex.pypi import install_missing_packages, get_missing_modules
 from icortex.defaults import *
+import importlib.metadata
+
+__version__ = importlib.metadata.version("icortex")
 
 
 class ICortexKernel(IPythonKernel, SingletonConfigurable):
     implementation = "ICortex"
-    implementation_version = "0.0.1"
+    implementation_version = __version__
     language = "no-op"
     language_version = "0.1"
     language_info = {
-        "name": "any text",
-        "mimetype": "text/plain",
+        "name": "icortex",
+        "mimetype": "text/x-python",
         "file_extension": ".py",
-        "pygments_lexer": "icortex",
-        "codemirror_mode": "text/plain",
+        "pygments_lexer": "ipython3",
+        "codemirror_mode": {"name": "ipython", "version": 3},
     }
-    banner = (
-        "A prompt-based kernel for interfacing with code-generating language models"
-    )
+    banner = "ICortex: Generate Python code from natural language prompts using large language models"
 
     def __init__(self, **kwargs):
 

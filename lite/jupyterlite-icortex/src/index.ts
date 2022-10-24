@@ -5,8 +5,8 @@ import { PageConfig, URLExt } from '@jupyterlab/coreutils';
 
 import { JupyterLiteServer, JupyterLiteServerPlugin } from '@jupyterlite/server';
 
-import * as kernelIcon32 from '!!file-loader!../style/logo-32x32.png';
-import * as kernelIcon64 from '!!file-loader!../style/logo-64x64.png';
+// import * as kernelIcon32 from '!!file-loader!../style/logo-32x32.png';
+import * as kernelIcon from '!!file-loader!../style/logo-512x512.png';
 
 import { IKernel, IKernelSpecs } from '@jupyterlite/kernel';
 
@@ -47,8 +47,9 @@ const kernel: JupyterLiteServerPlugin<void> = {
           metadata: {}
         },
         resources: {
-          'logo-32x32': kernelIcon32.default,
-          'logo-64x64': kernelIcon64.default
+          // 'logo-32x32': kernelIcon32.default,
+          'logo-32x32': 'TODO',
+          'logo-64x64': kernelIcon.default
         }
       },
       create: async (options: IKernel.IOptions): Promise<IKernel> => {
