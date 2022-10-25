@@ -331,7 +331,7 @@ i18n = ["Babel (>=2.7)"]
 
 [[package]]
 name = "jupyter-client"
-version = "7.4.3"
+version = "7.4.4"
 description = "Jupyter protocol implementation and client libraries"
 category = "main"
 optional = false
@@ -1078,8 +1078,8 @@ Jinja2 = [
     {file = "Jinja2-3.1.2.tar.gz", hash = "sha256:31351a702a408a9e7595a8fc6150fc3f43bb6bf7e319770cbc0db9df9437e852"},
 ]
 jupyter-client = [
-    {file = "jupyter_client-7.4.3-py3-none-any.whl", hash = "sha256:8845e3f5a339734b1ecc21d2100638aa1c7a145e356a31845f155cda5b624b1c"},
-    {file = "jupyter_client-7.4.3.tar.gz", hash = "sha256:4fa2514cdb54dd9fbdcf7d7e4c5c3c8a973028168a8b4fc097b6aef625be13b0"},
+    {file = "jupyter_client-7.4.4-py3-none-any.whl", hash = "sha256:1c1d418ef32a45a1fae0b243e6f01cc9bf65fa8ddbd491a034b9ba6ac6502951"},
+    {file = "jupyter_client-7.4.4.tar.gz", hash = "sha256:5616db609ac720422e6a4b893d6572b8d655ff41e058367f4459a0d2c0726832"},
 ]
 jupyter-console = [
     {file = "jupyter_console-6.4.4-py3-none-any.whl", hash = "sha256:756df7f4f60c986e7bc0172e4493d3830a7e6e75c08750bbe59c0a5403ad6dee"},
