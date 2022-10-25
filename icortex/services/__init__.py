@@ -4,11 +4,6 @@ import importlib
 
 from icortex.services.service_base import ServiceBase, ServiceVariable
 
-# from icortex.services.echo import EchoService
-# from icortex.services.textcortex import TextCortexService
-# from icortex.services.openai import OpenAIService
-# from icortex.services.huggingface import HuggingFaceAutoService
-
 from icortex.defaults import (
     DEFAULT_AUTO_EXECUTE,
     DEFAULT_AUTO_INSTALL_PACKAGES,

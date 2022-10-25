@@ -1,12 +1,10 @@
-from abc import ABC, abstractmethod
 import os
 import argparse
 import json
-
-from icortex.defaults import *
-
 import typing as t
+from abc import ABC, abstractmethod
 
+from icortex.defaults import DEFAULT_CACHE_PATH
 from icortex.helper import prompt_input
 
 
