@@ -48,8 +48,12 @@ class ICortexHistory:
 
         self._dict = self.scope[DEFAULT_HISTORY_VAR]
 
-    def get_dict(self):
-        return deepcopy(self._dict)
+    def get_dict(self, omit_last_cell=False):
+        ret = deepcopy(self._dict)
+        if omit_last_cell:
+            if len(ret["cells"]) > 0:
+                del ret["cells"][-1]
+        return ret
 
     def add_code(self, code: str, outputs: t.List[t.Any]):
         self._check_init()

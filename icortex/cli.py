@@ -20,7 +20,7 @@ def get_parser(prog=None):
     # Initialize ICortex #
     ######################
 
-    # //init
+    # icortex init
     parser_init = subparsers.add_parser(
         "init",
         help="Initialize ICortex configuration in the current directory",
@@ -42,7 +42,7 @@ def get_parser(prog=None):
     # Shell related commands #
     ##########################
 
-    # //shell
+    # icortex shell
     parser_shell = subparsers.add_parser(
         "shell",
         help="Start ICortex shell",
@@ -53,7 +53,7 @@ def get_parser(prog=None):
     # Help #
     ########
 
-    # //help
+    # icortex help
     parser_help = subparsers.add_parser(
         "help",
         help="Print help",
@@ -64,7 +64,7 @@ def get_parser(prog=None):
     # Service related commands #
     ############################
 
-    # //service
+    # icortex service
     parser_service = subparsers.add_parser(
         "service",
         help="Set and configure code generation services",
@@ -75,7 +75,7 @@ def get_parser(prog=None):
         required=True,
     )
 
-    # //service set <service_name>
+    # icortex service set <service_name>
     parser_service_commands_set = parser_service_commands.add_parser(
         "set",
         help="Set the service to be used for code generation",
@@ -87,21 +87,21 @@ def get_parser(prog=None):
         help="Name of the service to be used for code generation",
     )
 
-    # //service show <service_name>
+    # icortex service show <service_name>
     parser_service_commands_show = parser_service_commands.add_parser(
         "show",
         help="Show current service",
         add_help=False,
     )
 
-    # //service help
+    # icortex service help
     parser_service_commands_help = parser_service_commands.add_parser(
         "help",
-        help="Print help for //service",
+        help="Print help for the current service",
         add_help=False,
     )
 
-    # //service set-var <variable_name> <variable_value>
+    # icortex service set-var <variable_name> <variable_value>
     parser_service_commands_set_var = parser_service_commands.add_parser(
         "set-var",
         help="Set a variable for the current service",
@@ -117,7 +117,7 @@ def get_parser(prog=None):
         help="New value for the variable",
     )
 
-    # //service init <service_name>
+    # icortex service init <service_name>
     # Used to re-spawn the config dialog if some config for the service
     # already exists
     parser_service_commands_init = parser_service_commands.add_parser(
@@ -198,7 +198,7 @@ def main(argv=None, prog=None, kernel=None):
 def eval_cli(prompt: str):
     argv = shlex.split(prompt)
     try:
-        return main(argv=argv, prog="//")
+        return main(argv=argv, prog=r"%icortex")
     except SystemExit:
         return
 

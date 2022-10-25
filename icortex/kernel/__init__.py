@@ -12,20 +12,21 @@ from ipykernel.ipkernel import IPythonKernel
 from traitlets.config.configurable import SingletonConfigurable
 
 from icortex.helper import (
-    extract_cli,
-    is_cli,
-    is_prompt,
-    extract_prompt,
     escape_quotes,
     yes_no_input,
     highlight_python,
 )
-from icortex.services import ServiceBase, ServiceInteraction
+from icortex.services import ServiceBase, ServiceInteraction, get_available_services
 from icortex.pypi import install_missing_packages, get_missing_modules
 from icortex.defaults import *
 import importlib.metadata
 
 __version__ = importlib.metadata.version("icortex")
+
+INIT_SERVICE_MSG = (
+    r"No service selected. Run `%icortex service init <service_name>` to initialize a service. Candidates: "
+    + ", ".join(get_available_services())
+)
 
 
 class ICortexKernel(IPythonKernel, SingletonConfigurable):
@@ -48,79 +49,13 @@ class ICortexKernel(IPythonKernel, SingletonConfigurable):
         self.service = None
         scope = self.shell.user_ns
         self.history = ICortexHistory(scope)
+        from icortex.magics import load_ipython_extension
 
-    async def do_execute(
-        self,
-        input_,
-        silent,
-        store_history=True,
-        user_expressions=None,
-        allow_stdin=True,
-    ):
-        self._forward_input(allow_stdin)
-
-        try:
-            if is_cli(input_):
-                prompt = extract_cli(input_)
-                prompt = escape_quotes(prompt)
-                eval_cli(prompt)
-                code = ""
-            elif is_prompt(input_):
-                prompt = extract_prompt(input_)
-                prompt = escape_quotes(prompt)
-
-                if self.service is None:
-                    conf = ICortexConfig(DEFAULT_ICORTEX_CONFIG_PATH)
-                    conf.set_kernel(self)
-                    success = conf.set_service()
-
-                    if success:
-                        service_interaction = self.eval_prompt(prompt)
-                        code = service_interaction.get_code()
-
-                        # TODO: Store output once #12 is implemented
-                        self.history.add_prompt(
-                            input_, [], service_interaction.to_dict()
-                        )
-                    else:
-                        print(
-                            "No service selected. Run `//service init <service_name>` to initialize a service."
-                        )
-                        code = ""
-                else:
-                    service_interaction = self.eval_prompt(prompt)
-                    code = service_interaction.get_code()
-                    # TODO: Store output once #12 is implemented
-                    self.history.add_prompt(input_, [], service_interaction.to_dict())
-
-            else:
-                code = input_
-                # TODO: Store output once #12 is implemented
-                self.history.add_code(code, [])
-
-        finally:
-            self._restore_input()
-
-        # TODO: KeyboardInterrupt does not kill coroutines, fix
-        # Until then, try not to use Ctrl+C while a cell is executing
-        return await IPythonKernel.do_execute(
-            self,
-            code,
-            silent,
-            store_history=store_history,
-            user_expressions=user_expressions,
-            allow_stdin=allow_stdin,
-        )
+        load_ipython_extension(self.shell)
 
     def set_service(self, service: t.Type[ServiceBase]):
         self.service = service
         return True
-
-    # def set_icortex_service(config_path=DEFAULT_ICORTEX_CONFIG_PATH):
-    #     kernel = get_icortex_kernel()
-    #     if kernel is not None:
-    #         return ICortexConfig(DEFAULT_ICORTEX_CONFIG_PATH).set_service()
-    #     return False
 
     def _run_dialog(
         self,
@@ -192,17 +127,46 @@ class ICortexKernel(IPythonKernel, SingletonConfigurable):
             # still_missing_modules=still_missing_modules,
         )
 
+    def _check_service(self):
+        if self.service is None:
+            conf = ICortexConfig(DEFAULT_ICORTEX_CONFIG_PATH)
+            conf.set_kernel(self)
+            success = conf.set_service()
+            return success
+        else:
+            return True
+
+    def print_service_help(self):
+        if self._check_service():
+            self.service.prompt_parser.print_help()
+        else:
+            print(INIT_SERVICE_MSG)
+
+    def prompt(self, input_):
+        prompt = escape_quotes(input_)
+        if self._check_service():
+            service_interaction = self.eval_prompt(prompt)
+            code = service_interaction.get_code()
+            # TODO: Store output once #12 is implemented
+            self.history.add_prompt(input_, [], service_interaction.to_dict())
+        else:
+            print(INIT_SERVICE_MSG)
+            code = ""
+
+        exec(code, self.shell.user_ns)
+
+    def cli(self, input_):
+        prompt = escape_quotes(input_)
+        eval_cli(prompt)
+
     def eval_prompt(self, prompt_with_args: str) -> ServiceInteraction:
         # Print help if the user has typed `/help`
         argv = shlex.split(prompt_with_args)
         args = self.service.prompt_parser.parse_args(argv)
-        prompt = " ".join(args.prompt)
-        if prompt == "help":
-            return "from icortex import print_help\nprint_help()"
 
         # Otherwise, generate with the prompt
         response = self.service.generate(
-            prompt_with_args, context=self.history.get_dict()
+            prompt_with_args, context=self.history.get_dict(omit_last_cell=True)
         )
         # TODO: Account for multiple response values
         code_: str = response[0]["text"]
@@ -225,10 +189,10 @@ def get_icortex_kernel() -> ICortexKernel:
         return ICortexKernel.instance()
 
 
-def print_help() -> None:
+def print_service_help() -> None:
     icortex_kernel = get_icortex_kernel()
     if icortex_kernel is not None:
-        icortex_kernel.service.prompt_parser.print_help()
+        icortex_kernel.print_service_help()
 
 
 if __name__ == "__main__":

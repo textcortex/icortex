@@ -10,7 +10,7 @@ https://user-images.githubusercontent.com/2453968/196814906-1a0de2a1-27a7-4aec-a
 
 It is ...
 
-- a drop-in replacement for the IPython kernel. Prompts start with a forward slash `/`—otherwise the line is treated as regular Python code.
+- a drop-in replacement for the IPython kernel. Prompts can be executed with the [magic commands](https://ipython.readthedocs.io/en/stable/interactive/magics.html) `%prompt` or `%p` for short.
 - an interface for [Natural Language Programming](https://en.wikipedia.org/wiki/Natural-language_programming) interface—prompts written in plain English automatically generate Python code which can then be executed globally.
 - interactive—install missing packages directly, decide whether to execute the generated code or not, and so on, directly in the Jupyter Notebook cell.
 - open source and fully extensible—if you think we are missing a model or an API, you can request it by creating an issue, or implement it yourself by subclassing `ServiceBase` under [`icortex/services`](icortex/services).
@@ -40,7 +40,7 @@ icortex init
 Alternatively, you can initialize directly in a Jupyter Notebook ([instructions on how to start JupyterLab](https://jupyterlab.readthedocs.io/en/stable/getting_started/starting.html)):
 
 ```
-//init
+%icortex init
 ```
 
 The shell will then instruct you step by step and create a configuration file `icortex.toml` in the current directory.
@@ -65,10 +65,10 @@ You can also try out different services e.g. OpenAI's Codex API, if you have acc
 
 ### Executing prompts
 
-To execute a prompt with ICortex, use the `/` character (forward slash, also used to denote division) as a prefix. Copy and paste the following prompt into a cell and try to run it:
+To execute a prompt with ICortex, use the `%prompt` [magic command](https://ipython.readthedocs.io/en/stable/interactive/magics.html) (or `%p` for short) as a prefix. Copy and paste the following prompt into a cell and try to run it:
 
 ```
-/print Hello World. Then print the Fibonacci numbers till 100
+%p print Hello World. Then print the Fibonacci numbers till 100
 ```
 
 Depending on the response, you should see an output similar to the following:
@@ -87,7 +87,7 @@ Hello World.
 You can also specify variables or options with command line flags, e.g. to auto-install packages, auto-execute the returned code and so on. To see the complete list of variables for your chosen service, run:
 
 ```
-/help
+%help
 ```
 
 ### Using ICortex CLI
@@ -106,7 +106,7 @@ icortex service help
 
 ### Accessing ICortex CLI inside Jupyter
 
-You can still access the `icortex` CLI in a Jupyter Notebook or shell by using the prefix `//`. For example running the following in the terminal switches to a local HuggingFace model:
+You can still access the `icortex` CLI in a Jupyter Notebook or shell by using the magic command `%icortex`. For example running the following in the terminal switches to a local HuggingFace model:
 
 ```
 icortex service set huggingface
@@ -115,7 +115,7 @@ icortex service set huggingface
 To do the same in a Jupyter Notebook, you can run
 
 ```
-//service set huggingface
+%icortex service set huggingface
 ```
 
 in a cell, which initializes and switches to the new service directly in your Jupyter session.
