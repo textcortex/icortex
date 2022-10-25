@@ -236,7 +236,7 @@ def task_lite():
 
     def _lite(args, extra_args=None):
         lite_cmd = [PY, "-m", "jupyter", "lite"]
-        lite_args = ["--debug", "--LiteBuildConfig.federated_extensions", EXT_WHL]
+        lite_args = ["--output-dir", "./_/_", "--debug", "--LiteBuildConfig.federated_extensions", EXT_WHL]
         extra_args = extra_args or []
         return doit.tools.CmdAction(
             [*lite_cmd, *args, *lite_args, *extra_args],

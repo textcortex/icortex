@@ -132,9 +132,6 @@ class TextCortexService(ServiceBase):
 
             return response_dict["generated_text"]
         elif response_dict["status"] == "fail":
-            import ipdb
-
-            ipdb.set_trace()
             raise Exception(
                 f"There was an issue with generation: {response_dict['message']}"
             )

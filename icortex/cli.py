@@ -2,19 +2,21 @@ import os
 import shlex
 import sys
 import argparse
-from jupyter_console.app import ZMQTerminalIPythonApp
+# from jupyter_console.app import ZMQTerminalIPythonApp
 from icortex.services import get_available_services
 from icortex.defaults import DEFAULT_ICORTEX_CONFIG_PATH
 from icortex.install import is_kernel_installed, main as install_kernel
 from icortex.config import ICortexConfig
+# from icortex.kernel import ICortexKernel
+# from ipykernel.kernelapp import IPKernelApp
 
 # Jupyter devs did not make this easy
 # TODO: Make less hacky
-class ZMQTerminalICortexApp(ZMQTerminalIPythonApp):
-    def parse_command_line(self, argv=None):
-        argv = ["--kernel", "icortex"]
-        super(ZMQTerminalIPythonApp, self).parse_command_line(argv)
-        self.build_kernel_argv(self.extra_args)
+# class ZMQTerminalICortexApp(ZMQTerminalIPythonApp):
+#     def parse_command_line(self, argv=None):
+#         argv = ["--kernel", "icortex"]
+#         super(ZMQTerminalIPythonApp, self).parse_command_line(argv)
+#         self.build_kernel_argv(self.extra_args)
 
 
 def get_parser(prog=None):
@@ -193,15 +195,18 @@ def main(argv=None, prog=None, kernel=None):
             parser_service.print_help()
     elif args.command == "help":
         parser.print_help()
-    elif args.command == "shell" or args.command is None:
-        from icortex.kernel import get_icortex_kernel
+    # elif args.command == "shell" or args.command is None:
+    #     from icortex.kernel import get_icortex_kernel
 
-        kernel = get_icortex_kernel()
-        if kernel is None:
-            ZMQTerminalICortexApp.launch_instance()
-        else:
-            # print("The ICortex shell is already running, skipping.")
-            parser.print_help()
+    #     kernel = get_icortex_kernel()
+    #     if kernel is None:
+    #         # pass
+    #         # IPKernelApp.launch_instance(kernel_class=ICortexKernel)
+
+    #         ZMQTerminalICortexApp.launch_instance()
+    #     else:
+    #         # print("The ICortex shell is already running, skipping.")
+    #         parser.print_help()
 
 
 def eval_cli(prompt: str):

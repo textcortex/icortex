@@ -1,13 +1,13 @@
 [tool.poetry]
 name = "icortex"
-version = "0.0.3"
+version = "0.0.4"
 description = "Jupyter kernel that allows you generate Python code from natural language prompts"
 authors = ["TextCortex Team <onur@textcortex.com>"]
 license = "Apache"
 readme = "README.md"
 repository = "https://github.com/textcortex/icortex"
 homepage = "https://icortex.ai/"
-keywords=[
+keywords = [
     "copilot",
     "tabnine",
     "codex",
@@ -24,7 +24,7 @@ keywords=[
     "jupyter notebook",
     "smart jupyter notebook",
     "jupyter notebook kernel",
-    "icortex kernel"
+    "icortex kernel",
 ]
 classifiers = [
     "Intended Audience :: Developers",
@@ -37,7 +37,7 @@ classifiers = [
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
-    "Topic :: Scientific/Engineering :: Artificial Intelligence"
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
 ]
 
 [tool.poetry.scripts]
@@ -45,22 +45,28 @@ icortex = "icortex.cli:main"
 
 [tool.poetry.dependencies]
 python = ">=3.7,<3.11"
-entrypoints = "^0.4"
-ipykernel = "^6.16.0"
-ipython = "^8.5.0"
-ipywidgets = "^8.0.2"
-jupyter-client = "^7.4.2"
-jupyter-console = "^6.4.4"
-jupyter-core = "^4.11.1"
-jupyterlab-widgets = "^3.0.3"
-Pygments = "^2.13.0"
 toml = "^0.10.2"
-torch = {extras = ["huggingface"], version = "^1.12.1"}
-transformers = {version = "^4.23.1", extras = ["huggingface"]}
-optimum = {version = "^1.4.0", extras = ["huggingface"]}
-onnx = {version = "^1.12.0", extras = ["huggingface"]}
-onnxruntime = {version = "^1.12.1", extras = ["huggingface"]}
-openai = {version = "^0.23.1", extras = ["openai"]}
+requests = "^2.28.1"
+# entrypoints = "^0.4"
+# ipykernel = "^6.16.0"
+# ipython = "^8.5.0"
+# ipywidgets = "^8.0.2"
+# jupyter-client = "^7.4.2"
+# jupyter-console = "^6.4.4"
+# jupyter-core = "^4.11.1"
+# jupyterlab-widgets = "^3.0.3"
+# Pygments = "^2.13.0"
+
+[tool.poetry.extras]
+kernel = ["jupyter-client==^7.4.2"]
+openai = ["openai==^0.23.1"]
+huggingface = [
+    "onnxruntime==^1.12.1",
+    "onnx==^1.12.0",
+    "optimum==^1.4.0",
+    "transformers==^4.23.1",
+    "torch==^1.12.1",
+]
 
 [tool.poetry.group.dev.dependencies]
 Sphinx = "^5.3.0"
