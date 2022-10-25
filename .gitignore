@@ -153,3 +153,4 @@ lite/jupyterlite-icortex/style/icortex.png
 lite/jupyterlite-icortex/LICENSE
 node_modules/
 *.tsbuildinfo
+*_backup

@@ -1,4 +1,4 @@
-from icortex import ICortexKernel
+from icortex.kernel import ICortexKernel
 from ipykernel.kernelapp import IPKernelApp
 
 IPKernelApp.launch_instance(kernel_class=ICortexKernel)

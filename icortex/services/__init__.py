@@ -1,11 +1,8 @@
 import typing as t
 from copy import deepcopy
+import importlib
 
 from icortex.services.service_base import ServiceBase, ServiceVariable
-from icortex.services.echo import EchoService
-from icortex.services.textcortex import TextCortexService
-from icortex.services.openai import OpenAIService
-from icortex.services.huggingface import HuggingFaceAutoService
 
 from icortex.defaults import (
     DEFAULT_AUTO_EXECUTE,
@@ -15,21 +12,26 @@ from icortex.defaults import (
 )
 
 service_dict = {
-    "echo": EchoService,
-    "textcortex": TextCortexService,
-    "openai": OpenAIService,
-    "huggingface": HuggingFaceAutoService,
+    "echo": "icortex.services.echo.EchoService",
+    "textcortex": "icortex.services.textcortex.TextCortexService",
+    "openai": "icortex.services.openai.OpenAIService",
+    "huggingface": "icortex.services.huggingface.HuggingFaceAutoService",
 }
 
 
 def get_service(name: str) -> t.Type[ServiceBase]:
-    return service_dict[name]
+    path = service_dict[name]
+    module_path, service_name = path.rsplit(".", 1)
+    module = importlib.import_module(module_path)
+    service = module.__dict__[service_name]
+    return service
 
 
 def get_available_services() -> t.List[str]:
-    sorted_services = sorted(
-        [key for key, val in service_dict.items() if not val.hidden]
-    )
+    # sorted_services = sorted(
+    #     [key for key, val in service_dict.items() if not val.hidden]
+    # )
+    sorted_services = list(sorted(service_dict.keys()))
     sorted_services.remove(DEFAULT_SERVICE)
     sorted_services = [DEFAULT_SERVICE] + sorted_services
 
