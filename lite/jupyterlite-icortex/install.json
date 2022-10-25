@@ -1,5 +1,0 @@
-{
-  "packageManager": "python",
-  "packageName": "jupyterlite_icortex",
-  "uninstallInstructions": "Use your Python package manager (pip, conda, etc.) to uninstall the package jupyterlite_icortex"
-}
