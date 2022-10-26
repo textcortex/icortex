@@ -118,7 +118,7 @@ class ServiceBase(ABC):
             required=False,
             help="Do not print the generated code.",
         )
-        self.prompt_parser.usage = "/your prompt goes here [-e] [-r] [-i] [-p] ..."
+        self.prompt_parser.usage = "%p your prompt goes here [-e] [-r] [-i] [-p] ..."
 
         self.prompt_parser.description = self.description
 
