@@ -1,10 +1,18 @@
-import argparse
-import json
 import os
 import sys
+import json
+import shutil
+import argparse
+import pkg_resources
 
-from jupyter_client.kernelspec import KernelSpecManager
 from IPython.utils.tempdir import TemporaryDirectory
+
+try:
+    from jupyter_client.kernelspec import KernelSpecManager
+
+    HAVE_JUPYTER = True
+except ImportError:
+    HAVE_JUPYTER = False
 
 kernel_json = {
     "argv": [sys.executable, "-m", "icortex.kernel", "-f", "{connection_file}"],
@@ -12,15 +20,34 @@ kernel_json = {
     "language": "python",
 }
 
+KERNEL_RESOURCES = [
+    "logo-svg.svg",
+    "logo-32x32.png",
+    "logo-64x64.png",
+    "logo-128x128.png",
+    "logo-256x256.png",
+    "logo-512x512.png",
+]
+
 
 def install_my_kernel_spec(user=True, prefix=None, uninstall=False):
+    if not HAVE_JUPYTER:
+        print("Could not install Jupyter kernel spec, please install jupyter_client")
+        return
+
     ksm = KernelSpecManager()
     if not uninstall:
         with TemporaryDirectory() as td:
             os.chmod(td, 0o755)  # Starts off as 700, not user readable
             with open(os.path.join(td, "kernel.json"), "w") as f:
                 json.dump(kernel_json, f, sort_keys=True)
-            # TODO: Copy any resources
+
+            # Copy resources such as logos
+            for resource in KERNEL_RESOURCES:
+                resource_path = pkg_resources.resource_filename(
+                    "icortex", "kernel/icortex/" + resource
+                )
+                shutil.copy(resource_path, td)
 
             print("Installing Jupyter kernel spec")
             ksm.install_kernel_spec(td, "icortex", user=user, prefix=prefix)
@@ -39,6 +66,10 @@ def _is_root():
 
 
 def is_kernel_installed():
+    if not HAVE_JUPYTER:
+        print("Could not install Jupyter kernel spec, please install jupyter_client")
+        return False
+
     ksm = KernelSpecManager()
 
     paths = ksm.find_kernel_specs()
@@ -70,7 +101,12 @@ def main(argv=None):
     if not args.prefix and not _is_root():
         args.user = True
 
-    install_my_kernel_spec(user=args.user, prefix=args.prefix, uninstall=args.uninstall)
+    try:
+        install_my_kernel_spec(
+            user=args.user, prefix=args.prefix, uninstall=args.uninstall
+        )
+    except:
+        pass
 
 
 if __name__ == "__main__":

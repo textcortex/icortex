@@ -8,11 +8,16 @@ def unescape(s) -> str:
 
 
 def is_prompt(input: str) -> bool:
-    return input.strip()[0] == "/"
+    return input.strip().split()[0] in [
+        r"%p",
+        r"%prompt",
+        r"%%prompt",
+        r"%%prompt",
+    ]
 
 
 def is_cli(input: str) -> bool:
-    return input.strip()[:2] == "//"
+    return input.strip().split()[0] == r"%icortex"
 
 
 def escape_quotes(s: str) -> str:
@@ -20,11 +25,14 @@ def escape_quotes(s: str) -> str:
 
 
 def extract_prompt(input: str) -> str:
-    return input.strip()[1:].strip()
+    tokens = input.strip().split(" ", 1)
+    if len(tokens) == 1:
+        return ""
+    else:
+        return tokens[1]
 
 
-def extract_cli(input: str) -> str:
-    return input.strip()[2:].strip()
+extract_cli = extract_prompt
 
 
 def yes_no_input(message: str, default=True) -> bool:
