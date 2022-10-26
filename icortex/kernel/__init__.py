@@ -2,6 +2,7 @@
 # https://jupyter-client.readthedocs.io/en/latest/wrapperkernels.html
 # https://github.com/jupyter/jupyter/wiki/Jupyter-kernels
 
+from logging import warning
 import shlex
 import typing as t
 from icortex.config import ICortexConfig
@@ -149,10 +150,26 @@ class ICortexKernel(IPythonKernel, SingletonConfigurable):
         if self._check_service():
             service_interaction = self.eval_prompt(prompt)
             code = service_interaction.get_code()
-            # TODO: Store output once #12 is implemented
-            self.history.add_prompt(input_, [], service_interaction.to_dict())
             # Execute generated code
-            self.shell.run_cell(code, store_history=False, silent=False, cell_id=None)
+            self.shell.run_cell(
+                code,
+                store_history=False,
+                silent=False,
+                cell_id=self.shell.execution_count,
+            )
+            # Get the output from InteractiveShell.history_manager.
+            # run_cell should be called with store_history=False in order for
+            # self.shell.execution_count to match with the respective output
+            outputs = []
+            try:
+                if self.shell.execution_count in self.shell.history_manager.output_hist_reprs:
+                    output = self.shell.history_manager.output_hist_reprs[self.shell.execution_count]
+                    outputs.append(output)
+            except:
+                warning("There was an issue with saving execution output to history")
+
+            # Store history with the input and corresponding output
+            self.history.add_prompt(input_, outputs, service_interaction.to_dict())
         else:
             print(INIT_SERVICE_MSG)
 
