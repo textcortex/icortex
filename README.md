@@ -8,6 +8,8 @@ ICortex is a [Jupyter kernel](https://jupyter-client.readthedocs.io/en/latest/ke
 
 https://user-images.githubusercontent.com/2453968/196814906-1a0de2a1-27a7-4aec-a960-0eb21fbe2879.mp4
 
+TODO: Prompts are given using the %prompt magic now, update the video accordingly
+
 It is ...
 
 - a drop-in replacement for the IPython kernel. Prompts can be executed with the [magic commands](https://ipython.readthedocs.io/en/stable/interactive/magics.html) `%prompt` or `%p` for short.
