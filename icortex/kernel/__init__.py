@@ -9,6 +9,7 @@ from icortex.cli import eval_cli
 from icortex.context import ICortexHistory
 
 from ipykernel.ipkernel import IPythonKernel
+from IPython import InteractiveShell
 from traitlets.config.configurable import SingletonConfigurable
 
 from icortex.helper import (
@@ -42,6 +43,7 @@ class ICortexKernel(IPythonKernel, SingletonConfigurable):
         "codemirror_mode": {"name": "ipython", "version": 3},
     }
     banner = "ICortex: Generate Python code from natural language prompts using large language models"
+    shell: InteractiveShell
 
     def __init__(self, **kwargs):
 
@@ -142,20 +144,19 @@ class ICortexKernel(IPythonKernel, SingletonConfigurable):
         else:
             print(INIT_SERVICE_MSG)
 
-    def prompt(self, input_):
+    def prompt(self, input_: str):
         prompt = escape_quotes(input_)
         if self._check_service():
             service_interaction = self.eval_prompt(prompt)
             code = service_interaction.get_code()
             # TODO: Store output once #12 is implemented
             self.history.add_prompt(input_, [], service_interaction.to_dict())
+            # Execute generated code
+            self.shell.run_cell(code, store_history=False, silent=False, cell_id=None)
         else:
             print(INIT_SERVICE_MSG)
-            code = ""
 
-        exec(code, self.shell.user_ns)
-
-    def cli(self, input_):
+    def cli(self, input_: str):
         prompt = escape_quotes(input_)
         eval_cli(prompt)
 
