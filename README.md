@@ -1,14 +1,17 @@
 <p align="center">
-    <a href="https://icortex.ai/"><h2><img src="https://raw.githubusercontent.com/textcortex/icortex/dev-002/assets/logo/banner.svg">ICortex</h2></a>
+    <a href="https://icortex.ai/"><img src="https://raw.githubusercontent.com/textcortex/icortex/dev-002/assets/logo/banner.svg"></a>
+    <br />
     <br />
     <a href="https://github.com/textcortex/icortex/workflows/Build/badge.svg"><img src="https://github.com/textcortex/icortex/workflows/Build/badge.svg" alt="Github Actions Status"></a>
     <a href="https://github.com/textcortex/icortex/blob/main/LICENSE"><img src="https://img.shields.io/github/license/textcortex/icortex.svg?color=blue" alt="License"></a>
     <a href="https://www.manim.community/discord/"><img src="https://img.shields.io/discord/997173529235685471.svg?label=discord&color=yellow&logo=discord" alt="Discord"></a>
     <a href="https://discord.textcortex.com/"><img src="https://dcbadge.vercel.app/api/server/QtfGgKneHX?style=flat" alt="Discord"></a>
     <a href="https://pypi.org/project/icortex/"><img src="https://img.shields.io/pypi/v/icortex.svg?style=flat&logo=pypi" alt="PyPI Latest Release"></a>
+    <br />
+    <br />
+    <i>A Jupyter kernel for programming in natural language</i>
 </p>
 <hr />
-
 
 ICortex is a [Jupyter kernel](https://jupyter-client.readthedocs.io/en/latest/kernels.html) that lets you program using plain English, by generating Python code from natural language prompts:
 
