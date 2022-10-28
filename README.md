@@ -1,8 +1,13 @@
 # ICortex Kernel
 
-![Github Actions Status](https://github.com/textcortex/icortex/workflows/Build/badge.svg)
-[![License](https://img.shields.io/github/license/textcortex/icortex.svg?color=blue)](https://github.com/textcortex/icortex/blob/main/LICENSE)
-[![](https://dcbadge.vercel.app/api/server/QtfGgKneHX?style=flat)](https://discord.textcortex.com/)
+<p align="center">
+    <a href="https://icortex.ai/"><img src="https://raw.githubusercontent.com/textcortex/icortex/main/icortex/kernel/icortex/logo-svg.svg"><p>ICortex</p></a>
+    <br />
+    <a href="https://github.com/textcortex/icortex/workflows/Build/badge.svg"><img src="https://github.com/textcortex/icortex/workflows/Build/badge.svg" alt="Github Actions Status"></a>
+    <a href="https://github.com/textcortex/icortex/blob/main/LICENSE"><img src="https://img.shields.io/github/license/textcortex/icortex.svg?color=blue" alt="License"></a>
+    <a href="https://discord.textcortex.com/"><img src="https://dcbadge.vercel.app/api/server/QtfGgKneHX?style=flat" alt="Discord"></a>
+    <a href="https://pypi.org/project/icortex/"><img src="https://img.shields.io/pypi/v/icortex.svg?style=flat&logo=pypi" alt="PyPI Latest Release"></a>
+</p>
 
 ICortex is a [Jupyter kernel](https://jupyter-client.readthedocs.io/en/latest/kernels.html) that lets you program using plain English, by generating Python code from natural language prompts:
 
