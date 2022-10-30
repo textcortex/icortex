@@ -1,5 +1,5 @@
 <p align="center">
-    <a href="https://icortex.ai/"><img src="https://raw.githubusercontent.com/textcortex/icortex/dev-002/assets/logo/banner.svg"></a>
+    <a href="https://icortex.ai/"><img src="https://raw.githubusercontent.com/textcortex/icortex/main/assets/logo/banner.svg"></a>
     <br />
     <br />
     <a href="https://github.com/textcortex/icortex/workflows/Build/badge.svg"><img src="https://github.com/textcortex/icortex/workflows/Build/badge.svg" alt="Github Actions Status"></a>
@@ -10,11 +10,16 @@
     <a href="https://twitter.com/TextCortex/"><img src="https://img.shields.io/twitter/url/https/twitter.com/cloudposse.svg?style=social&label=Follow%20%40TextCortex" alt="Twitter"></a>
     <br />
     <br />
-    <i>A Jupyter kernel for Natural Language Programming</i>
+    <i>A Python library for [soft-code](https://en.wikipedia.org/wiki/Soft_computing) development — program in plain English with AI code generation!</i>
 </p>
 <hr />
 
-ICortex is a [Jupyter kernel](https://jupyter-client.readthedocs.io/en/latest/kernels.html) that lets you program using plain English, by generating Python code from natural language prompts:
+ICortex is a [Jupyter kernel](https://jupyter-client.readthedocs.io/en/latest/kernels.html) that lets you develop **soft programs**:
+
+- sets of instructions (or prompts) written in natural language (such as English)
+- that generate Python code
+- to perfom work in different contexts
+- more flexibly than regular software:
 
 https://user-images.githubusercontent.com/2453968/196814906-1a0de2a1-27a7-4aec-a960-0eb21fbe2879.mp4
 
