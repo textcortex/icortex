@@ -10,45 +10,61 @@
     <a href="https://twitter.com/TextCortex/"><img src="https://img.shields.io/twitter/url/https/twitter.com/cloudposse.svg?style=social&label=Follow%20%40TextCortex" alt="Twitter"></a>
     <br />
     <br />
-    <i>A Python library for [soft-code](https://en.wikipedia.org/wiki/Soft_computing) development — program in plain English with AI code generation!</i>
+    <i>A Python library for <a href="https://en.wikipedia.org/wiki/Soft_computing">soft-code</a> development — program in plain English with AI code generation!</i>
 </p>
 <hr />
 
 ICortex is a [Jupyter kernel](https://jupyter-client.readthedocs.io/en/latest/kernels.html) that lets you develop **soft programs**:
 
-- sets of instructions (or prompts) written in natural language (such as English)
-- that generate Python code
-- to perfom work in different contexts
-- more flexibly than regular software:
+- sets of instructions (i.e. prompts) [written in natural language](https://en.wikipedia.org/wiki/Natural-language_programming) (such as English)
+- given to language models that generate Python code
+- to perfom useful work in various contexts
+- more flexibly than regular software.
+
+To put simply, in goes English, out comes Python:
 
 https://user-images.githubusercontent.com/2453968/196814906-1a0de2a1-27a7-4aec-a960-0eb21fbe2879.mp4
 
 TODO: Prompts are given using the %prompt magic now, update the video accordingly
 
-It is ...
+ICortex is ...
 
 - a drop-in replacement for the IPython kernel. Prompts can be executed with the [magic commands](https://ipython.readthedocs.io/en/stable/interactive/magics.html) `%prompt` or `%p` for short.
-- an interface for [Natural Language Programming](https://en.wikipedia.org/wiki/Natural-language_programming) interface—prompts written in plain English automatically generate Python code which can then be executed globally.
 - interactive—install missing packages directly, decide whether to execute the generated code or not, and so on, directly in the Jupyter Notebook cell.
 - open source and fully extensible—if you think we are missing a model or an API, you can request it by creating an issue, or implement it yourself by subclassing `ServiceBase` under [`icortex/services`](icortex/services).
 
-ICortex is currently in alpha, so expect breaking changes. We are giving free credits to our first users—[join our Discord](https://discord.textcortex.com/) to help us shape this product.
+It is similar to [Github Copilot](https://github.com/features/copilot) but with certain differences that make it stand out:
+
+|  | GitHub Copilot | ICortex |
+|---|---|---|
+| Generates code ... | in the text editor | in a [Jupyter kernel](https://docs.jupyter.org/en/latest/projects/kernels.html) (language backend that provides the execution environment) |
+| From ... | existing code and comments | plain English prompts |
+| Level of control over context used to generate code | Low | High |
+| Plain language instructions are ... | just comments | standalone programs |
+| The resulting program is ... | static | dynamic—can adapt to the context it is executed in |
+| Can connect to different code generation APIs | No | Yes |
+
+In other words, the main difference between ICortex and a code-generation plugin like GitHub Copilot is that ICortex is its own programming paradigm similar to [literate programming](https://en.wikipedia.org/wiki/Literate_programming), where the natural language prompt is the first-class citizen, and which allows for fine-grained control over the code-generation context.
+
+ICortex is currently in alpha, so expect breaking changes. We are giving free credits to our first users—[join our Discord](https://discord.textcortex.com/) to help us shape it.
 
 ## Installation
 
-To install the ICortex Kernel, run the following in the main project directory:
+Install directly from PyPI:
 
 ```sh
 pip install icortex
+# This line is needed to install the kernel spec to Jupyter
+python -m icortex.kernel.install
+# Alternatively, running icortex directly also installs the kernel spec
+icortex
 ```
-
-This will install the Python package and the `icortex` command line interface. You will need to run `icortex` once to install the kernel spec to Jupyter.
 
 ## Using ICortex
 
 Before you can use ICortex in Jupyter, you need to configure it for your current project.
 
-If you are using the terminal:
+If you are using the terminal, go to your project directory and run:
 
 ```bash
 icortex init
