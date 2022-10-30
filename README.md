@@ -18,10 +18,10 @@ ICortex is a [Jupyter kernel](https://jupyter-client.readthedocs.io/en/latest/ke
 
 - sets of instructions (i.e. prompts) [written in natural language](https://en.wikipedia.org/wiki/Natural-language_programming) (such as English)
 - given to language models that generate Python code
-- to perfom useful work in various contexts
+- to perform useful work in various contexts
 - more flexibly than regular software.
 
-To put simply, in goes English, out comes Python:
+To put it simply—in goes English, out comes Python:
 
 https://user-images.githubusercontent.com/2453968/196814906-1a0de2a1-27a7-4aec-a960-0eb21fbe2879.mp4
 
@@ -35,16 +35,16 @@ ICortex is ...
 
 It is similar to [Github Copilot](https://github.com/features/copilot) but with certain differences that make it stand out:
 
-|  | GitHub Copilot | ICortex |
-|---|---|---|
-| Generates code ... | in the text editor | in a [Jupyter kernel](https://docs.jupyter.org/en/latest/projects/kernels.html) (language backend that provides the execution environment) |
-| From ... | existing code and comments | plain English prompts |
+| Feature | GitHub Copilot | ICortex |
+|---|:---:|:---:|
+| Generates code ... | In the text editor | In a [Jupyter kernel](https://docs.jupyter.org/en/latest/projects/kernels.html) (language backend that provides the execution environment) |
+| From ... | Existing code and comments | Plain English prompts |
 | Level of control over context used to generate code | Low | High |
-| Plain language instructions are ... | just comments | standalone programs |
-| The resulting program is ... | static | dynamic—can adapt to the context it is executed in |
+| Plain language instructions are ... | Just comments | Standalone programs |
+| The resulting program is ... | Static | Dynamic—adapts to the context it is executed in |
 | Can connect to different code generation APIs | No | Yes |
 
-In other words, the main difference between ICortex and a code-generation plugin like GitHub Copilot is that ICortex is its own programming paradigm similar to [literate programming](https://en.wikipedia.org/wiki/Literate_programming), where the natural language prompt is the first-class citizen, and which allows for fine-grained control over the code-generation context.
+The main difference between ICortex and a code-generation plugin like GitHub Copilot is that ICortex is a programming paradigm similar to [literate programming](https://en.wikipedia.org/wiki/Literate_programming) or [natural language programming](https://en.wikipedia.org/wiki/Natural-language_programming), where the natural language prompt is the first-class citizen, and which allows for fine-grained control over the code-generation context.
 
 ICortex is currently in alpha, so expect breaking changes. We are giving free credits to our first users—[join our Discord](https://discord.textcortex.com/) to help us shape it.
 
@@ -54,9 +54,9 @@ Install directly from PyPI:
 
 ```sh
 pip install icortex
-# This line is needed to install the kernel spec to Jupyter
+# This line is needed to install the kernel spec to Jupyter:
 python -m icortex.kernel.install
-# Alternatively, running icortex directly also installs the kernel spec
+# Alternatively, running icortex directly also installs the kernel spec:
 icortex
 ```
 
@@ -93,8 +93,6 @@ To use the TextCortex code generation API,
 If you use up the starter credits and would like to continue testing out ICortex, [hit us up on our Discord on #icortex channel](https://discord.textcortex.com) and we will charge your account with more free credits.
 
 You can also try out different services e.g. OpenAI's Codex API, if you have access. You can also run code generation models from HuggingFace locally, which we have optimized to run on the CPU—though these produce lower quality outputs due to being smaller.
-
-## Usage
 
 ### Executing prompts
 
