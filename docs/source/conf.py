@@ -22,6 +22,7 @@ extensions = [
     "sphinxcontrib.video",
     "sphinx.ext.autodoc",
     "sphinx.ext.autosummary",
+    "sphinx_copybutton",
 ]
 
 templates_path = ["_templates"]
@@ -41,6 +42,7 @@ html_theme_options = {
     "top_of_page_button": None,
     "light_logo": "logo-bottom-light-bg.svg",
     "dark_logo": "logo-bottom-dark-bg.svg",
+    "announcement": "TextCortex loves Open Source ❤️ <a href='https://discord.textcortex.com' target='_blank'>Join our Discord</a> to become part of the community!",
     # "light_css_variables": {
     #     "color-content-foreground": "#000000",
     #     "color-background-primary": "#ffffff",
@@ -66,3 +68,4 @@ html_theme_options = {
     #     "color-foreground-secondary": "#ffffffd9",
     # },
 }
+

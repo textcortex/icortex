@@ -17,7 +17,7 @@
 ICortex is a [Jupyter kernel](https://jupyter-client.readthedocs.io/en/latest/kernels.html) that lets you develop **soft programs**:
 
 - sets of instructions (i.e. prompts) [written in natural language](https://en.wikipedia.org/wiki/Natural-language_programming) (such as English)
-- given to language models that generate Python code
+- processed by language models that generate Python code
 - to perform useful work in various contexts
 - more flexibly than regular software.
 

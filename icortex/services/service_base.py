@@ -81,14 +81,14 @@ class ServiceBase(ABC):
             "--execute",
             action="store_true",
             required=False,
-            help="Execute the Python code returned by the TextCortex API in the same cell.",
+            help="Execute the Python code returned by TextCortex API.",
         )
         self.prompt_parser.add_argument(
             "-r",
             "--regenerate",
             action="store_true",
             required=False,
-            help="Make the kernel ignore cached responses and makes a new request to the TextCortex API.",
+            help="Make the kernel ignore cached responses and make a new request to TextCortex API.",
         )
         self.prompt_parser.add_argument(
             "-i",
@@ -118,7 +118,7 @@ class ServiceBase(ABC):
             required=False,
             help="Do not print the generated code.",
         )
-        self.prompt_parser.usage = "%p your prompt goes here [-e] [-r] [-i] [-p] ..."
+        self.prompt_parser.usage = "%%prompt your prompt goes here [-e] [-r] [-i] [-p] ..."
 
         self.prompt_parser.description = self.description
 

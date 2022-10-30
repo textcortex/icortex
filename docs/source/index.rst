@@ -14,7 +14,7 @@ that lets you develop **soft programs**:
 -  sets of instructions (i.e. prompts) `written in natural
    language <https://en.wikipedia.org/wiki/Natural-language_programming>`__
    (such as English)
--  given to language models that generate Python code
+-  processed by language models that generate Python code
 -  to perform useful work in various contexts
 -  more flexibly than regular software.
 
@@ -40,9 +40,9 @@ ICortex is …
 Get started
 -----------
 
-Visit :doc:`Quickstart<quickstart>` to see all the ways you can start using ICortex.
+Visit :doc:`Quickstart<quickstart>` to get started with ICortex.
 
-If you are experiencing any problems or bugs, `join our Discord <https://discord.textcortex.com/>`__ to get help.
+If you are experiencing any issues or have found a bug, `join our Discord <https://discord.textcortex.com/>`__ to get help.
 
 Index
 -----
