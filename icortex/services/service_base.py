@@ -17,14 +17,14 @@ class ServiceVariable:
     """A variable for a code generation service
 
     Args:
-        type_ (t.Any): Variable type.
-        default (t.Any, optional): Default value, should match :data:`type_`.
+        type_ (Any): Variable type.
+        default (Any, optional): Default value, should match :data:`type_`.
         help (str, optional): Help string for the variable. Defaults to "".
         secret (bool, optional): When set to
             True, the variable is omitted from caches and the context. Defaults to False.
-        argparse_args (t.List, optional): Args to
+        argparse_args (List, optional): Args to
             be given to :func:`ArgumentParser.add_argument`. Defaults to [].
-        argparse_kwargs (t.Dict, optional): Keywords args to
+        argparse_kwargs (Dict, optional): Keywords args to
             be given to :func:`ArgumentParser.add_argument`. Defaults to {}.
         require_arg (bool, optional): When set to true,
             the prompt parser will raise an error if the variable is not specified.
@@ -223,7 +223,7 @@ class ServiceBase(ABC):
 
         Args:
             prompt (str): The prompt that describes what the generated code should perform
-            context (t.Dict[str, t.Any], optional): A dict containing the current notebook
+            context (Dict[str, Any], optional): A dict containing the current notebook
                 context, that is in the Jupyter notebook format.
                 See :class:`icortex.context.ICortexHistory` for more details.
 

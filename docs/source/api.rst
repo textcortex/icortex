@@ -26,7 +26,6 @@ This sections explains how to add or extend new code generation services.
 
 .. automodule:: icortex.services.textcortex
    :members:
-   :show-inheritance:
 
 Context
 ~~~~~~~
