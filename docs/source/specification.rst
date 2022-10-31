@@ -1,5 +1,0 @@
-
-ICortex Specification
-=====================
-
-Some stuff
