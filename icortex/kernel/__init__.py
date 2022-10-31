@@ -32,6 +32,10 @@ INIT_SERVICE_MSG = (
 
 
 class ICortexKernel(IPythonKernel, SingletonConfigurable):
+    """Class that implements the ICortext kernel. It is basically
+    :class:`ipykernel.ipkernel.IPythonKernel` with magic commands
+    and logic for handling code generation.
+    """
     implementation = "ICortex"
     implementation_version = __version__
     language = "no-op"
