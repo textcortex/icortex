@@ -81,7 +81,7 @@ class ServiceBase(ABC):
             "--execute",
             action="store_true",
             required=False,
-            help="Execute the Python code returned by TextCortex API.",
+            help="Execute the Python code returned by TextCortex API directly.",
         )
         self.prompt_parser.add_argument(
             "-r",

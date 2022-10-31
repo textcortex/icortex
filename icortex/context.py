@@ -78,7 +78,11 @@ class ICortexHistory:
 
         ret = {
             "cell_type": "code",
+            # It is actually a prompt, but "code" here refers to the Jupyter cell type
             "metadata": {
+                # Any ICortex specific information needs to be stored here to
+                # adhere to the Jupyter notebook format
+                "source_type": "prompt", # This tells that the input was a prompt
                 "service": service_interaction,
             },
             "source": prompt,
