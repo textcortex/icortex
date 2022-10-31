@@ -35,8 +35,9 @@ class ICortexHistory:
     """Interface to construct a history variable in globals for storing
     notebook context.
     The constructed dict maps to JSON, and the schema is compatible
-    with the Jupyter notebook format:
-    https://nbformat.readthedocs.io/en/latest/format_description.html"""
+    with the
+    `Jupyter notebook format <https://nbformat.readthedocs.io/en/latest/format_description.html>`__:
+    """
 
     def __init__(self, scope: t.Dict[str, t.Any]):
         self.scope = scope

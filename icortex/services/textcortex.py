@@ -24,6 +24,7 @@ api_key = "your-api-key-goes-here"
 
 
 class TextCortexService(ServiceBase):
+    """Interface to TextCortex's code generation service"""
     name = "textcortex"
     description = "TextCortex Python code generator"
     variables = {
@@ -58,11 +59,11 @@ class TextCortexService(ServiceBase):
         ),
     }
 
-    def __init__(self, config: t.Dict):
-        super(TextCortexService, self).__init__(config)
+    def __init__(self, **kwargs: t.Dict):
+        super(TextCortexService, self).__init__(**kwargs)
 
         try:
-            self.api_key = config["api_key"]
+            self.api_key = kwargs["api_key"]
         except KeyError:
             print(MISSING_API_KEY_MSG)
             raise Exception("Missing API key")
@@ -71,7 +72,7 @@ class TextCortexService(ServiceBase):
         self,
         prompt: str,
         context: t.Dict[str, t.Any] = {},
-    ):
+    ) -> t.List[t.Dict[t.Any, t.Any]]:
         argv = shlex.split(prompt)
 
         # Remove the module name flag from the prompt
@@ -129,7 +130,6 @@ class TextCortexService(ServiceBase):
             self.cache_response(
                 cached_request_dict, response_dict, cache_path=DEFAULT_CACHE_PATH
             )
-
             return response_dict["generated_text"]
         elif response_dict["status"] == "fail":
             raise Exception(

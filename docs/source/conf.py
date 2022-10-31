@@ -22,6 +22,9 @@ extensions = [
     "sphinxcontrib.video",
     "sphinx.ext.autodoc",
     "sphinx.ext.autosummary",
+    "sphinx.ext.autodoc",
+    "sphinx.ext.coverage",
+    "sphinx.ext.napoleon",
     "sphinx_copybutton",
 ]
 
@@ -68,4 +71,3 @@ html_theme_options = {
     #     "color-foreground-secondary": "#ffffffd9",
     # },
 }
-

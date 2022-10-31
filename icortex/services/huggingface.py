@@ -92,8 +92,8 @@ class HuggingFaceAutoService(ServiceBase):
         ),
     }
 
-    def __init__(self, config: t.Dict):
-        super(HuggingFaceAutoService, self).__init__(config)
+    def __init__(self, **kwargs: t.Dict):
+        super(HuggingFaceAutoService, self).__init__(**kwargs)
 
         import torch
         from transformers import AutoTokenizer
@@ -101,8 +101,8 @@ class HuggingFaceAutoService(ServiceBase):
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
         self.token_id_cache = {}
 
-        if "model" in config:
-            model_id = config["model"]
+        if "model" in kwargs:
+            model_id = kwargs["model"]
         else:
             model_id = DEFAULT_MODEL
 
@@ -134,7 +134,7 @@ class HuggingFaceAutoService(ServiceBase):
         self,
         prompt: str,
         context: t.Dict[str, t.Any] = {},
-    ):
+    ) -> t.List[t.Dict[t.Any, t.Any]]:
         argv = shlex.split(prompt)
 
         # Remove the module name flag from the prompt

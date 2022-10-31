@@ -107,7 +107,7 @@ class ICortexConfig:
         service_config = self.dict[service_name]
         service_class = get_service(service_name)
 
-        self.kernel.set_service(service_class(service_config))
+        self.kernel.set_service(service_class(**service_config))
         return True
 
     def ask_which_service(self) -> str:

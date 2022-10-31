@@ -95,11 +95,11 @@ class OpenAIService(ServiceBase):
         ),
     }
 
-    def __init__(self, config: t.Dict):
-        super(OpenAIService, self).__init__(config)
+    def __init__(self, **kwargs: t.Dict):
+        super(OpenAIService, self).__init__(**kwargs)
 
         try:
-            self.api_key = config["api_key"]
+            self.api_key = kwargs["api_key"]
             openai.api_key = self.api_key
         except KeyError:
             print(MISSING_API_KEY_MSG)
@@ -109,7 +109,7 @@ class OpenAIService(ServiceBase):
         self,
         prompt: str,
         context: t.Dict[str, t.Any] = {},
-    ):
+    ) -> t.List[t.Dict[t.Any, t.Any]]:
 
         argv = shlex.split(prompt)
 

@@ -14,11 +14,27 @@ def is_str_repr(s: str):
 
 
 class ServiceVariable:
+    """A variable for a code generation service
+
+    Args:
+        type_ (t.Any): Variable type.
+        default (t.Any, optional): Default value, should match :data:`type_`.
+        help (str, optional): Help string for the variable. Defaults to "".
+        secret (bool, optional): When set to
+            True, the variable is omitted from caches and the context. Defaults to False.
+        argparse_args (t.List, optional): Args to
+            be given to :func:`ArgumentParser.add_argument`. Defaults to [].
+        argparse_kwargs (t.Dict, optional): Keywords args to
+            be given to :func:`ArgumentParser.add_argument`. Defaults to {}.
+        require_arg (bool, optional): When set to true,
+            the prompt parser will raise an error if the variable is not specified.
+            Defaults to False.
+    """
     def __init__(
         self,
-        type_: t.Any,
+        type_: type,
         default: t.Any = None,
-        help: str = None,
+        help: str = "",
         secret: bool = False,
         argparse_args: t.List = [],
         argparse_kwargs: t.Dict = {},
@@ -58,14 +74,50 @@ class ServiceVariable:
 
 
 class ServiceBase(ABC):
+    """Abstract base class for interfacing a code generation service.
+    Its main purpose is to provide a flexible API for connecting user
+    prompts with whatever logic the service
+    provider might choose to implement. User prompts adhere to
+    POSIX argument syntax and are parsed with
+    `argparse <https://docs.python.org/3/library/argparse.html>`__.
+
+    To create a new service:
+
+    - Assign a unique name to :attr:`name`
+    - Add your class to the dict :data:`icortex.services.AVAILABLE_SERVICES`.
+      Use :attr:`name` as the key and don't forget to include module information.
+    - Determine the parameters that the service will use for code generation and add
+      them to :attr:`variables`.
+    - Implement :func:`generate`.
+
+    Check out :class:`icortex.services.textcortex.TextCortexService` as a
+    reference implementation.
+
+    Attributes
+    ----------
+    variables: Dict[str, ServiceVariable]
+        A dict that maps variable names to :class:`ServiceVariable` s.
+    name: str
+        A unique name.
+    description: str
+        Description string.
+    prompt_parser: argparse.ArgumentParser
+        Parser to parse the prompts.
+    """
+
     name: str = "base"
     description: str = "Base class for a code generation service"
     # Each child class will need to add their specific arguments
     # by extending `variables`
     variables: t.Dict[str, ServiceVariable] = {}
+    # This has stopped working, fix
     hidden: bool = False
 
-    def __init__(self, config: t.Dict):
+    def __init__(self, **kwargs: t.Dict[str, t.Any]):
+        """Classes that derive from ServiceBase are always initialized with
+        keyword arguments that contain values for the service variables.
+        The values can come
+        """
         # Create the prompt parser and add default arguments
         self.prompt_parser = argparse.ArgumentParser(
             add_help=False,
@@ -118,7 +170,9 @@ class ServiceBase(ABC):
             required=False,
             help="Do not print the generated code.",
         )
-        self.prompt_parser.usage = "%%prompt your prompt goes here [-e] [-r] [-i] [-p] ..."
+        self.prompt_parser.usage = (
+            "%%prompt your prompt goes here [-e] [-r] [-i] [-p] ..."
+        )
 
         self.prompt_parser.description = self.description
 
@@ -126,8 +180,8 @@ class ServiceBase(ABC):
         for key, var in self.variables.items():
             # If user has specified a value for the variable, use that
             # Otherwise, the default value will be used
-            if key in config:
-                var.set_default(config[key])
+            if key in kwargs:
+                var.set_default(kwargs[key])
 
             # Omit secret arguments from the parser, but still read them
             if var.secret == False and len(var.argparse_args) > 0:
@@ -160,7 +214,22 @@ class ServiceBase(ABC):
         return self._write_cache(cache, cache_path)
 
     @abstractmethod
-    def generate(self, prompt: str, context: t.Dict[str, t.Any] = {}):
+    def generate(
+        self,
+        prompt: str,
+        context: t.Dict[str, t.Any] = {},
+    ) -> t.List[t.Dict[t.Any, t.Any]]:
+        """Implement the logic that generates code from user prompts here.
+
+        Args:
+            prompt (str): The prompt that describes what the generated code should perform
+            context (t.Dict[str, t.Any], optional): A dict containing the current notebook
+                context, that is in the Jupyter notebook format.
+                See :class:`icortex.context.ICortexHistory` for more details.
+
+        Returns:
+            List[Dict[Any, Any]]: A list that contains code generation results. Should ideally be valid Python code.
+        """
         raise NotImplementedError
 
     def config_dialog(self, skip_defaults=False):
@@ -188,13 +257,26 @@ class ServiceBase(ABC):
             return_dict[key] = user_val
         return return_dict
 
-    def get_variable(self, var_name: str):
+    def get_variable(self, var_name: str) -> ServiceVariable:
+        """Get a variable by its name
+
+        Args:
+            var_name (str): Name of the variable
+
+        Returns:
+            ServiceVariable: Requested variable
+        """
         for key, var in self.variables.items():
             if key == var_name:
                 return var
         return None
 
-    def get_variable_names(self):
+    def get_variable_names(self) -> t.List[str]:
+        """Get a list of variable names.
+
+        Returns:
+            List[str]: List of variable names
+        """
         return [var.name for var in self.variables]
 
     def _read_cache(self, cache_path):

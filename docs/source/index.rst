@@ -51,8 +51,8 @@ Index
    :maxdepth: 2
 
    quickstart
-   learn_more
    reference
+   api
 
 .. * :ref:`genindex`
 .. * :ref:`modindex`
