@@ -24,9 +24,7 @@ ICortex is a [Jupyter kernel](https://jupyter-client.readthedocs.io/en/latest/ke
 
 To put it simply—in goes English, out comes Python:
 
-https://user-images.githubusercontent.com/2453968/196814906-1a0de2a1-27a7-4aec-a960-0eb21fbe2879.mp4
-
-TODO: Prompts are given using the %prompt magic now, update the video accordingly
+https://user-images.githubusercontent.com/2453968/199964302-0dbe1d7d-81c9-4244-a9f2-9d959775e471.mp4
 
 ICortex is ...
 
@@ -38,16 +36,15 @@ It is similar to [Github Copilot](https://github.com/features/copilot) but with 
 
 | Feature | GitHub Copilot | ICortex |
 |---|:---:|:---:|
-| Generates code ... | In the text editor | In a [Jupyter kernel](https://docs.jupyter.org/en/latest/projects/kernels.html) (language backend that provides the execution environment) |
-| From ... | Existing code and comments | Plain English prompts |
-| Level of control over context used to generate code | Low | High |
-| Plain language instructions are ... | Just comments | Standalone programs |
-| The resulting program is ... | Static | Dynamic—adapts to the context it is executed in |
+| Generates code ... | In the text editor | At runtime through a [Jupyter kernel](https://docs.jupyter.org/en/latest/projects/kernels.html) |
+| Control over code generation context ... | No | Yes |
+| Natural language instructions are a ... | Second-class citizen (Code comes first) | First-class citizen (Prompts *are* the program) |
+| The resulting program is ... | Static | Dynamic—adapts to the context |
 | Can connect to different code generation APIs | No | Yes |
 
-The main difference between ICortex and a code-generation plugin like GitHub Copilot is that ICortex is a programming paradigm similar to [literate programming](https://en.wikipedia.org/wiki/Literate_programming) or [natural language programming](https://en.wikipedia.org/wiki/Natural-language_programming), where the natural language prompt is the first-class citizen, and which allows for fine-grained control over the code-generation context.
+The main difference between ICortex and a code-generation plugin like GitHub Copilot is that ICortex is a new paradigm for [Natural Language Programming](https://en.wikipedia.org/wiki/Natural-language_programming) where the *prompt* is the first-class citizen. GitHub Copilot, on the other hand, enhances the existing paradigm that are already used by developers.
 
-ICortex is currently in alpha, so expect breaking changes. We are giving free credits to our first users—[join our Discord](https://discord.textcortex.com/) to help us shape it.
+ICortex is currently in alpha, so expect breaking changes. We are giving free credits to our first users—[join our Discord](https://discord.textcortex.com/) to request more if you finish the starter credits.
 
 ## Installation
 
