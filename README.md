@@ -44,7 +44,7 @@ It is similar to [Github Copilot](https://github.com/features/copilot) but with 
 
 The main difference between ICortex and a code-generation plugin like GitHub Copilot is that ICortex is a new paradigm for [Natural Language Programming](https://en.wikipedia.org/wiki/Natural-language_programming) where the *prompt* is the first-class citizen. GitHub Copilot, on the other hand, enhances the existing paradigm that are already used by developers.
 
-ICortex is currently in alpha, so expect breaking changes. We are giving free credits to our first users—[join our Discord](https://discord.textcortex.com/) to help us shape it.
+ICortex is currently in alpha, so expect breaking changes. We are giving free credits to our first users—[join our Discord](https://discord.textcortex.com/) to request more if you finish the starter credits.
 
 ## Installation
 
