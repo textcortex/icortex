@@ -24,9 +24,7 @@ ICortex is a [Jupyter kernel](https://jupyter-client.readthedocs.io/en/latest/ke
 
 To put it simply—in goes English, out comes Python:
 
-https://user-images.githubusercontent.com/2453968/196814906-1a0de2a1-27a7-4aec-a960-0eb21fbe2879.mp4
-
-TODO: Prompts are given using the %prompt magic now, update the video accordingly
+https://user-images.githubusercontent.com/2453968/199964302-0dbe1d7d-81c9-4244-a9f2-9d959775e471.mp4
 
 ICortex is ...
 
