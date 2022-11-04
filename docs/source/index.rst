@@ -20,8 +20,8 @@ that lets you develop **soft programs**:
 
 To put it simply—in goes English, out comes Python:
 
-.. video:: https://user-images.githubusercontent.com/2453968/196814906-1a0de2a1-27a7-4aec-a960-0eb21fbe2879.mp4
-   :width: 640
+.. video:: https://user-images.githubusercontent.com/2453968/199964302-0dbe1d7d-81c9-4244-a9f2-9d959775e471.mp4
+   :width: 100%
 
 ICortex is …
 
