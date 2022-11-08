@@ -11,6 +11,7 @@ from icortex.context import ICortexHistory
 
 from ipykernel.ipkernel import IPythonKernel
 from IPython import InteractiveShell
+from IPython.utils.io import capture_output
 from traitlets.config.configurable import SingletonConfigurable
 
 from icortex.helper import (
@@ -31,11 +32,20 @@ INIT_SERVICE_MSG = (
 )
 
 
+def stream_to_list(stream_str: str) -> t.List[str]:
+    ret = []
+    for line in stream_str.splitlines():
+        # The extra newline is to adhere to nbformat
+        ret.append(line + "\n")
+    return ret
+
+
 class ICortexKernel(IPythonKernel, SingletonConfigurable):
     """Class that implements the ICortext kernel. It is basically
     :class:`ipykernel.ipkernel.IPythonKernel` with magic commands
     and logic for handling code generation.
     """
+
     implementation = "ICortex"
     implementation_version = __version__
     language = "no-op"
@@ -154,24 +164,69 @@ class ICortexKernel(IPythonKernel, SingletonConfigurable):
         if self._check_service():
             service_interaction = self.eval_prompt(prompt)
             code = service_interaction.get_code()
+
             # Execute generated code
-            self.shell.run_cell(
-                code,
-                store_history=False,
-                silent=False,
-                cell_id=self.shell.execution_count,
-            )
+            stdout = ""
+            stderr = ""
+            with capture_output() as io:
+                # kernel.shell.run_cell('print("foo")')
+                self.shell.run_cell(
+                    code,
+                    store_history=False,
+                    silent=False,
+                    cell_id=self.shell.execution_count,
+                )
+                stdout = io.stdout
+                stderr = io.stderr
+
             # Get the output from InteractiveShell.history_manager.
             # run_cell should be called with store_history=False in order for
             # self.shell.execution_count to match with the respective output
             outputs = []
             try:
-                if self.shell.execution_count in self.shell.history_manager.output_hist_reprs:
-                    output = self.shell.history_manager.output_hist_reprs[self.shell.execution_count]
-                    outputs.append(output)
+                if (
+                    self.shell.execution_count
+                    in self.shell.history_manager.output_hist_reprs
+                ):
+                    output = self.shell.history_manager.output_hist_reprs[
+                        self.shell.execution_count
+                    ]
+                    # If the cell has an output, add it to the outputs
+                    # according to nbformat
+                    outputs.append(
+                        {
+                            "output_type": "execute_result",
+                            "data": {
+                                "text/plain": [output],
+                            },
+                        }
+                    )
             except:
                 warning("There was an issue with saving execution output to history")
 
+            # If cell has an output stream, add it to the outputs
+            # TODO: Decide whether to include fields `execution_count`, `metadata`, etc.
+            if stdout != "":
+                outputs.append(
+                    {
+                        "name": "stdout",
+                        "output_type": "stream",
+                        "data": {
+                            "text/plain": stream_to_list(stdout),
+                        },
+                    }
+                )
+            # Same for stderr
+            if stderr != "":
+                outputs.append(
+                    {
+                        "name": "stderr",
+                        "output_type": "stream",
+                        "data": {
+                            "text/plain": stream_to_list(stderr),
+                        },
+                    }
+                )
             # Store history with the input and corresponding output
             self.history.add_prompt(input_, outputs, service_interaction.to_dict())
         else:
