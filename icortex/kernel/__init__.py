@@ -165,17 +165,24 @@ class ICortexShell(InteractiveShell):
             # Execute generated code
             stdout = ""
             stderr = ""
-            with capture_output() as io:
-                self.run_cell(
-                    code,
-                    store_history=False,
-                    silent=False,
-                    cell_id=self.execution_count,
-                )
-                stdout = io.stdout
-                stderr = io.stderr
-                # TODO: Make capture_output() forward streams and display outputs
-                # This doesn't cause a problem with ipython for some reason but only icortex
+            # with capture_output() as io:
+            #     self.run_cell(
+            #         code,
+            #         store_history=False,
+            #         silent=False,
+            #         cell_id=self.execution_count,
+            #     )
+            #     stdout = io.stdout
+            #     stderr = io.stderr
+            #     # TODO: Make capture_output() forward streams and display outputs
+            #     # This doesn't cause a problem with ipython for some reason but only icortex
+
+            self.run_cell(
+                code,
+                store_history=False,
+                silent=False,
+                cell_id=self.execution_count,
+            )
 
             # Get the output from InteractiveShell.history_manager.
             # run_cell should be called with store_history=False in order for
