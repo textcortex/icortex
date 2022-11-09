@@ -24,9 +24,9 @@ from icortex.helper import (
 from icortex.services import ServiceBase, ServiceInteraction, get_available_services
 from icortex.pypi import install_missing_packages, get_missing_modules
 from icortex.defaults import *
-import importlib.metadata
+import importlib_metadata
 
-__version__ = importlib.metadata.version("icortex")
+__version__ = importlib_metadata.version("icortex")
 
 INIT_SERVICE_MSG = (
     r"No service selected. Run `%icortex service init <service_name>` to initialize a service. Candidates: "

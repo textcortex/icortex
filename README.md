@@ -23,9 +23,11 @@ ICortex enables you to develop **soft programs**:
 
 > *Soft program:* a set of instructions (i.e. prompts) [written in natural language](https://en.wikipedia.org/wiki/Natural-language_programming) (e.g. English), processed by a language model that generates code at a lower layer of abstraction (e.g. Python), to perform work more flexibly than regular software.
 
-It is ...
+In other words, ICortex is a **natural language programming** (NLP) framework that enables you to write code in English, and then run it in Python. It aims to make programming more accessible to non-programmers.
 
-- a drop-in replacement for the IPython kernel. Prompts are executed with [magic commands](https://ipython.readthedocs.io/en/stable/interactive/magics.html) such as `%prompt`.
+ICortex is designed to be …
+
+- a drop-in replacement for the [IPython kernel](https://ipython.org/). Prompts are executed via [magic commands](https://ipython.readthedocs.io/en/stable/interactive/magics.html) such as `%prompt`.
 - interactive—automatically install missing packages, decide whether to execute the generated code or not, and so on, directly in the Jupyter Notebook cell.
 - open source and fully extensible—ICortex introduces a [domain-specific language](https://en.wikipedia.org/wiki/Domain-specific_language) for orchestrating various code generation services. If you think we are missing a model or an API, you can request it by creating an issue, or implement it yourself by subclassing `ServiceBase` under [`icortex/services`](icortex/services).
 

@@ -1,6 +1,6 @@
 from icortex.kernel import ICortexKernel, print_service_help, get_icortex
 
 import icortex.services
-import importlib.metadata
+import importlib_metadata
 
-__version__ = importlib.metadata.version("icortex")
+__version__ = importlib_metadata.version("icortex")
