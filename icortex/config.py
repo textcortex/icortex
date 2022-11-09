@@ -50,7 +50,7 @@ class ICortexConfig:
         success = self.write_config()
         if success:
             print(f"Set variable {var_name} to {cast_value}.")
-            # kernel = get_icortex_kernel()
+            # kernel = get_icortex()
             if self.kernel is not None:
                 self.set_service()
             return True
@@ -78,7 +78,7 @@ class ICortexConfig:
         success = self.write_config()
         if success:
             print(f"Set service to {service_name} successfully.")
-            # kernel = get_icortex_kernel()
+            # kernel = get_icortex()
             if self.kernel is not None:
                 self.set_service()
             return True
@@ -87,7 +87,7 @@ class ICortexConfig:
 
     def set_service(self):
         # TODO: pass the --config flag from icortex somehow
-        # kernel = get_icortex_kernel()
+        # kernel = get_icortex()
         if self.kernel is None:
             return False
 
@@ -113,11 +113,12 @@ class ICortexConfig:
     def ask_which_service(self) -> str:
         sorted_services = get_available_services()
         service_name = prompt_input(
-            "Which code generation service would you like to use?\nVariables: "
+            "Which code generation service would you like to use?\nAvailable services: "
             + ", ".join(sorted_services)
-            + "\nDefault",
+            + "\nDefault:",
             type=str,
             default=DEFAULT_SERVICE,
+            press_enter=True,
         )
         return service_name
 

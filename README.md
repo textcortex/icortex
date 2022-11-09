@@ -15,24 +15,23 @@
 </p>
 <hr />
 
-ICortex is a [Jupyter kernel](https://jupyter-client.readthedocs.io/en/latest/kernels.html) that lets you develop **soft programs**:
-
-- sets of instructions (i.e. prompts) [written in natural language](https://en.wikipedia.org/wiki/Natural-language_programming) (such as English)
-- processed by language models that generate Python code
-- to perform useful work in various contexts
-- more flexibly than regular software.
-
-To put it simply—in goes English, out comes Python:
+tl;dr in goes English, out comes Python:
 
 https://user-images.githubusercontent.com/2453968/199964302-0dbe1d7d-81c9-4244-a9f2-9d959775e471.mp4
 
-ICortex is ...
+ICortex enables you to develop **soft programs**:
 
-- a drop-in replacement for the IPython kernel. Prompts can be executed with the [magic commands](https://ipython.readthedocs.io/en/stable/interactive/magics.html) `%prompt` or `%p` for short.
-- interactive—install missing packages directly, decide whether to execute the generated code or not, and so on, directly in the Jupyter Notebook cell.
-- open source and fully extensible—if you think we are missing a model or an API, you can request it by creating an issue, or implement it yourself by subclassing `ServiceBase` under [`icortex/services`](icortex/services).
+> *Soft program:* a set of instructions (i.e. prompts) [written in natural language](https://en.wikipedia.org/wiki/Natural-language_programming) (e.g. English), processed by a language model that generates code at a lower layer of abstraction (e.g. Python), to perform work more flexibly than regular software.
 
-It is similar to [Github Copilot](https://github.com/features/copilot) but with certain differences that make it stand out:
+In other words, ICortex is a **natural language programming** (NLP) framework that enables you to write code in English, and then run it in Python. It aims to make programming more accessible to non-programmers.
+
+ICortex is designed to be …
+
+- a drop-in replacement for the [IPython kernel](https://ipython.org/). Prompts are executed via [magic commands](https://ipython.readthedocs.io/en/stable/interactive/magics.html) such as `%prompt`.
+- interactive—automatically install missing packages, decide whether to execute the generated code or not, and so on, directly in the Jupyter Notebook cell.
+- open source and fully extensible—ICortex introduces a [domain-specific language](https://en.wikipedia.org/wiki/Domain-specific_language) for orchestrating various code generation services. If you think we are missing a model or an API, you can request it by creating an issue, or implement it yourself by subclassing `ServiceBase` under [`icortex/services`](icortex/services).
+
+ICortex is similar to [Github Copilot](https://github.com/features/copilot) but with certain differences that make it stand out:
 
 | Feature | GitHub Copilot | ICortex |
 |---|:---:|:---:|
@@ -48,12 +47,23 @@ ICortex is currently in alpha, so expect breaking changes. We are giving free cr
 
 ## Installation
 
+### Locally
+
 Install directly from PyPI:
 
 ```sh
 pip install icortex
 # This line is needed to install the kernel spec to Jupyter:
 python -m icortex.kernel.install
+```
+
+### On Google Colab
+
+[Google Colab](https://colab.research.google.com/) is a restricted computing environment that does not allow installing new Jupyter kernels. However, you can still use ICortex by running the following code in a Colab notebook:
+
+```
+!pip install icortex
+import icortex.init
 ```
 
 ## Quickstart

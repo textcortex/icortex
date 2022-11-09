@@ -47,9 +47,11 @@ def yes_no_input(message: str, default=True) -> bool:
     return (user_input == "" and default) or user_input.strip().lower() == "y"
 
 
-def prompt_input(message: str, type=str, default=None):
+def prompt_input(message: str, type=str, default=None, press_enter=False):
     if default:
-        message += f" [{default}]"
+        message += f" {default}"
+        if press_enter:
+            message += "  (Press enter to select the default option)"
 
     print(message)
     user_input = input()

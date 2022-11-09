@@ -1,10 +1,10 @@
 import typing as t
-import importlib.metadata
+import importlib_metadata
 from copy import deepcopy
 import platform
 from icortex.defaults import DEFAULT_HISTORY_VAR
 
-icortex_version = importlib.metadata.version("icortex")
+icortex_version = importlib_metadata.version("icortex")
 
 INITIAL_HISTORY_VAL = {
     "metadata": {
