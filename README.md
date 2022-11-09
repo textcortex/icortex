@@ -15,16 +15,21 @@
 </p>
 <hr />
 
-ICortex is a [Jupyter kernel](https://jupyter-client.readthedocs.io/en/latest/kernels.html) that lets you develop **soft programs**:
-
-- sets of instructions (i.e. prompts) [written in natural language](https://en.wikipedia.org/wiki/Natural-language_programming) (such as English)
-- processed by language models that generate Python code
-- to perform useful work in various contexts
-- more flexibly than regular software.
-
-To put it simply—in goes English, out comes Python:
+tl;dr in goes English, out comes Python:
 
 https://user-images.githubusercontent.com/2453968/199964302-0dbe1d7d-81c9-4244-a9f2-9d959775e471.mp4
+
+ICortex
+
+With ICortex, ...
+
+- You write prompts [in natural language](https://en.wikipedia.org/wiki/Natural-language_programming), e.g. English, in Jupyter notebook cells.
+- The prompts are then processed by language models that generate Python code.
+- The generated Python code is executed.
+- more flexibly than regular software.
+
+ICortex is a [Jupyter kernel](https://jupyter-client.readthedocs.io/en/latest/kernels.html) that lets you develop **soft programs**:
+
 
 ICortex is ...
 

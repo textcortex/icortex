@@ -4,13 +4,15 @@
 
 from logging import warning
 import shlex
+import sys
+import types
 import typing as t
 from icortex.config import ICortexConfig
 from icortex.cli import eval_cli
 from icortex.context import ICortexHistory
 
 from ipykernel.ipkernel import IPythonKernel
-from IPython import InteractiveShell
+from IPython import InteractiveShell, get_ipython
 from IPython.utils.io import capture_output
 from traitlets.config.configurable import SingletonConfigurable
 
@@ -40,35 +42,30 @@ def stream_to_list(stream_str: str) -> t.List[str]:
     return ret
 
 
-class ICortexKernel(IPythonKernel, SingletonConfigurable):
-    """Class that implements the ICortext kernel. It is basically
-    :class:`ipykernel.ipkernel.IPythonKernel` with magic commands
-    and logic for handling code generation.
-    """
+class ICortexShell(InteractiveShell):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
-    implementation = "ICortex"
-    implementation_version = __version__
-    language = "no-op"
-    language_version = "0.1"
-    language_info = {
-        "name": "icortex",
-        "mimetype": "text/x-python",
-        "file_extension": ".py",
-        "pygments_lexer": "ipython3",
-        "codemirror_mode": {"name": "ipython", "version": 3},
-    }
-    banner = "ICortex: Generate Python code from natural language prompts using large language models"
-    shell: InteractiveShell
-
-    def __init__(self, **kwargs):
-
-        super().__init__(**kwargs)
+    def _init_icortex_shell(self):
         self.service = None
-        scope = self.shell.user_ns
+        scope = self.user_ns
         self.history = ICortexHistory(scope)
         from icortex.magics import load_ipython_extension
 
-        load_ipython_extension(self.shell)
+        load_ipython_extension(self)
+        self.user_ns["get_icortex"] = get_icortex
+
+        # Initialize bound methods
+        # TODO: make less hacky
+        self.set_service = types.MethodType(ICortexShell.set_service, self)
+        self._run_dialog = types.MethodType(ICortexShell._run_dialog, self)
+        self._check_service = types.MethodType(ICortexShell._check_service, self)
+        self.print_service_help = types.MethodType(
+            ICortexShell.print_service_help, self
+        )
+        self.cli = types.MethodType(ICortexShell.cli, self)
+        self.prompt = types.MethodType(ICortexShell.prompt, self)
+        self.eval_prompt = types.MethodType(ICortexShell.eval_prompt, self)
 
     def set_service(self, service: t.Type[ServiceBase]):
         self.service = service
@@ -169,27 +166,25 @@ class ICortexKernel(IPythonKernel, SingletonConfigurable):
             stdout = ""
             stderr = ""
             with capture_output() as io:
-                # kernel.shell.run_cell('print("foo")')
-                self.shell.run_cell(
+                self.run_cell(
                     code,
                     store_history=False,
                     silent=False,
-                    cell_id=self.shell.execution_count,
+                    cell_id=self.execution_count,
                 )
                 stdout = io.stdout
                 stderr = io.stderr
+                # TODO: Make capture_output() forward streams and display outputs
+                # This doesn't cause a problem with ipython for some reason but only icortex
 
             # Get the output from InteractiveShell.history_manager.
             # run_cell should be called with store_history=False in order for
-            # self.shell.execution_count to match with the respective output
+            # self.execution_count to match with the respective output
             outputs = []
             try:
-                if (
-                    self.shell.execution_count
-                    in self.shell.history_manager.output_hist_reprs
-                ):
-                    output = self.shell.history_manager.output_hist_reprs[
-                        self.shell.execution_count
+                if self.execution_count in self.history_manager.output_hist_reprs:
+                    output = self.history_manager.output_hist_reprs[
+                        self.execution_count
                     ]
                     # If the cell has an output, add it to the outputs
                     # according to nbformat
@@ -257,19 +252,50 @@ class ICortexKernel(IPythonKernel, SingletonConfigurable):
         )
 
 
-def get_icortex_kernel() -> ICortexKernel:
-    """Get the global ICortexKernel instance.
-
-    Returns None if no ICortexKernel instance is registered.
+class ICortexKernel(IPythonKernel):
+    """Class that implements the ICortex kernel. It is basically
+    :class:`ipykernel.ipkernel.IPythonKernel` with magic commands
+    and logic for handling code generation.
     """
-    if ICortexKernel.initialized():
-        return ICortexKernel.instance()
+
+    implementation = "icortex"
+    implementation_version = __version__
+    language_info = {
+        "name": "python",
+        "version": sys.version.split()[0],
+        "mimetype": "text/x-python",
+        "codemirror_mode": {"name": "ipython", "version": 3},
+        "pygments_lexer": "ipython3",
+        "nbconvert_exporter": "python",
+        "file_extension": ".py",
+    }
+    banner = "ICortex: Generate Python code from natural language prompts using large language models"
+    shell: InteractiveShell
+
+    def __init__(self, **kwargs):
+
+        super().__init__(**kwargs)
+        ICortexShell._init_icortex_shell(self.shell)
+
+
+def get_icortex():
+    """Get the global overloaded InteractiveShell instance.
+
+    Returns None if no InteractiveShell instance is registered
+    or ICortex has not been initialized yet.
+    """
+    ret = get_ipython()
+    if ret is not None:
+        if "prompt" in ret.__dict__:
+            return ret
+        else:
+            return None
 
 
 def print_service_help() -> None:
-    icortex_kernel = get_icortex_kernel()
-    if icortex_kernel is not None:
-        icortex_kernel.print_service_help()
+    icortex_shell = get_icortex()
+    if icortex_shell is not None:
+        icortex_shell.print_service_help()
 
 
 if __name__ == "__main__":

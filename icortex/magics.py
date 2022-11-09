@@ -6,7 +6,7 @@ from IPython.core.magic import (
     line_cell_magic,
 )
 
-from icortex.kernel import get_icortex_kernel, print_service_help
+from icortex.kernel import get_icortex, print_service_help
 
 
 @magics_class
@@ -18,7 +18,7 @@ class ICortexMagics(Magics):
 
     @line_magic
     def icortex(self, line):
-        kernel = get_icortex_kernel()
+        kernel = get_icortex()
         return kernel.cli(line)
 
     @line_cell_magic
@@ -34,7 +34,7 @@ class ICortexMagics(Magics):
         return self.prompt(line, cell=cell)
 
     def _prompt(self, input_):
-        kernel = get_icortex_kernel()
+        kernel = get_icortex()
         return kernel.prompt(input_)
 
 

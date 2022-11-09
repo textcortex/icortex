@@ -50,7 +50,7 @@ class ICortexConfig:
         success = self.write_config()
         if success:
             print(f"Set variable {var_name} to {cast_value}.")
-            # kernel = get_icortex_kernel()
+            # kernel = get_icortex()
             if self.kernel is not None:
                 self.set_service()
             return True
@@ -78,7 +78,7 @@ class ICortexConfig:
         success = self.write_config()
         if success:
             print(f"Set service to {service_name} successfully.")
-            # kernel = get_icortex_kernel()
+            # kernel = get_icortex()
             if self.kernel is not None:
                 self.set_service()
             return True
@@ -87,7 +87,7 @@ class ICortexConfig:
 
     def set_service(self):
         # TODO: pass the --config flag from icortex somehow
-        # kernel = get_icortex_kernel()
+        # kernel = get_icortex()
         if self.kernel is None:
             return False
 
