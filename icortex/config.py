@@ -113,11 +113,12 @@ class ICortexConfig:
     def ask_which_service(self) -> str:
         sorted_services = get_available_services()
         service_name = prompt_input(
-            "Which code generation service would you like to use?\nVariables: "
+            "Which code generation service would you like to use?\nAvailable services: "
             + ", ".join(sorted_services)
-            + "\nDefault",
+            + "\nDefault:",
             type=str,
             default=DEFAULT_SERVICE,
+            press_enter=True,
         )
         return service_name
 

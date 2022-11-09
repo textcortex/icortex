@@ -12,7 +12,7 @@ ICORTEX_ENDPOINT_URI = "https://api.textcortex.com/hemingwai/generate_text_v3"
 MISSING_API_KEY_MSG = """The ICortex prompt requires an API key from TextCortex in order to work.
 
 1.  Visit https://app.textcortex.com/user/dashboard/settings/api-key to view your API key.
-    If you do not have an account, you can sign up at https://app.textcortex.com/user/signup.
+    If you do not have an account, you can sign up at https://app.textcortex.com/user/signup?registration_source=icortex .
 
 2.  Create a file icortex.toml in in the same directory as your Jupyter Notebook with
     the following lines:
@@ -30,7 +30,7 @@ class TextCortexService(ServiceBase):
     variables = {
         "api_key": ServiceVariable(
             str,
-            help="If you don't have an API key already, generate one at https://app.textcortex.com/user/dashboard/settings/api-key ",  # Leave a space at the end
+            help="If you don't have a TextCortex account, create one here (no payment information required): https://app.textcortex.com/user/signup?registration_source=icortex . If you already have an account, get your API key at https://app.textcortex.com/user/dashboard/settings/api-key ",  # Leave a space at the end
             secret=True,
         ),
         "temperature": ServiceVariable(

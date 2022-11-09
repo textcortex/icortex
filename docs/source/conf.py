@@ -25,6 +25,7 @@ extensions = [
     "sphinx.ext.coverage",
     "sphinx.ext.napoleon",
     "sphinx_copybutton",
+    "sphinx.ext.autosectionlabel",
 ]
 
 templates_path = ["_templates"]
