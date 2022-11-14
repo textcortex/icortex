@@ -25,6 +25,7 @@ from icortex.helper import (
 from icortex.services import ServiceBase, ServiceInteraction, get_available_services
 from icortex.pypi import install_missing_packages, get_missing_modules
 from icortex.defaults import *
+from icortex.var import get_var_magic_parser, format_var, line_to_code
 import importlib_metadata
 
 __version__ = importlib_metadata.version("icortex")
@@ -64,6 +65,8 @@ class ICortexShell(InteractiveShell):
         load_ipython_extension(self)
         self.user_ns["get_icortex"] = get_icortex
 
+        # self.var_parser = get_var_magic_parser()
+
         # Initialize bound methods
         # TODO: make less hacky
         self.set_service = types.MethodType(ICortexShell.set_service, self)
@@ -75,6 +78,7 @@ class ICortexShell(InteractiveShell):
         self.cli = types.MethodType(ICortexShell.cli, self)
         self.prompt = types.MethodType(ICortexShell.prompt, self)
         self.eval_prompt = types.MethodType(ICortexShell.eval_prompt, self)
+        self.eval_var = types.MethodType(ICortexShell.eval_var, self)
         self.run_cell = types.MethodType(ICortexShell.run_cell, self)
 
     def set_service(self, service: t.Type[ServiceBase]):
@@ -212,6 +216,16 @@ class ICortexShell(InteractiveShell):
                 silent=False,
                 cell_id=self.execution_count,
             )
+        elif input_type == InputType.VAR:
+            # args = self.var_parser.parse_args(raw_cell.split())
+            code = line_to_code(raw_cell)
+            result = InteractiveShell.run_cell(
+                self,
+                code,
+                store_history=False,
+                silent=False,
+                cell_id=self.execution_count,
+            )
 
         # Get the output from InteractiveShell.history_manager.
         # run_cell should be called with store_history=False in order for
@@ -306,8 +320,10 @@ class ICortexShell(InteractiveShell):
             nonint=args.nonint,
         )
 
-    # def eval_var(self, )
-
+    def eval_var(self, line: str):
+        "Evaluate var magic"
+        # args = self.var_parser.parse_args(line.split())
+        self.run_cell(line, input_type=InputType.VAR)
 
 class ICortexKernel(IPythonKernel):
     """Class that implements the ICortex kernel. It is basically

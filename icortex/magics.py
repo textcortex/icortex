@@ -19,14 +19,14 @@ class ICortexMagics(Magics):
     @line_magic
     def var(self, line):
         "Define a variable"
-        kernel = get_icortex()
-        return kernel.cli(line)
+        shell = get_icortex()
+        return shell.eval_var(line)
 
 
     @line_magic
     def icortex(self, line):
-        kernel = get_icortex()
-        return kernel.cli(line)
+        shell = get_icortex()
+        return shell.cli(line)
 
     @line_cell_magic
     def prompt(self, line, cell=None):
@@ -41,8 +41,8 @@ class ICortexMagics(Magics):
         return self.prompt(line, cell=cell)
 
     def _prompt(self, input_):
-        kernel = get_icortex()
-        return kernel.prompt(input_)
+        shell = get_icortex()
+        return shell.prompt(input_)
 
 
 def load_ipython_extension(ipython):
