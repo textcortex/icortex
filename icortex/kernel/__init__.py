@@ -18,6 +18,7 @@ from traitlets.config.configurable import SingletonConfigurable
 
 from icortex.helper import (
     escape_quotes,
+    serialize_execution_result,
     yes_no_input,
     highlight_python,
 )
@@ -33,8 +34,10 @@ INIT_SERVICE_MSG = (
     + ", ".join(get_available_services())
 )
 
+
 class InputType:
     """Enum for input cell type."""
+
     CODE = 0
     PROMPT = 1
     VAR = 2
@@ -173,7 +176,6 @@ class ICortexShell(InteractiveShell):
         cell_id=None,
         input_type=InputType.CODE,
     ):
-        # if magic:
 
         # Execute generated code
         stdout = ""
@@ -254,11 +256,22 @@ class ICortexShell(InteractiveShell):
                     },
                 }
             )
+
         if input_type == InputType.CODE:
-            self.history.add_code(raw_cell, outputs)
+            self.history.add_code(
+                raw_cell,
+                outputs,
+                execution_result=serialize_execution_result(result),
+            )
         elif input_type == InputType.PROMPT:
             # Store history with the input and corresponding output
-            self.history.add_prompt(raw_cell, outputs, service_interaction.to_dict())
+            self.history.add_prompt(
+                raw_cell,
+                outputs,
+                service_interaction.to_dict(),
+                execution_result=serialize_execution_result(result),
+            )
+
         return result
 
     def prompt(self, input_: str):
@@ -266,10 +279,8 @@ class ICortexShell(InteractiveShell):
         if self._check_service():
 
             result = self.run_cell(prompt, input_type=InputType.PROMPT)
-            import ipdb; ipdb.set_trace()
         else:
             print(INIT_SERVICE_MSG)
-
 
     def cli(self, input_: str):
         prompt = escape_quotes(input_)

@@ -1,7 +1,9 @@
+import traceback
 from pygments import highlight
 from pygments.formatters import Terminal256Formatter
 from pygments.lexers import PythonLexer
 
+from IPython.core.interactiveshell import ExecutionResult
 
 def unescape(s) -> str:
     return s.encode("utf-8").decode("unicode_escape")
@@ -64,3 +66,30 @@ def prompt_input(message: str, type=str, default=None, press_enter=False):
 
 def highlight_python(code: str):
     return highlight(code, PythonLexer(), Terminal256Formatter())
+
+def serialize_exception(exception):
+    ret = {
+        "name": exception.__class__.__name__,
+        "message": str(exception),
+    }
+
+    try:
+        ret["traceback"] = traceback.format_exc(exception),
+    except:
+        pass
+
+    return ret
+
+def serialize_execution_result(execution_result: ExecutionResult):
+    ret = {}
+    if execution_result.error_before_exec is not None:
+        ret["error_before_exec"] = serialize_exception(execution_result.error_before_exec)
+    if execution_result.error_in_exec is not None:
+        ret["error_in_exec"] = serialize_exception(execution_result.error_in_exec)
+    if execution_result.result is not None:
+        # TODO: Are we ever going to need deeper serialization?
+        ret["result"] = str(execution_result.result)
+    ret["success"] = execution_result.success
+    return ret
+    # return '<%s object at %x, execution_count=%s error_before_exec=%s error_in_exec=%s info=%s result=%s>' %\
+    #     (name, id(self), self.execution_count, self.error_before_exec, self.error_in_exec, repr(self.info), repr(self.result))

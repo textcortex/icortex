@@ -56,7 +56,7 @@ class ICortexHistory:
                 del ret["cells"][-1]
         return ret
 
-    def add_code(self, code: str, outputs: t.List[t.Any]):
+    def add_code(self, code: str, outputs: t.List[t.Any], execution_result: t.Optional[t.Dict[str, t.Any]] = None):
         self._check_init()
 
         ret = {
@@ -65,6 +65,8 @@ class ICortexHistory:
             "source": code,
             "outputs": outputs,
         }
+        if execution_result:
+            ret["metadata"]["execution_result"] = execution_result
 
         self._dict["cells"].append(ret)
         return ret
@@ -74,6 +76,7 @@ class ICortexHistory:
         prompt: str,
         outputs: t.List[t.Any],
         service_interaction: t.Dict[str, t.Any],
+        execution_result: t.Optional[t.Dict[str, t.Any]] = None,
     ):
         self._check_init()
 
@@ -89,6 +92,8 @@ class ICortexHistory:
             "source": prompt,
             "outputs": outputs,
         }
+        if execution_result:
+            ret["metadata"]["execution_result"] = execution_result
 
         self._dict["cells"].append(ret)
         return ret
