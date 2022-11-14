@@ -44,7 +44,7 @@ classifiers = [
 icortex = "icortex.cli:main"
 
 [tool.poetry.dependencies]
-python = ">=3.7"
+python = ">=3.7.1"
 toml = "^0.10.2"
 requests = ">=2.0.0"
 importlib-metadata = ">=4.0.0"
@@ -58,16 +58,16 @@ jupyter-console = "^6.4.4"
 jupyter-core = "^4.11.1"
 jupyterlab-widgets = "^3.0.3"
 Pygments = "^2.13.0"
+openai = { version = "^0.23.1", optional = true }
+onnxruntime = { version = "^1.12.1", optional = true }
+onnx = { version = "^1.12.0", optional = true }
+optimum = { version = "^1.4.0", optional = true }
+transformers = { version = "^4.23.1", optional = true }
+torch = { version = "^1.12.1", optional = true }
 
 [tool.poetry.extras]
-openai = ["openai==^0.23.1"]
-huggingface = [
-    "onnxruntime==^1.12.1",
-    "onnx==^1.12.0",
-    "optimum==^1.4.0",
-    "transformers==^4.23.1",
-    "torch==^1.12.1",
-]
+openai = ["openai"]
+huggingface = ["onnxruntime", "onnx", "optimum", "transformers", "torch"]
 
 [tool.poetry.group.dev.dependencies]
 Sphinx = "^5.3.0"

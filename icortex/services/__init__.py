@@ -85,6 +85,7 @@ class ServiceInteraction:
 
     def get_code(self):
         if self.execute:
+            # TODO: Account for multiple generations
             return self.outputs[0]
         else:
             return ""

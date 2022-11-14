@@ -33,6 +33,12 @@ INIT_SERVICE_MSG = (
     + ", ".join(get_available_services())
 )
 
+class InputType:
+    """Enum for input cell type."""
+    CODE = 0
+    PROMPT = 1
+    VAR = 2
+
 
 def stream_to_list(stream_str: str) -> t.List[str]:
     ret = []
@@ -66,6 +72,7 @@ class ICortexShell(InteractiveShell):
         self.cli = types.MethodType(ICortexShell.cli, self)
         self.prompt = types.MethodType(ICortexShell.prompt, self)
         self.eval_prompt = types.MethodType(ICortexShell.eval_prompt, self)
+        self.run_cell = types.MethodType(ICortexShell.run_cell, self)
 
     def set_service(self, service: t.Type[ServiceBase]):
         self.service = service
@@ -156,83 +163,113 @@ class ICortexShell(InteractiveShell):
         else:
             print(INIT_SERVICE_MSG)
 
-    def prompt(self, input_: str):
-        prompt = escape_quotes(input_)
-        if self._check_service():
-            service_interaction = self.eval_prompt(prompt)
+    # Wrap run_cell
+    def run_cell(
+        self,
+        raw_cell,
+        store_history=False,
+        silent=False,
+        shell_futures=True,
+        cell_id=None,
+        input_type=InputType.CODE,
+    ):
+        # if magic:
+
+        # Execute generated code
+        stdout = ""
+        stderr = ""
+        # with capture_output() as io:
+        #     self.run_cell(
+        #         code,
+        #         store_history=False,
+        #         silent=False,
+        #         cell_id=self.execution_count,
+        #     )
+        #     stdout = io.stdout
+        #     stderr = io.stderr
+        #     # TODO: Make capture_output() forward streams and display outputs
+        #     # This doesn't cause a problem with ipython for some reason but only icortex
+
+        if input_type == InputType.CODE:
+            result = InteractiveShell.run_cell(
+                self,
+                raw_cell,
+                store_history=store_history,
+                silent=silent,
+                shell_futures=shell_futures,
+                cell_id=cell_id,
+            )
+        elif input_type == InputType.PROMPT:
+            service_interaction = self.eval_prompt(raw_cell)
             code = service_interaction.get_code()
 
-            # Execute generated code
-            stdout = ""
-            stderr = ""
-            # with capture_output() as io:
-            #     self.run_cell(
-            #         code,
-            #         store_history=False,
-            #         silent=False,
-            #         cell_id=self.execution_count,
-            #     )
-            #     stdout = io.stdout
-            #     stderr = io.stderr
-            #     # TODO: Make capture_output() forward streams and display outputs
-            #     # This doesn't cause a problem with ipython for some reason but only icortex
-
-            self.run_cell(
+            result = InteractiveShell.run_cell(
+                self,
                 code,
                 store_history=False,
                 silent=False,
                 cell_id=self.execution_count,
             )
 
-            # Get the output from InteractiveShell.history_manager.
-            # run_cell should be called with store_history=False in order for
-            # self.execution_count to match with the respective output
-            outputs = []
-            try:
-                if self.execution_count in self.history_manager.output_hist_reprs:
-                    output = self.history_manager.output_hist_reprs[
-                        self.execution_count
-                    ]
-                    # If the cell has an output, add it to the outputs
-                    # according to nbformat
-                    outputs.append(
-                        {
-                            "output_type": "execute_result",
-                            "data": {
-                                "text/plain": [output],
-                            },
-                        }
-                    )
-            except:
-                warning("There was an issue with saving execution output to history")
+        # Get the output from InteractiveShell.history_manager.
+        # run_cell should be called with store_history=False in order for
+        # self.execution_count to match with the respective output
+        outputs = []
+        try:
+            if self.execution_count in self.history_manager.output_hist_reprs:
+                output = self.history_manager.output_hist_reprs[self.execution_count]
+                # If the cell has an output, add it to the outputs
+                # according to nbformat
+                outputs.append(
+                    {
+                        "output_type": "execute_result",
+                        "data": {
+                            "text/plain": [output],
+                        },
+                    }
+                )
+        except:
+            warning("There was an issue with saving execution output to history")
 
-            # If cell has an output stream, add it to the outputs
-            # TODO: Decide whether to include fields `execution_count`, `metadata`, etc.
-            if stdout != "":
-                outputs.append(
-                    {
-                        "name": "stdout",
-                        "output_type": "stream",
-                        "data": {
-                            "text/plain": stream_to_list(stdout),
-                        },
-                    }
-                )
-            # Same for stderr
-            if stderr != "":
-                outputs.append(
-                    {
-                        "name": "stderr",
-                        "output_type": "stream",
-                        "data": {
-                            "text/plain": stream_to_list(stderr),
-                        },
-                    }
-                )
+        # If cell has an output stream, add it to the outputs
+        # TODO: Decide whether to include fields `execution_count`, `metadata`, etc.
+        if stdout != "":
+            outputs.append(
+                {
+                    "name": "stdout",
+                    "output_type": "stream",
+                    "data": {
+                        "text/plain": stream_to_list(stdout),
+                    },
+                }
+            )
+        # Same for stderr
+        if stderr != "":
+            outputs.append(
+                {
+                    "name": "stderr",
+                    "output_type": "stream",
+                    "data": {
+                        "text/plain": stream_to_list(stderr),
+                    },
+                }
+            )
+        if input_type == InputType.CODE:
+            self.history.add_code(raw_cell, outputs)
+        elif input_type == InputType.PROMPT:
             # Store history with the input and corresponding output
-            self.history.add_prompt(input_, outputs, service_interaction.to_dict())
+            self.history.add_prompt(raw_cell, outputs, service_interaction.to_dict())
+        return result
+
+    def prompt(self, input_: str):
+        prompt = escape_quotes(input_)
+        if self._check_service():
+
+            result = self.run_cell(prompt, input_type=InputType.PROMPT)
+            import ipdb; ipdb.set_trace()
         else:
             print(INIT_SERVICE_MSG)
+
 
     def cli(self, input_: str):
         prompt = escape_quotes(input_)
@@ -257,6 +294,8 @@ class ICortexShell(InteractiveShell):
             quiet=args.quiet,
             nonint=args.nonint,
         )
+
+    # def eval_var(self, )
 
 
 class ICortexKernel(IPythonKernel):

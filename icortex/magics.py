@@ -17,6 +17,13 @@ class ICortexMagics(Magics):
         return
 
     @line_magic
+    def var(self, line):
+        "Define a variable"
+        kernel = get_icortex()
+        return kernel.cli(line)
+
+
+    @line_magic
     def icortex(self, line):
         kernel = get_icortex()
         return kernel.cli(line)
