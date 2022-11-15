@@ -2,17 +2,19 @@
 # https://jupyter-client.readthedocs.io/en/latest/wrapperkernels.html
 # https://github.com/jupyter/jupyter/wiki/Jupyter-kernels
 
-from logging import warning
 import shlex
 import sys
 import types
 import typing as t
+from enum import Enum
+from logging import warning
 from icortex.config import ICortexConfig
 from icortex.cli import eval_cli
 from icortex.context import ICortexHistory
 
 from ipykernel.ipkernel import IPythonKernel
 from IPython import InteractiveShell, get_ipython
+from IPython.core.interactiveshell import ExecutionResult, ExecutionInfo
 from IPython.utils.io import capture_output
 from traitlets.config.configurable import SingletonConfigurable
 
@@ -36,12 +38,24 @@ INIT_SERVICE_MSG = (
 )
 
 
-class InputType:
+class InputType(Enum):
     """Enum for input cell type."""
 
     CODE = 0
     PROMPT = 1
     VAR = 2
+
+
+def is_icortex_magic(raw_cell: str) -> bool:
+    raw_cell = raw_cell.strip()
+    return (
+        raw_cell.startswith(r"%icortex ")
+        or raw_cell.startswith(r"%prompt ")
+        or raw_cell.startswith(r"%%prompt ")
+        or raw_cell.startswith(r"%p ")
+        or raw_cell.startswith(r"%%p ")
+        or raw_cell.startswith(r"%var ")
+    )
 
 
 def stream_to_list(stream_str: str) -> t.List[str]:
@@ -196,7 +210,12 @@ class ICortexShell(InteractiveShell):
         #     # TODO: Make capture_output() forward streams and display outputs
         #     # This doesn't cause a problem with ipython for some reason but only icortex
 
+        is_icortex_magic_ = is_icortex_magic(raw_cell)
+        result = ExecutionResult(ExecutionInfo(None, None, None, None, None))
+
+        # print("Called run_cell ", input_type)
         if input_type == InputType.CODE:
+
             result = InteractiveShell.run_cell(
                 self,
                 raw_cell,
@@ -271,7 +290,7 @@ class ICortexShell(InteractiveShell):
                 }
             )
 
-        if input_type == InputType.CODE:
+        if input_type == InputType.CODE and not is_icortex_magic_:
             self.history.add_code(
                 raw_cell,
                 outputs,
@@ -283,6 +302,13 @@ class ICortexShell(InteractiveShell):
                 raw_cell,
                 outputs,
                 service_interaction.to_dict(),
+                execution_result=serialize_execution_result(result),
+            )
+        elif input_type == InputType.VAR:
+            self.history.add_var(
+                raw_cell,
+                code,
+                outputs,
                 execution_result=serialize_execution_result(result),
             )
 
@@ -324,6 +350,7 @@ class ICortexShell(InteractiveShell):
         "Evaluate var magic"
         # args = self.var_parser.parse_args(line.split())
         self.run_cell(line, input_type=InputType.VAR)
+
 
 class ICortexKernel(IPythonKernel):
     """Class that implements the ICortex kernel. It is basically

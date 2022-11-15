@@ -56,13 +56,39 @@ class ICortexHistory:
                 del ret["cells"][-1]
         return ret
 
-    def add_code(self, code: str, outputs: t.List[t.Any], execution_result: t.Optional[t.Dict[str, t.Any]] = None):
+    def add_code(
+        self,
+        code: str,
+        outputs: t.List[t.Any],
+        execution_result: t.Optional[t.Dict[str, t.Any]] = None,
+    ):
         self._check_init()
 
         ret = {
             "cell_type": "code",
             "metadata": {},
             "source": code,
+            "outputs": outputs,
+        }
+        if execution_result:
+            ret["metadata"]["execution_result"] = execution_result
+
+        self._dict["cells"].append(ret)
+        return ret
+
+    def add_var(
+        self,
+        var_line: str,
+        code: str,
+        outputs: t.List[t.Any],
+        execution_result: t.Optional[t.Dict[str, t.Any]] = None,
+    ):
+        self._check_init()
+
+        ret = {
+            "cell_type": "code",
+            "metadata": {"source_type": "var", "code": code},
+            "source": var_line,
             "outputs": outputs,
         }
         if execution_result:
@@ -86,7 +112,7 @@ class ICortexHistory:
             "metadata": {
                 # Any ICortex specific information needs to be stored here to
                 # adhere to the Jupyter notebook format
-                "source_type": "prompt", # This tells that the input was a prompt
+                "source_type": "prompt",  # This tells that the input was a prompt
                 "service": service_interaction,
             },
             "source": prompt,

@@ -2,7 +2,7 @@ import argparse
 
 from icortex.helper import escape_quotes
 
-VAR_NAME_PREFIX = "_v_"
+VAR_NAME_PREFIX = "_"
 
 
 def get_var_magic_parser():
