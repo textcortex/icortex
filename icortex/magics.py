@@ -22,6 +22,11 @@ class ICortexMagics(Magics):
         shell = get_icortex()
         return shell.eval_var(line)
 
+    @line_magic
+    def export(self, line):
+        "Export icortex notebook"
+        shell = get_icortex()
+        return shell.export(line)
 
     @line_magic
     def icortex(self, line):

@@ -10,7 +10,7 @@ from enum import Enum
 from logging import warning
 from icortex.config import ICortexConfig
 from icortex.cli import eval_cli
-from icortex.context import ICortexHistory
+from icortex.context import ICortexContext
 
 from ipykernel.ipkernel import IPythonKernel
 from IPython import InteractiveShell, get_ipython
@@ -27,7 +27,7 @@ from icortex.helper import (
 from icortex.services import ServiceBase, ServiceInteraction, get_available_services
 from icortex.pypi import install_missing_packages, get_missing_modules
 from icortex.defaults import *
-from icortex.var import get_var_magic_parser, format_var, line_to_code
+from icortex.var import Var
 import importlib_metadata
 
 __version__ = importlib_metadata.version("icortex")
@@ -73,7 +73,7 @@ class ICortexShell(InteractiveShell):
     def _init_icortex_shell(self):
         self.service = None
         scope = self.user_ns
-        self.history = ICortexHistory(scope)
+        self.history = ICortexContext(scope)
         from icortex.magics import load_ipython_extension
 
         load_ipython_extension(self)
@@ -89,11 +89,12 @@ class ICortexShell(InteractiveShell):
         self.print_service_help = types.MethodType(
             ICortexShell.print_service_help, self
         )
+        self.run_cell = types.MethodType(ICortexShell.run_cell, self)
         self.cli = types.MethodType(ICortexShell.cli, self)
         self.prompt = types.MethodType(ICortexShell.prompt, self)
         self.eval_prompt = types.MethodType(ICortexShell.eval_prompt, self)
         self.eval_var = types.MethodType(ICortexShell.eval_var, self)
-        self.run_cell = types.MethodType(ICortexShell.run_cell, self)
+        self.export = types.MethodType(ICortexShell.export, self)
 
     def set_service(self, service: t.Type[ServiceBase]):
         self.service = service
@@ -237,7 +238,9 @@ class ICortexShell(InteractiveShell):
             )
         elif input_type == InputType.VAR:
             # args = self.var_parser.parse_args(raw_cell.split())
-            code = line_to_code(raw_cell)
+            # code, arg_name, var_name, value = line_to_code(raw_cell)
+            var = Var.from_var_magic(raw_cell)
+            code = var.get_code()
             result = InteractiveShell.run_cell(
                 self,
                 code,
@@ -245,6 +248,7 @@ class ICortexShell(InteractiveShell):
                 silent=False,
                 cell_id=self.execution_count,
             )
+            self.history.define_var(var)
 
         # Get the output from InteractiveShell.history_manager.
         # run_cell should be called with store_history=False in order for
@@ -291,21 +295,21 @@ class ICortexShell(InteractiveShell):
             )
 
         if input_type == InputType.CODE and not is_icortex_magic_:
-            self.history.add_code(
+            self.history.add_code_cell(
                 raw_cell,
                 outputs,
                 execution_result=serialize_execution_result(result),
             )
         elif input_type == InputType.PROMPT:
             # Store history with the input and corresponding output
-            self.history.add_prompt(
+            self.history.add_prompt_cell(
                 raw_cell,
                 outputs,
                 service_interaction.to_dict(),
                 execution_result=serialize_execution_result(result),
             )
         elif input_type == InputType.VAR:
-            self.history.add_var(
+            self.history.add_var_cell(
                 raw_cell,
                 code,
                 outputs,
@@ -333,7 +337,9 @@ class ICortexShell(InteractiveShell):
 
         # Otherwise, generate with the prompt
         response = self.service.generate(
-            prompt_with_args, context=self.history.get_dict(omit_last_cell=True)
+            prompt_with_args,
+            context=self.history.get_dict(omit_last_cell=False),
+            # context=self.history.get_dict(omit_last_cell=True),
         )
         # TODO: Account for multiple response values
         code_: str = response[0]["text"]
@@ -346,10 +352,20 @@ class ICortexShell(InteractiveShell):
             nonint=args.nonint,
         )
 
+
     def eval_var(self, line: str):
         "Evaluate var magic"
         # args = self.var_parser.parse_args(line.split())
         self.run_cell(line, input_type=InputType.VAR)
+
+
+    def export(self, line: str):
+        "Export context to a file"
+        dest = line.split(" ")[0].strip()
+        if dest == "":
+            raise ValueError("Please specify a destination")
+
+        self.history.save_to_file(dest + ".icx")
 
 
 class ICortexKernel(IPythonKernel):

@@ -38,6 +38,40 @@ def get_parser(prog=None):
         default=DEFAULT_ICORTEX_CONFIG_PATH,
     )
 
+    ##############################
+    # Run a notebook as a script #
+    ##############################
+
+    # icortex run
+    parser_run = subparsers.add_parser(
+        "run",
+        help="Initialize ICortex configuration in the current directory",
+        add_help=False,
+    )
+
+    # Check whether the notebook exists
+    parser_run.add_argument(
+        "notebook",
+        type=str,
+        help="Path to the ICortex notebook to be run",
+    )
+    # A catch-all for the rest of the arguments
+    parser_run.add_argument("notebook_args", nargs=argparse.REMAINDER)
+
+
+    # parser_run.add_argument(
+    #     "notebook_args",
+    #     nargs="*",
+    #     action="append",
+    #     help="Arguments to pass to the notebook",
+    # )
+    # parser_init.add_argument(
+    #     "--config",
+    #     type=str,
+    #     help="Path to the configuration TOML file.",
+    #     default=DEFAULT_ICORTEX_CONFIG_PATH,
+    # )
+
     ##########################
     # Shell related commands #
     ##########################
@@ -183,6 +217,8 @@ def main(argv=None, prog=None, kernel=None):
             parser_service.print_help()
     elif args.command == "help":
         parser.print_help()
+    elif args.command == "run":
+        import ipdb; ipdb.set_trace()
     elif args.command == "shell" or args.command is None:
         from icortex.kernel import get_icortex
         from icortex.kernel.app import ZMQTerminalICortexApp

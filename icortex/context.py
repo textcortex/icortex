@@ -1,8 +1,10 @@
+import json
 import typing as t
+from icortex.var import Var
 import importlib_metadata
 from copy import deepcopy
 import platform
-from icortex.defaults import DEFAULT_HISTORY_VAR
+from icortex.defaults import DEFAULT_CONTEXT_VAR
 
 icortex_version = importlib_metadata.version("icortex")
 
@@ -31,7 +33,7 @@ INITIAL_HISTORY_VAL = {
 }
 
 
-class ICortexHistory:
+class ICortexContext:
     """Interface to construct a history variable in globals for storing
     notebook context.
     The constructed dict maps to JSON, and the schema is compatible
@@ -44,10 +46,10 @@ class ICortexHistory:
         self._check_init()
 
     def _check_init(self):
-        if DEFAULT_HISTORY_VAR not in self.scope:
-            self.scope[DEFAULT_HISTORY_VAR] = deepcopy(INITIAL_HISTORY_VAL)
+        if DEFAULT_CONTEXT_VAR not in self.scope:
+            self.scope[DEFAULT_CONTEXT_VAR] = deepcopy(INITIAL_HISTORY_VAL)
 
-        self._dict = self.scope[DEFAULT_HISTORY_VAR]
+        self._dict = self.scope[DEFAULT_CONTEXT_VAR]
 
     def get_dict(self, omit_last_cell=False):
         ret = deepcopy(self._dict)
@@ -56,7 +58,15 @@ class ICortexHistory:
                 del ret["cells"][-1]
         return ret
 
-    def add_code(
+    def define_var(self, var: Var):
+        self._check_init()
+        if "variables" not in self._dict["metadata"]:
+            self._dict["metadata"]["variables"] = []
+
+        self._dict["metadata"]["variables"].append(var.to_dict())
+        return
+
+    def add_code_cell(
         self,
         code: str,
         outputs: t.List[t.Any],
@@ -66,7 +76,7 @@ class ICortexHistory:
 
         ret = {
             "cell_type": "code",
-            "metadata": {},
+            "metadata": {"source_type": "code"},
             "source": code,
             "outputs": outputs,
         }
@@ -76,7 +86,7 @@ class ICortexHistory:
         self._dict["cells"].append(ret)
         return ret
 
-    def add_var(
+    def add_var_cell(
         self,
         var_line: str,
         code: str,
@@ -97,7 +107,7 @@ class ICortexHistory:
         self._dict["cells"].append(ret)
         return ret
 
-    def add_prompt(
+    def add_prompt_cell(
         self,
         prompt: str,
         outputs: t.List[t.Any],
@@ -123,3 +133,10 @@ class ICortexHistory:
 
         self._dict["cells"].append(ret)
         return ret
+
+    def save_to_file(self, path: str):
+        self._check_init()
+        with open(path, "w") as f:
+            json.dump(self.get_dict(), f, indent=2)
+
+        print("Exported to", path)

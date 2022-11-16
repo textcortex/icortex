@@ -4,6 +4,37 @@ from icortex.helper import escape_quotes
 
 VAR_NAME_PREFIX = "_"
 
+class Var:
+    def __init__(self, arg, name, value, type, description=None):
+        self.arg = arg
+        self.name = name
+        self.value = value
+        self.type = type
+        self.description = description
+
+    def from_var_magic(line):
+        args = get_var_magic_parser().parse_args(line.split())
+        var_name = VAR_NAME_PREFIX + args.name
+        value = parse_var(args.value, args.type)
+        return Var(args.name, var_name, value, args.type, args.description)
+
+    def get_code(self):
+        "Get code that assigns the variable value"
+        code = f"{self.name} = {repr(self.value)}\n"
+        code += f"{self.name}" # For showing in the output
+        return code
+
+    def to_dict(self):
+        ret = {
+            "arg": self.arg,
+            "name": self.name,
+            "value": self.value,
+            "type": self.type,
+        }
+        if self.description:
+            ret["description"] = self.description
+        return ret
+
 
 def get_var_magic_parser():
     parser = argparse.ArgumentParser(
@@ -30,30 +61,38 @@ def get_var_magic_parser():
         default="str",
         help="Type of the variable to be set",
     )
+    parser.add_argument(
+        "--description",
+        type=str,
+        help="Description of the variable to be set",
+    )
     return parser
 
 
-def format_var(val, type):
+def parse_var(val: str, type: str):
     if type == "str":
-        if "\n" in val:
-            return f'"""{escape_quotes(val)}"""'
-        else:
-            return f'"{escape_quotes(val)}"'
+        return val
     elif type == "int":
-        return str(int(val))
+        return int(val)
     elif type == "float":
-        return str(float(val))
+        return float(val)
     elif type == "bool":
-        return str(bool(val))
+        return bool(val)
     else:
         raise ValueError(f"Unknown type: {type}")
 
 
-def line_to_code(line):
-    "Convert var magic line to code that assigns the variable value"
-    args = get_var_magic_parser().parse_args(line.split())
-    var_name = VAR_NAME_PREFIX + args.name
-    value = format_var(args.value, args.type)
-    code = f"{var_name} = {value}\n"
-    code += f"{var_name}" # For showing in the output
-    return code
+# def escape_var(val):
+#     if type == "str":
+#         if "\n" in val:
+#             return f'"""{escape_quotes(val)}"""'
+#         else:
+#             return f'"{escape_quotes(val)}"'
+#     elif type == "int":
+#         return str(int(val))
+#     elif type == "float":
+#         return str(float(val))
+#     elif type == "bool":
+#         return str(bool(val))
+#     else:
+#         raise ValueError(f"Unknown type: {type}")

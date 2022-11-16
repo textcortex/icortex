@@ -1,3 +1,4 @@
+import os
 import requests
 import json
 import copy
@@ -22,9 +23,19 @@ service = "textcortex"
 api_key = "your-api-key-goes-here"
 """
 
+# Load alternative URI from the environment
+try:
+    from dotenv import load_dotenv
+
+    load_dotenv()
+    ICORTEX_ENDPOINT_URI = os.environ.get("ICORTEX_ENDPOINT_URI", ICORTEX_ENDPOINT_URI)
+except:
+    pass
+
 
 class TextCortexService(ServiceBase):
     """Interface to TextCortex's code generation service"""
+
     name = "textcortex"
     description = "TextCortex Python code generator"
     variables = {
