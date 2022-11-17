@@ -1,8 +1,10 @@
 import argparse
+import typing as t
 
 from icortex.helper import escape_quotes
 
 VAR_NAME_PREFIX = "_"
+
 
 class Var:
     def __init__(self, arg, name, value, type, description=None):
@@ -21,10 +23,11 @@ class Var:
     def get_code(self):
         "Get code that assigns the variable value"
         code = f"{self.name} = {repr(self.value)}\n"
-        code += f"{self.name}" # For showing in the output
+        code += f"{self.name}"  # For showing in the output
         return code
 
     def to_dict(self):
+        "Convert to a dictionary"
         ret = {
             "arg": self.arg,
             "name": self.name,
@@ -34,6 +37,15 @@ class Var:
         if self.description:
             ret["description"] = self.description
         return ret
+
+    def from_dict(d: t.Dict[str, t.Any]):
+        "Create a Var from a dictionary"
+        return Var(
+            d["arg"], d["name"], d["value"], d["type"], d.get("description", None)
+        )
+
+    def __repr__(self):
+        return f"Var({self.arg}={repr(self.value)})"
 
 
 def get_var_magic_parser():

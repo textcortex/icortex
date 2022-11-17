@@ -2,6 +2,7 @@ import os
 import shlex
 import sys
 import argparse
+from icortex.run import run_notebook
 from icortex.services import get_available_services
 from icortex.defaults import DEFAULT_ICORTEX_CONFIG_PATH
 from icortex.kernel.install import is_kernel_installed, main as install_kernel
@@ -218,7 +219,7 @@ def main(argv=None, prog=None, kernel=None):
     elif args.command == "help":
         parser.print_help()
     elif args.command == "run":
-        import ipdb; ipdb.set_trace()
+        run_notebook(args.notebook, args.notebook_args)
     elif args.command == "shell" or args.command is None:
         from icortex.kernel import get_icortex
         from icortex.kernel.app import ZMQTerminalICortexApp

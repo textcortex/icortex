@@ -298,22 +298,23 @@ class ICortexShell(InteractiveShell):
             self.history.add_code_cell(
                 raw_cell,
                 outputs,
-                execution_result=serialize_execution_result(result),
+                execution_result=result,
             )
         elif input_type == InputType.PROMPT:
             # Store history with the input and corresponding output
             self.history.add_prompt_cell(
                 raw_cell,
                 outputs,
-                service_interaction.to_dict(),
-                execution_result=serialize_execution_result(result),
+                service_interaction,
+                execution_result=result,
             )
         elif input_type == InputType.VAR:
             self.history.add_var_cell(
                 raw_cell,
+                var,
                 code,
                 outputs,
-                execution_result=serialize_execution_result(result),
+                execution_result=result,
             )
 
         return result
@@ -338,9 +339,10 @@ class ICortexShell(InteractiveShell):
         # Otherwise, generate with the prompt
         response = self.service.generate(
             prompt_with_args,
-            context=self.history.get_dict(omit_last_cell=False),
+            context=self.history.to_dict(omit_last_cell=False),
             # context=self.history.get_dict(omit_last_cell=True),
         )
+        import ipdb; ipdb.set_trace()
         # TODO: Account for multiple response values
         code_: str = response[0]["text"]
 

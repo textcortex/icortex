@@ -138,12 +138,12 @@ class TextCortexService(ServiceBase):
         )
 
         response_dict = response.json()
-        if response_dict["status"] == "success":
+        if response_dict.get("status") == "success":
             self.cache_response(
                 cached_request_dict, response_dict, cache_path=DEFAULT_CACHE_PATH
             )
             return response_dict["generated_text"]
-        elif response_dict["status"] == "fail":
+        else:
             raise Exception(
-                f"There was an issue with generation: {response_dict['message']}"
+                f"There was an issue with generation: {response_dict.get('message', 'No message provided')}"
             )
