@@ -83,6 +83,9 @@ class ServiceInteraction:
 
         return ret
 
+    def from_dict(d: dict):
+        return ServiceInteraction(**d)
+
     def get_code(self):
         if self.execute:
             # TODO: Account for multiple generations

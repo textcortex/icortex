@@ -10,7 +10,7 @@ from icortex.defaults import DEFAULT_CONTEXT_VAR
 from icortex.services import ServiceInteraction
 from IPython.core.interactiveshell import ExecutionResult, ExecutionInfo
 
-from icortex.helper import serialize_execution_result
+from icortex.helper import serialize_execution_result, deserialize_execution_result
 
 icortex_version = importlib_metadata.version("icortex")
 
@@ -40,17 +40,22 @@ INITIAL_HISTORY_VAL = {
 
 
 class Cell(ABC):
+    def __init__(self, execution_result: ExecutionResult = None):
+        self.execution_result = execution_result
+
     @abstractclassmethod
-    def __init__(self):
+    def get_code(self) -> str:
         raise NotImplementedError
 
     @abstractclassmethod
-    def get_code(self):
+    def to_dict(self) -> t.Dict[str, t.Any]:
         raise NotImplementedError
 
-    @abstractclassmethod
-    def to_dict(self):
-        raise NotImplementedError
+    @property
+    def success(self) -> bool:
+        if self.execution_result is None:
+            return False
+        return self.execution_result.success
 
 
 class CodeCell(Cell):
@@ -62,7 +67,7 @@ class CodeCell(Cell):
     ):
         self.code = code
         self.outputs = outputs
-        self.execution_result = execution_result
+        super().__init__(execution_result=execution_result)
 
     def get_code(self):
         return self.code
@@ -81,6 +86,18 @@ class CodeCell(Cell):
 
         return ret
 
+    def from_dict(d: t.Dict[str, t.Any]):
+        return CodeCell(
+            d["source"],
+            d["outputs"],
+            execution_result=deserialize_execution_result(
+                d["metadata"]["execution_result"]
+            ),
+        )
+
+    def get_code(self) -> str:
+        return self.code
+
 
 class PromptCell(Cell):
     def __init__(
@@ -93,7 +110,7 @@ class PromptCell(Cell):
         self.prompt = prompt
         self.outputs = outputs
         self.service_interaction = service_interaction
-        self.execution_result = execution_result
+        super().__init__(execution_result=execution_result)
 
     def to_dict(self):
         ret = {
@@ -114,8 +131,19 @@ class PromptCell(Cell):
             )
         return ret
 
+    def from_dict(d: t.Dict[str, t.Any]):
+        return PromptCell(
+            d["source"],
+            d["outputs"],
+            ServiceInteraction.from_dict(d["metadata"]["service"]),
+            deserialize_execution_result(d["metadata"]["execution_result"]),
+        )
 
-class VarCell(ABC):
+    def get_code(self) -> str:
+        return self.service_interaction.get_code()
+
+
+class VarCell(Cell):
     def __init__(
         self,
         var_line: str,
@@ -128,12 +156,16 @@ class VarCell(ABC):
         self.var = var
         self.code = code
         self.outputs = outputs
-        self.execution_result = execution_result
+        super().__init__(execution_result=execution_result)
 
     def to_dict(self):
         ret = {
             "cell_type": "code",
-            "metadata": {"source_type": "var", "code": self.code},
+            "metadata": {
+                "source_type": "var",
+                "var": self.var.to_dict(),
+                "code": self.code,
+            },
             "source": self.var_line,
             "outputs": self.outputs,
         }
@@ -143,6 +175,18 @@ class VarCell(ABC):
             )
 
         return ret
+
+    def from_dict(d: t.Dict[str, t.Any]):
+        return VarCell(
+            d["source"],
+            Var.from_dict(d["metadata"]["var"]),
+            d["metadata"]["code"],
+            d["outputs"],
+            deserialize_execution_result(d["metadata"]["execution_result"]),
+        )
+
+    def get_code(self):
+        return self.code
 
 
 class ICortexContext:
@@ -220,7 +264,24 @@ class ICortexContext:
             dict_ = json.load(f)
         ret = ICortexContext(scope=scope)
         ret._dict = dict_
+        ret._dict_to_cells()
+
         return ret
+
+    def _dict_to_cells(self):
+        self._check_init()
+        for cell_dict in self._dict["cells"]:
+            if cell_dict["metadata"]["source_type"] == "code":
+                cell = CodeCell.from_dict(cell_dict)
+            elif cell_dict["metadata"]["source_type"] == "var":
+                cell = VarCell.from_dict(cell_dict)
+            elif cell_dict["metadata"]["source_type"] == "prompt":
+                cell = PromptCell.from_dict(cell_dict)
+            else:
+                raise ValueError(
+                    f"Unknown cell type {cell_dict['metadata']['source_type']}"
+                )
+            self.cells.append(cell)
 
     def get_vars(self):
         """Returns a list of all variables defined in the notebook"""
@@ -228,3 +289,7 @@ class ICortexContext:
         if "variables" not in self._dict["metadata"]:
             return []
         return [Var.from_dict(v) for v in self._dict["metadata"]["variables"]]
+
+    def iter_cells(self) -> t.Iterator[Cell]:
+        for cell in self.cells:
+            yield cell

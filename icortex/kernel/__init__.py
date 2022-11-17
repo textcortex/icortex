@@ -212,7 +212,7 @@ class ICortexShell(InteractiveShell):
         #     # This doesn't cause a problem with ipython for some reason but only icortex
 
         is_icortex_magic_ = is_icortex_magic(raw_cell)
-        result = ExecutionResult(ExecutionInfo(None, None, None, None, None))
+        result = ExecutionResult(ExecutionInfo("", None, None, None, None))
 
         # print("Called run_cell ", input_type)
         if input_type == InputType.CODE:
@@ -342,7 +342,7 @@ class ICortexShell(InteractiveShell):
             context=self.history.to_dict(omit_last_cell=False),
             # context=self.history.get_dict(omit_last_cell=True),
         )
-        import ipdb; ipdb.set_trace()
+
         # TODO: Account for multiple response values
         code_: str = response[0]["text"]
 

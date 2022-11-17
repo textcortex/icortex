@@ -3,7 +3,7 @@ from pygments import highlight
 from pygments.formatters import Terminal256Formatter
 from pygments.lexers import PythonLexer
 
-from IPython.core.interactiveshell import ExecutionResult
+from IPython.core.interactiveshell import ExecutionResult, ExecutionInfo
 
 
 def unescape(s) -> str:
@@ -99,3 +99,23 @@ def serialize_execution_result(execution_result: ExecutionResult):
     ret["success"] = execution_result.success
     return ret
 
+
+def deserialize_execution_result(execution_result: dict):
+    # TODO: Deserialize the execution result and info better
+    ret = ExecutionResult(ExecutionInfo("", False, None, None, None))
+
+    # No need to set success, it's a property. See ExecutionResult.success
+    # ret.success = execution_result["success"]
+    if "error_before_exec" in execution_result:
+        ret.error_before_exec = deserialize_exception(
+            execution_result["error_before_exec"]
+        )
+    if "error_in_exec" in execution_result:
+        ret.error_in_exec = deserialize_exception(execution_result["error_in_exec"])
+    if "result" in execution_result:
+        ret.result = execution_result["result"]
+    return ret
+
+def deserialize_exception(exception: dict):
+    # TODO: This is a hack, we need to deserialize the exception properly
+    return Exception(exception["message"])

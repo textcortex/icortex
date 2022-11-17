@@ -5,14 +5,27 @@ from icortex.helper import escape_quotes
 
 VAR_NAME_PREFIX = "_"
 
+TYPE_STR_TO_TYPE = {
+    "str": str,
+    "int": int,
+    "float": float,
+    "bool": bool,
+    # "list": list,
+    # "dict": dict,
+    # "tuple": tuple,
+    # "set": set,
+}
 
 class Var:
     def __init__(self, arg, name, value, type, description=None):
         self.arg = arg
         self.name = name
         self.value = value
+        # TODO: Rename to type_str
         self.type = type
         self.description = description
+
+        self._type = TYPE_STR_TO_TYPE[type]
 
     def from_var_magic(line):
         args = get_var_magic_parser().parse_args(line.split())
