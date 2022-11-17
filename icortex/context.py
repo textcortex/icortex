@@ -1,6 +1,7 @@
 import json
 import os
 import typing as t
+import argparse
 from icortex.var import Var
 import importlib_metadata
 from abc import ABC, abstractclassmethod
@@ -14,7 +15,7 @@ from icortex.helper import serialize_execution_result, deserialize_execution_res
 
 icortex_version = importlib_metadata.version("icortex")
 
-INITIAL_HISTORY_VAL = {
+EMPTY_CONTEXT = {
     "metadata": {
         "kernelspec": {
             "display_name": "ICortex (Python 3)",
@@ -199,23 +200,30 @@ class ICortexContext:
 
     def __init__(self, scope: t.Dict[str, t.Any] = None):
         self.scope = scope
-        self.cells = []
+        self._cells = []
+        self._vars = []
         self._check_init()
 
     def _check_init(self):
         if self.scope is None:
             return
 
-        if DEFAULT_CONTEXT_VAR not in self.scope:
-            self.scope[DEFAULT_CONTEXT_VAR] = deepcopy(INITIAL_HISTORY_VAL)
+        if self.scope.get(DEFAULT_CONTEXT_VAR) != self:
+            self.scope[DEFAULT_CONTEXT_VAR] = self
 
-        self._dict = self.scope[DEFAULT_CONTEXT_VAR]
+        # if DEFAULT_CONTEXT_VAR not in self.scope:
+
+        # self._dict = self.scope[DEFAULT_CONTEXT_VAR]
 
     def to_dict(self, omit_last_cell=False):
-        ret = deepcopy(self._dict)
+        ret = deepcopy(EMPTY_CONTEXT)
+        # ret = deepcopy(self._dict)
         # Serialize cells and add to the return value
-        cells = [cell.to_dict() for cell in self.cells]
+        cells = [cell.to_dict() for cell in self._cells]
         ret.update({"cells": cells})
+        # Serialize vars and add to the return value
+        vars = [var.to_dict() for var in self._vars]
+        ret["metadata"].update({"variables": vars})
 
         if omit_last_cell:
             if len(ret["cells"]) > 0:
@@ -223,29 +231,30 @@ class ICortexContext:
         return ret
 
     def define_var(self, var: Var):
-        self._check_init()
-        if "variables" not in self._dict["metadata"]:
-            self._dict["metadata"]["variables"] = []
+        self._vars.append(var)
+        # self._check_init()
+        # if "variables" not in self._dict["metadata"]:
+        #     self._dict["metadata"]["variables"] = []
 
-        self._dict["metadata"]["variables"].append(var.to_dict())
+        # self._dict["metadata"]["variables"].append(var.to_dict())
         return
 
     def add_code_cell(self, *args, **kwargs):
         self._check_init()
         cell = CodeCell(*args, **kwargs)
-        self.cells.append(cell)
+        self._cells.append(cell)
         return cell
 
     def add_var_cell(self, *args, **kwargs):
         self._check_init()
         cell = VarCell(*args, **kwargs)
-        self.cells.append(cell)
+        self._cells.append(cell)
         return cell
 
     def add_prompt_cell(self, *args, **kwargs):
         self._check_init()
         cell = PromptCell(*args, **kwargs)
-        self.cells.append(cell)
+        self._cells.append(cell)
         return cell
 
     def save_to_file(self, path: str):
@@ -262,15 +271,10 @@ class ICortexContext:
 
         with open(path, "r") as f:
             dict_ = json.load(f)
+
         ret = ICortexContext(scope=scope)
-        ret._dict = dict_
-        ret._dict_to_cells()
 
-        return ret
-
-    def _dict_to_cells(self):
-        self._check_init()
-        for cell_dict in self._dict["cells"]:
+        for cell_dict in dict_["cells"]:
             if cell_dict["metadata"]["source_type"] == "code":
                 cell = CodeCell.from_dict(cell_dict)
             elif cell_dict["metadata"]["source_type"] == "var":
@@ -281,15 +285,47 @@ class ICortexContext:
                 raise ValueError(
                     f"Unknown cell type {cell_dict['metadata']['source_type']}"
                 )
-            self.cells.append(cell)
+            ret._cells.append(cell)
 
-    def get_vars(self):
+        ret._vars = [Var.from_dict(v) for v in dict_["metadata"]["variables"]]
+
+        return ret
+
+    @property
+    def vars(self):
         """Returns a list of all variables defined in the notebook"""
-        self._check_init()
-        if "variables" not in self._dict["metadata"]:
-            return []
-        return [Var.from_dict(v) for v in self._dict["metadata"]["variables"]]
+        return self._vars
 
     def iter_cells(self) -> t.Iterator[Cell]:
-        for cell in self.cells:
+        for cell in self._cells:
             yield cell
+
+    def run(self, notebook_args: t.List[str]):
+        """Run the notebook with the given arguments"""
+
+        vars = self.vars
+        parsed_args = get_notebook_arg_parser(vars).parse_args(notebook_args)
+        scope = locals()
+
+        for cell in self.iter_cells():
+            if cell.success:
+                if isinstance(cell, VarCell):
+                    var = cell.var
+                    # Change the value to that of the parsed argument
+                    var.value = var._type(getattr(parsed_args, var.arg))
+                    code = var.get_code()
+                else:
+                    code = cell.get_code()
+                # Execute the returned code
+                exec(code, scope)
+
+
+def get_notebook_arg_parser(vars: t.List[Var]):
+    parser = argparse.ArgumentParser(add_help=False)
+    for var in vars:
+        parser.add_argument(
+            var.arg,
+            type=var._type,
+            help=var.description,
+        )
+    return parser
