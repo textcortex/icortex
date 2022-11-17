@@ -95,6 +95,7 @@ class ICortexShell(InteractiveShell):
         self.eval_prompt = types.MethodType(ICortexShell.eval_prompt, self)
         self.eval_var = types.MethodType(ICortexShell.eval_var, self)
         self.export = types.MethodType(ICortexShell.export, self)
+        self.freeze = types.MethodType(ICortexShell.freeze, self)
 
     def set_service(self, service: t.Type[ServiceBase]):
         self.service = service
@@ -339,7 +340,7 @@ class ICortexShell(InteractiveShell):
         # Otherwise, generate with the prompt
         response = self.service.generate(
             prompt_with_args,
-            context=self.history.to_dict(omit_last_cell=False),
+            context=self.history,
             # context=self.history.get_dict(omit_last_cell=True),
         )
 
@@ -354,20 +355,26 @@ class ICortexShell(InteractiveShell):
             nonint=args.nonint,
         )
 
-
     def eval_var(self, line: str):
         "Evaluate var magic"
         # args = self.var_parser.parse_args(line.split())
         self.run_cell(line, input_type=InputType.VAR)
 
-
     def export(self, line: str):
-        "Export context to a file"
+        "Export notebook to a file"
         dest = line.split(" ")[0].strip()
         if dest == "":
             raise ValueError("Please specify a destination")
 
         self.history.save_to_file(dest + ".icx")
+
+    def freeze(self, line: str):
+        "Freeze notebook into a Python script"
+        dest = line.split(" ")[0].strip()
+        if dest == "":
+            raise ValueError("Please specify a destination")
+
+        self.history.freeze(dest + ".py")
 
 
 class ICortexKernel(IPythonKernel):

@@ -24,9 +24,15 @@ class ICortexMagics(Magics):
 
     @line_magic
     def export(self, line):
-        "Export icortex notebook"
+        "Export ICortex notebook"
         shell = get_icortex()
         return shell.export(line)
+
+    @line_magic
+    def export(self, line):
+        "Freeze ICortex notebook"
+        shell = get_icortex()
+        return shell.freeze(line)
 
     @line_magic
     def icortex(self, line):

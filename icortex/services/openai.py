@@ -5,6 +5,7 @@ import typing as t
 
 from icortex.defaults import *
 from icortex.services import ServiceBase, ServiceVariable
+from icortex.context import ICortexContext
 from icortex.helper import unescape
 
 MISSING_API_KEY_MSG = """The ICortex prompt requires an API key from OpenAI in order to work.
@@ -108,7 +109,7 @@ class OpenAIService(ServiceBase):
     def generate(
         self,
         prompt: str,
-        context: t.Dict[str, t.Any] = {},
+        context: ICortexContext = None,
     ) -> t.List[t.Dict[t.Any, t.Any]]:
 
         argv = shlex.split(prompt)

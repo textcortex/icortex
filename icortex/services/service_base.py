@@ -5,6 +5,7 @@ import typing as t
 from abc import ABC, abstractmethod
 
 from icortex.defaults import DEFAULT_CACHE_PATH
+from icortex.context import ICortexContext
 from icortex.helper import prompt_input
 
 
@@ -217,7 +218,7 @@ class ServiceBase(ABC):
     def generate(
         self,
         prompt: str,
-        context: t.Dict[str, t.Any] = {},
+        context: ICortexContext = None,
     ) -> t.List[t.Dict[t.Any, t.Any]]:
         """Implement the logic that generates code from user prompts here.
 

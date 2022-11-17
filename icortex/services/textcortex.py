@@ -5,6 +5,7 @@ import copy
 import shlex
 
 import typing as t
+from icortex.context import ICortexContext
 
 from icortex.defaults import *
 from icortex.services import ServiceBase, ServiceVariable
@@ -82,7 +83,7 @@ class TextCortexService(ServiceBase):
     def generate(
         self,
         prompt: str,
-        context: t.Dict[str, t.Any] = {},
+        context: ICortexContext = None,
     ) -> t.List[t.Dict[t.Any, t.Any]]:
         """"""
         argv = shlex.split(prompt)
@@ -99,7 +100,7 @@ class TextCortexService(ServiceBase):
             "template_name": "icortex",
             "prompt": {
                 "instruction": prompt_text,
-                "context": context,
+                "context": context.to_dict() if context else {},
             },
             "temperature": args.temperature,
             "token_count": args.token_count,
@@ -112,6 +113,7 @@ class TextCortexService(ServiceBase):
         # Create a dict of the request for cache storage
         cached_payload = copy.deepcopy(payload)
         del cached_payload["api_key"]
+
         # Delete the whole context for now:
         del cached_payload["prompt"]["context"]
         cached_request_dict = {

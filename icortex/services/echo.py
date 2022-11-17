@@ -1,5 +1,6 @@
 import shlex
 import typing as t
+from icortex.context import ICortexContext
 from icortex.defaults import *
 from icortex.services import ServiceBase, ServiceVariable
 from icortex.helper import escape_quotes
@@ -21,7 +22,7 @@ class EchoService(ServiceBase):
     def generate(
         self,
         prompt: str,
-        context: t.Dict[str, t.Any] = {},
+        context: ICortexContext = None,
     ) -> t.List[t.Dict[t.Any, t.Any]]:
         argv = shlex.split(prompt)
 

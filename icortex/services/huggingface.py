@@ -5,6 +5,7 @@ import typing as t
 from icortex.defaults import *
 from icortex.helper import unescape
 from icortex.services import ServiceBase, ServiceVariable
+from icortex.context import ICortexContext
 
 # TODO
 # [x] Keep the ServiceBase object in memory and don't create a new one at every request
@@ -133,7 +134,7 @@ class HuggingFaceAutoService(ServiceBase):
     def generate(
         self,
         prompt: str,
-        context: t.Dict[str, t.Any] = {},
+        context: ICortexContext = None,
     ) -> t.List[t.Dict[t.Any, t.Any]]:
         argv = shlex.split(prompt)
 

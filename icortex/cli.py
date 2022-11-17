@@ -46,7 +46,7 @@ def get_parser(prog=None):
     # icortex run
     parser_run = subparsers.add_parser(
         "run",
-        help="Initialize ICortex configuration in the current directory",
+        help="Run an ICortex notebook",
         add_help=False,
     )
 
@@ -59,18 +59,28 @@ def get_parser(prog=None):
     # A catch-all for the rest of the arguments
     parser_run.add_argument("notebook_args", nargs=argparse.REMAINDER)
 
-    # parser_run.add_argument(
-    #     "notebook_args",
-    #     nargs="*",
-    #     action="append",
-    #     help="Arguments to pass to the notebook",
-    # )
-    # parser_init.add_argument(
-    #     "--config",
-    #     type=str,
-    #     help="Path to the configuration TOML file.",
-    #     default=DEFAULT_ICORTEX_CONFIG_PATH,
-    # )
+    ##########################################
+    # Freeze a notebook into a Python script #
+    ##########################################
+
+    # icortex freeze
+    parser_freeze = subparsers.add_parser(
+        "freeze",
+        help="Freeze an ICortex notebook into a Python script",
+        add_help=False,
+    )
+
+    parser_freeze.add_argument(
+        "notebook",
+        type=str,
+        help="Path of the ICortex notebook to be run",
+    )
+
+    parser_freeze.add_argument(
+        "destination",
+        type=str,
+        help="Path of the destination Python file",
+    )
 
     ##########################
     # Shell related commands #
@@ -220,6 +230,9 @@ def main(argv=None, prog=None, kernel=None):
     elif args.command == "run":
         context = ICortexContext.from_file(args.notebook)
         context.run(args.notebook_args)
+    elif args.command == "freeze":
+        context = ICortexContext.from_file(args.notebook)
+        context.freeze(args.destination)
     elif args.command == "shell" or args.command is None:
         from icortex.kernel import get_icortex
         from icortex.kernel.app import ZMQTerminalICortexApp

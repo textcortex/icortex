@@ -319,6 +319,46 @@ class ICortexContext:
                 # Execute the returned code
                 exec(code, scope)
 
+    def freeze(self, dest_path: str, format=True):
+        """Freeze the notebook to a Python script"""
+
+        # Warn if the extension is not .py
+        if not dest_path.endswith(".py"):
+            print(
+                f"Warning: {dest_path} does not have the .py extension. "
+                "It is recommended that you use the .py extension for "
+                "frozen files."
+            )
+
+        vars = self.vars
+        scope = locals()
+
+        output = "import argparse\n\nparser = argparse.ArgumentParser()\n"
+        for var in vars:
+            output += f"parser.add_argument({var.arg!r}, type={var._type.__name__})\n"
+        output += "args = parser.parse_args()\n\n"
+
+        for cell in self.iter_cells():
+            if cell.success:
+                if isinstance(cell, VarCell):
+                    var = cell.var
+                    # Change the value to that of the parsed argument
+                    # var.value = var._type(getattr(parsed_args, var.arg))
+                    code = f"{var.name} = args.{var.arg}\n\n"
+                    # code = var.get_code()
+                else:
+                    code = cell.get_code().rstrip() + "\n\n"
+                # Execute the returned code
+                # exec(code, scope)
+                output += code
+
+        # Run black over output
+        if format:
+            import black
+            output = black.format_str(output, mode=black.FileMode())
+
+        with open(dest_path, "w") as f:
+            f.write(output)
 
 def get_notebook_arg_parser(vars: t.List[Var]):
     parser = argparse.ArgumentParser(add_help=False)
