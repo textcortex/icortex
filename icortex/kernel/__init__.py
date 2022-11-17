@@ -24,7 +24,9 @@ from icortex.helper import (
     yes_no_input,
     highlight_python,
 )
-from icortex.services import ServiceBase, ServiceInteraction, get_available_services
+from icortex.services import get_available_services
+from icortex.services.service_base import ServiceBase
+from icortex.services.service_interaction import ServiceInteraction
 from icortex.pypi import install_missing_packages, get_missing_modules
 from icortex.defaults import *
 from icortex.var import Var

@@ -8,7 +8,7 @@ from abc import ABC, abstractclassmethod
 from copy import deepcopy
 import platform
 from icortex.defaults import DEFAULT_CONTEXT_VAR
-from icortex.services import ServiceInteraction
+from icortex.services.service_interaction import ServiceInteraction
 from IPython.core.interactiveshell import ExecutionResult, ExecutionInfo
 
 from icortex.helper import serialize_execution_result, deserialize_execution_result

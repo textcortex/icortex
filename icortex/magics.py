@@ -29,7 +29,7 @@ class ICortexMagics(Magics):
         return shell.export(line)
 
     @line_magic
-    def export(self, line):
+    def freeze(self, line):
         "Freeze ICortex notebook"
         shell = get_icortex()
         return shell.freeze(line)
