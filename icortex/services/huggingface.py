@@ -1,5 +1,4 @@
 import re
-import shlex
 import typing as t
 
 from icortex.defaults import *
@@ -138,7 +137,6 @@ class HuggingFaceAutoService(ServiceBase):
         args,
         context: ICortexContext = None,
     ) -> GenerationResult:
-        argv = shlex.split(prompt)
 
         prompt_text = build_prompt(
             prompt,

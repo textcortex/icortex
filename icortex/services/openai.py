@@ -1,5 +1,4 @@
 import openai
-import shlex
 
 import typing as t
 

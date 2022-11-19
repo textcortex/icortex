@@ -152,7 +152,7 @@ class PromptCell(Cell):
 
     def get_commented_code(self):
         # Add the prompt as a comment
-        ret = comment_out(unescape_quotes(self.prompt).rstrip()) + "\n\n"
+        ret = comment_out(self.prompt.rstrip()) + "\n\n"
         # Add the generated code
         ret += self.get_code().rstrip().replace("\n\n", "\n")
         return ret

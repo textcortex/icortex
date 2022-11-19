@@ -1,11 +1,9 @@
-import shlex
 import typing as t
 from icortex.context import ICortexContext
 from icortex.defaults import *
 from icortex.services import ServiceBase, ServiceVariable
 from icortex.helper import escape_quotes
 from icortex.services.generation_result import GenerationResult
-
 
 class EchoService(ServiceBase):
     name = "echo"
@@ -23,16 +21,9 @@ class EchoService(ServiceBase):
     def generate(
         self,
         prompt: str,
+        args,
         context: ICortexContext = None,
     ) -> GenerationResult:
-        argv = shlex.split(prompt)
-
-        # Remove the module name flag from the prompt
-        # Argparse adds this automatically, so we need to sanitize user input
-        if "-m" in argv:
-            argv.remove("-m")
-
-        args = self.prompt_parser.parse_args(argv)
 
         # Prepare request data
         payload = {

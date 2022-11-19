@@ -2,7 +2,6 @@
 # https://jupyter-client.readthedocs.io/en/latest/wrapperkernels.html
 # https://github.com/jupyter/jupyter/wiki/Jupyter-kernels
 
-import shlex
 import sys
 import types
 import typing as t

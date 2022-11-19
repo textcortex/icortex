@@ -1,7 +1,6 @@
 import os
 import argparse
 import json
-import shlex
 import typing as t
 from abc import ABC, abstractclassmethod
 
@@ -16,7 +15,7 @@ from icortex.helper import escape_quotes, highlight_python, prompt_input, yes_no
 from icortex.pypi import get_missing_modules, install_missing_packages
 from icortex.services.generation_result import GenerationResult
 from icortex.services.service_interaction import ServiceInteraction
-
+from icortex.parser import lex_prompt
 
 def is_str_repr(s: str):
     quotes = ["'", '"']
@@ -302,10 +301,8 @@ class ServiceBase(ABC):
         return True
 
     def eval_prompt(self, raw_prompt: str, context) -> ServiceInteraction:
-        raw_prompt = escape_quotes(raw_prompt)
-
         # Print help if the user has typed `/help`
-        argv = shlex.split(raw_prompt)
+        argv = lex_prompt(raw_prompt)
         args = self.prompt_parser.parse_args(argv)
 
         args.prompt = " ".join(args.prompt)

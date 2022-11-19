@@ -2,7 +2,6 @@ import os
 import requests
 import json
 import copy
-import shlex
 
 import typing as t
 from icortex.context import ICortexContext
