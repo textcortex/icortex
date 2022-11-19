@@ -44,7 +44,7 @@ class ServiceInteraction:
     def from_dict(d: dict):
         return ServiceInteraction(**d)
 
-    def get_code(self):
+    def get_code(self) -> str:
         if self.execute:
             # TODO: Account for multiple generations
             return self.outputs[0]

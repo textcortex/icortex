@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 import typing as t
 import argparse
@@ -12,6 +13,8 @@ from icortex.services.service_interaction import ServiceInteraction
 from IPython.core.interactiveshell import ExecutionResult, ExecutionInfo
 
 from icortex.helper import (
+    comment_out,
+    unescape_quotes,
     serialize_execution_result,
     deserialize_execution_result,
     is_magic,
@@ -146,6 +149,13 @@ class PromptCell(Cell):
 
     def get_code(self) -> str:
         return self.service_interaction.get_code()
+
+    def get_commented_code(self):
+        # Add the prompt as a comment
+        ret = comment_out(unescape_quotes(self.prompt).rstrip()) + "\n\n"
+        # Add the generated code
+        ret += self.get_code().rstrip().replace("\n\n", "\n")
+        return ret
 
 
 class VarCell(Cell):
@@ -352,20 +362,22 @@ class ICortexContext:
                     # code = var.get_code()
                 elif isinstance(cell, CodeCell):
                     if not is_magic(cell.get_code()):
-                        code = cell.get_code()
+                        code = cell.get_code().rstrip() + "\n\n"
                     else:
                         continue
-                else:
-                    code = cell.get_code().rstrip() + "\n\n"
+                elif isinstance(cell, PromptCell):
+                    code = cell.get_commented_code().rstrip() + "\n\n"
+
                 # Execute the returned code
-                # exec(code, scope)
                 output += code
 
         # Run black over output
         if format:
             import black
-
-            output = black.format_str(output, mode=black.FileMode())
+            try:
+                output = black.format_str(output, mode=black.FileMode())
+            except:
+                logging.warning("Failed to format code with black")
 
         with open(dest_path, "w") as f:
             f.write(output)

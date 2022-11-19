@@ -27,6 +27,10 @@ def escape_quotes(s: str) -> str:
     return s.replace('"', r"\"").replace("'", r"\'")
 
 
+def unescape_quotes(s: str) -> str:
+    return s.replace(r"\"", '"').replace(r"\'", "'")
+
+
 def extract_prompt(input: str) -> str:
     tokens = input.strip().split(" ", 1)
     if len(tokens) == 1:
@@ -137,3 +141,9 @@ def is_icortex_magic(raw_cell: str) -> bool:
 def is_magic(raw_cell: str) -> bool:
     raw_cell = raw_cell.strip()
     return raw_cell.startswith("%")
+
+
+def comment_out(input: str) -> str:
+    ret = "# " + input
+    ret = ret.replace("\n", "\n# ")
+    return ret

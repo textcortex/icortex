@@ -1,12 +1,20 @@
 import os
 import argparse
 import json
+import shlex
 import typing as t
 from abc import ABC, abstractmethod
 
-from icortex.defaults import DEFAULT_CACHE_PATH
+from icortex.defaults import (
+    DEFAULT_AUTO_EXECUTE,
+    DEFAULT_AUTO_INSTALL_PACKAGES,
+    DEFAULT_CACHE_PATH,
+    DEFAULT_QUIET,
+)
 from icortex.context import ICortexContext
-from icortex.helper import prompt_input
+from icortex.helper import escape_quotes, highlight_python, prompt_input, yes_no_input
+from icortex.pypi import get_missing_modules, install_missing_packages
+from icortex.services.service_interaction import ServiceInteraction
 
 
 def is_str_repr(s: str):
@@ -31,6 +39,7 @@ class ServiceVariable:
             the prompt parser will raise an error if the variable is not specified.
             Defaults to False.
     """
+
     def __init__(
         self,
         type_: type,
@@ -296,3 +305,100 @@ class ServiceBase(ABC):
         with open(cache_path, "w") as f:
             json.dump(cache, f, indent=2)
         return True
+
+    def _run_dialog(
+        self,
+        code: str,
+        auto_execute: bool = DEFAULT_AUTO_EXECUTE,
+        auto_install_packages: bool = DEFAULT_AUTO_INSTALL_PACKAGES,
+        quiet: bool = DEFAULT_QUIET,
+        nonint: bool = False,
+    ) -> ServiceInteraction:
+
+        if not quiet:
+            print(highlight_python(code))
+
+        missing_modules = get_missing_modules(code)
+
+        install_packages_yesno = False
+        if len(missing_modules) > 0 and not auto_install_packages and not nonint:
+            install_packages_yesno = yes_no_input(
+                f"The following modules are missing in your environment: {', '.join(missing_modules)}\nAttempt to find and install corresponding PyPI packages?"
+            )
+        install_packages = auto_install_packages or install_packages_yesno
+
+        unresolved_modules = []
+        if install_packages:
+            # Unresolved modules are modules that cannot be mapped
+            # to any PyPI packages according to the local data in this library
+            unresolved_modules = install_missing_packages(code)
+            if len(unresolved_modules) > 0:
+                print(
+                    f"""The following imported modules could not be resolved to PyPI packages: {', '.join(unresolved_modules)}
+        Install them manually and try again.
+        """
+                )
+
+        # Modules that are still missing regardless of
+        # whether the user tried to auto-install them or not:
+        still_missing_modules = get_missing_modules(code)
+
+        execute_yesno = False
+        if not auto_execute and not nonint and len(still_missing_modules) == 0:
+            execute_yesno = yes_no_input("Proceed to execute?")
+
+        execute = auto_execute or execute_yesno
+
+        if execute and len(still_missing_modules) > 0:
+            execute = False
+            if auto_install_packages:
+                bermuda_modules = [
+                    module
+                    for module in still_missing_modules
+                    if module not in unresolved_modules
+                ]
+                print(
+                    f"""These modules should have been installed at this point, but they are still missing:  {', '.join(bermuda_modules)}
+    This might be due to an installer issue, please resolve manually.""",
+                )
+            print(
+                f"Skipping execution due to missing modules: {', '.join(still_missing_modules)}."
+            )
+
+        return ServiceInteraction(
+            name=self.name,
+            execute=execute,
+            outputs=[code],
+            quiet=quiet,
+            install_packages=install_packages,
+            missing_modules=missing_modules,
+            # unresolved_modules=unresolved_modules,
+            # still_missing_modules=still_missing_modules,
+        )
+
+    def eval_prompt(self, prompt_with_args: str, context) -> ServiceInteraction:
+        prompt_with_args = escape_quotes(prompt_with_args)
+
+        # Print help if the user has typed `/help`
+        argv = shlex.split(prompt_with_args)
+        args = self.prompt_parser.parse_args(argv)
+
+        prompt = " ".join(args.prompt)
+
+        # Otherwise, generate with the prompt
+        response = self.generate(
+            prompt,
+            context=context,
+            # context=self.history.get_dict(omit_last_cell=True),
+        )
+
+        # TODO: Account for multiple response values
+        code_: str = response[0]["text"]
+
+        return self._run_dialog(
+            code_,
+            auto_execute=args.execute,
+            auto_install_packages=args.auto_install_packages,
+            quiet=args.quiet,
+            nonint=args.nonint,
+        )
