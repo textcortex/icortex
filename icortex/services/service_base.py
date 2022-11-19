@@ -207,6 +207,7 @@ class ServiceBase(ABC):
     def generate(
         self,
         prompt: str,
+        args,
         context: ICortexContext = None,
     ) -> GenerationResult:
         """Implement the logic that generates code from user prompts here.
@@ -312,6 +313,7 @@ class ServiceBase(ABC):
         # Otherwise, generate with the prompt
         generation_result = self.generate(
             args.prompt,
+            args,
             context=context,
         )
         outputs = self.get_outputs_from_result(generation_result)

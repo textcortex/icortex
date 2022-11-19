@@ -15,7 +15,7 @@ from icortex.services.generation_result import GenerationResult
 DEFAULT_MODEL = "TextCortex/codegen-350M-optimized"
 
 
-def create_prompt(input: str, prefix: str, suffix: str):
+def build_prompt(input: str, prefix: str, suffix: str):
     return prefix + input + suffix
 
 
@@ -135,19 +135,13 @@ class HuggingFaceAutoService(ServiceBase):
     def generate(
         self,
         prompt: str,
+        args,
         context: ICortexContext = None,
     ) -> GenerationResult:
         argv = shlex.split(prompt)
 
-        # Remove the module name flag from the prompt
-        # Argparse adds this automatically, so we need to sanitize user input
-        if "-m" in argv:
-            argv.remove("-m")
-
-        args = self.prompt_parser.parse_args(argv)
-
-        prompt_text = create_prompt(
-            " ".join(args.prompt),
+        prompt_text = build_prompt(
+            prompt,
             unescape(args.prompt_prefix),
             unescape(args.prompt_suffix),
         )

@@ -110,19 +110,12 @@ class OpenAIService(ServiceBase):
     def generate(
         self,
         prompt: str,
+        args,
         context: ICortexContext = None,
     ) -> GenerationResult:
 
-        argv = shlex.split(prompt)
-
-        # Remove the module name flag from the prompt
-        # Argparse adds this automatically, so we need to sanitize user input
-        if "-m" in argv:
-            argv.remove("-m")
-
-        args = self.prompt_parser.parse_args(argv)
         openai_prompt = build_prompt(
-            " ".join(args.prompt),
+            prompt,
             unescape(args.prompt_prefix),
             unescape(args.prompt_suffix),
         )

@@ -84,23 +84,16 @@ class TextCortexService(ServiceBase):
     def generate(
         self,
         prompt: str,
+        args,
         context: ICortexContext = None,
     ) -> t.List[t.Dict[t.Any, t.Any]]:
         """"""
-        argv = shlex.split(prompt)
 
-        # Remove the module name flag from the prompt
-        # Argparse adds this automatically, so we need to sanitize user input
-        if "-m" in argv:
-            argv.remove("-m")
-
-        args = self.prompt_parser.parse_args(argv)
-        prompt_text = " ".join(args.prompt)
         # Prepare request data
         payload = {
             "template_name": "icortex",
             "prompt": {
-                "instruction": prompt_text,
+                "instruction": prompt,
                 "context": context.to_dict() if context else {},
             },
             "temperature": args.temperature,
@@ -116,6 +109,7 @@ class TextCortexService(ServiceBase):
         del cached_payload["api_key"]
         # Delete the whole context for now:
         del cached_payload["prompt"]["context"]
+
         cached_request_dict = {
             "service": self.name,
             "params": {
