@@ -29,10 +29,10 @@ class ICortexMagics(Magics):
         return shell.export(line)
 
     @line_magic
-    def freeze(self, line):
-        "Freeze ICortex notebook"
+    def bake(self, line):
+        "Bake ICortex notebook"
         shell = get_icortex()
-        return shell.freeze(line)
+        return shell.bake(line)
 
     @line_magic
     def icortex(self, line):

@@ -116,6 +116,24 @@ def deserialize_execution_result(execution_result: dict):
         ret.result = execution_result["result"]
     return ret
 
+
 def deserialize_exception(exception: dict):
     # TODO: This is a hack, we need to deserialize the exception properly
     return Exception(exception["message"])
+
+
+def is_icortex_magic(raw_cell: str) -> bool:
+    raw_cell = raw_cell.strip()
+    return (
+        raw_cell.startswith(r"%icortex ")
+        or raw_cell.startswith(r"%prompt ")
+        or raw_cell.startswith(r"%%prompt ")
+        or raw_cell.startswith(r"%p ")
+        or raw_cell.startswith(r"%%p ")
+        or raw_cell.startswith(r"%var ")
+    )
+
+
+def is_magic(raw_cell: str) -> bool:
+    raw_cell = raw_cell.strip()
+    return raw_cell.startswith("%")

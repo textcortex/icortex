@@ -59,24 +59,24 @@ def get_parser(prog=None):
     # A catch-all for the rest of the arguments
     parser_run.add_argument("notebook_args", nargs=argparse.REMAINDER)
 
-    ##########################################
-    # Freeze a notebook into a Python script #
-    ##########################################
+    ########################################
+    # Bake a notebook into a Python script #
+    ########################################
 
-    # icortex freeze
-    parser_freeze = subparsers.add_parser(
-        "freeze",
-        help="Freeze an ICortex notebook into a Python script",
+    # icortex bake
+    parser_bake = subparsers.add_parser(
+        "bake",
+        help="Bake an ICortex notebook into a Python script",
         add_help=False,
     )
 
-    parser_freeze.add_argument(
+    parser_bake.add_argument(
         "notebook",
         type=str,
         help="Path of the ICortex notebook to be run",
     )
 
-    parser_freeze.add_argument(
+    parser_bake.add_argument(
         "destination",
         type=str,
         help="Path of the destination Python file",
@@ -230,9 +230,9 @@ def main(argv=None, prog=None, kernel=None):
     elif args.command == "run":
         context = ICortexContext.from_file(args.notebook)
         context.run(args.notebook_args)
-    elif args.command == "freeze":
+    elif args.command == "bake":
         context = ICortexContext.from_file(args.notebook)
-        context.freeze(args.destination)
+        context.bake(args.destination)
     elif args.command == "shell" or args.command is None:
         from icortex.kernel import get_icortex
         from icortex.kernel.app import ZMQTerminalICortexApp

@@ -11,7 +11,11 @@ from icortex.defaults import DEFAULT_CONTEXT_VAR
 from icortex.services.service_interaction import ServiceInteraction
 from IPython.core.interactiveshell import ExecutionResult, ExecutionInfo
 
-from icortex.helper import serialize_execution_result, deserialize_execution_result
+from icortex.helper import (
+    serialize_execution_result,
+    deserialize_execution_result,
+    is_magic,
+)
 
 icortex_version = importlib_metadata.version("icortex")
 
@@ -319,8 +323,8 @@ class ICortexContext:
                 # Execute the returned code
                 exec(code, scope)
 
-    def freeze(self, dest_path: str, format=True):
-        """Freeze the notebook to a Python script"""
+    def bake(self, dest_path: str, format=True):
+        """Bake the notebook to a Python script"""
 
         # Warn if the extension is not .py
         if not dest_path.endswith(".py"):
@@ -346,6 +350,11 @@ class ICortexContext:
                     # var.value = var._type(getattr(parsed_args, var.arg))
                     code = f"{var.name} = args.{var.arg}\n\n"
                     # code = var.get_code()
+                elif isinstance(cell, CodeCell):
+                    if not is_magic(cell.get_code()):
+                        code = cell.get_code()
+                    else:
+                        continue
                 else:
                     code = cell.get_code().rstrip() + "\n\n"
                 # Execute the returned code
@@ -355,10 +364,12 @@ class ICortexContext:
         # Run black over output
         if format:
             import black
+
             output = black.format_str(output, mode=black.FileMode())
 
         with open(dest_path, "w") as f:
             f.write(output)
+
 
 def get_notebook_arg_parser(vars: t.List[Var]):
     parser = argparse.ArgumentParser(add_help=False)

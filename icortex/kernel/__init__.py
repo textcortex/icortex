@@ -20,9 +20,9 @@ from traitlets.config.configurable import SingletonConfigurable
 
 from icortex.helper import (
     escape_quotes,
-    serialize_execution_result,
     yes_no_input,
     highlight_python,
+    is_icortex_magic
 )
 from icortex.services import get_available_services
 from icortex.services.service_base import ServiceBase
@@ -46,18 +46,6 @@ class InputType(Enum):
     CODE = 0
     PROMPT = 1
     VAR = 2
-
-
-def is_icortex_magic(raw_cell: str) -> bool:
-    raw_cell = raw_cell.strip()
-    return (
-        raw_cell.startswith(r"%icortex ")
-        or raw_cell.startswith(r"%prompt ")
-        or raw_cell.startswith(r"%%prompt ")
-        or raw_cell.startswith(r"%p ")
-        or raw_cell.startswith(r"%%p ")
-        or raw_cell.startswith(r"%var ")
-    )
 
 
 def stream_to_list(stream_str: str) -> t.List[str]:
@@ -97,7 +85,7 @@ class ICortexShell(InteractiveShell):
         self.eval_prompt = types.MethodType(ICortexShell.eval_prompt, self)
         self.eval_var = types.MethodType(ICortexShell.eval_var, self)
         self.export = types.MethodType(ICortexShell.export, self)
-        self.freeze = types.MethodType(ICortexShell.freeze, self)
+        self.bake = types.MethodType(ICortexShell.bake, self)
 
     def set_service(self, service: t.Type[ServiceBase]):
         self.service = service
@@ -370,13 +358,13 @@ class ICortexShell(InteractiveShell):
 
         self.history.save_to_file(dest + ".icx")
 
-    def freeze(self, line: str):
-        "Freeze notebook into a Python script"
+    def bake(self, line: str):
+        "Bake notebook into a Python script"
         dest = line.split(" ")[0].strip()
         if dest == "":
             raise ValueError("Please specify a destination")
 
-        self.history.freeze(dest + ".py")
+        self.history.bake(dest + ".py")
 
 
 class ICortexKernel(IPythonKernel):
