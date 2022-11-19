@@ -168,7 +168,7 @@ class HuggingFaceAutoService(ServiceBase):
 
         # If the the same request is found in the cache, return the cached response
         if not args.regenerate:
-            cached_response = self.find_cached_response(
+            cached_response = self.find_cached_interaction(
                 cached_request_dict, cache_path=DEFAULT_CACHE_PATH
             )
             if cached_response is not None:
@@ -178,7 +178,7 @@ class HuggingFaceAutoService(ServiceBase):
         code = self._generate(**payload)
         response_dict = {"generated_text": [{"text": code}]}
 
-        self.cache_response(
+        self.cache_interaction(
             cached_request_dict, response_dict, cache_path=DEFAULT_CACHE_PATH
         )
 

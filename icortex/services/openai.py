@@ -145,7 +145,7 @@ class OpenAIService(ServiceBase):
 
         # If the the same request is found in the cache, return the cached response
         if not args.regenerate:
-            cached_response = self.find_cached_response(
+            cached_response = self.find_cached_interaction(
                 cached_request_dict, cache_path=DEFAULT_CACHE_PATH
             )
             if cached_response is not None:
@@ -154,7 +154,7 @@ class OpenAIService(ServiceBase):
         # Otherwise, make the API call
         response = openai.Completion.create(**request_dict)
 
-        self.cache_response(
+        self.cache_interaction(
             cached_request_dict, response, cache_path=DEFAULT_CACHE_PATH
         )
 

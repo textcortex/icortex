@@ -4,12 +4,7 @@ import importlib
 
 from icortex.services.service_base import ServiceBase, ServiceVariable
 
-from icortex.defaults import (
-    DEFAULT_AUTO_EXECUTE,
-    DEFAULT_AUTO_INSTALL_PACKAGES,
-    DEFAULT_QUIET,
-    DEFAULT_SERVICE,
-)
+from icortex.defaults import DEFAULT_SERVICE
 
 #: A dictionary that maps unique service names to corresponding
 #: classes that derive from :class:`icortex.services.service_base.ServiceBase`.
@@ -47,4 +42,3 @@ def get_available_services() -> t.List[str]:
     sorted_services = [DEFAULT_SERVICE] + sorted_services
 
     return sorted_services
-

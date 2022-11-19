@@ -245,9 +245,6 @@ class ICortexShell(InteractiveShell):
         prompt = escape_quotes(input_)
         eval_cli(prompt)
 
-    # def eval_prompt(self, prompt_with_args: str) -> ServiceInteraction:
-    #     return self.service.eval_prompt(prompt_with_args, self.history)
-
     def eval_var(self, line: str):
         "Evaluate var magic"
         # args = self.var_parser.parse_args(line.split())
