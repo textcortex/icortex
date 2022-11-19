@@ -6,6 +6,7 @@ from icortex.defaults import *
 from icortex.helper import unescape
 from icortex.services import ServiceBase, ServiceVariable
 from icortex.context import ICortexContext
+from icortex.services.generation_result import GenerationResult
 
 # TODO
 # [x] Keep the ServiceBase object in memory and don't create a new one at every request
@@ -135,7 +136,7 @@ class HuggingFaceAutoService(ServiceBase):
         self,
         prompt: str,
         context: ICortexContext = None,
-    ) -> t.List[t.Dict[t.Any, t.Any]]:
+    ) -> GenerationResult:
         argv = shlex.split(prompt)
 
         # Remove the module name flag from the prompt
@@ -168,21 +169,18 @@ class HuggingFaceAutoService(ServiceBase):
 
         # If the the same request is found in the cache, return the cached response
         if not args.regenerate:
-            cached_response = self.find_cached_interaction(
+            cached_interaction = self.find_cached_interaction(
                 cached_request_dict, cache_path=DEFAULT_CACHE_PATH
             )
-            if cached_response is not None:
-                return cached_response["generated_text"]
+            if cached_interaction is not None:
+                if cached_interaction.execute == True:
+                    return cached_interaction.generation_result
 
         # Inference
         code = self._generate(**payload)
         response_dict = {"generated_text": [{"text": code}]}
 
-        self.cache_interaction(
-            cached_request_dict, response_dict, cache_path=DEFAULT_CACHE_PATH
-        )
-
-        return response_dict["generated_text"]
+        return GenerationResult(cached_request_dict, response_dict)
 
     def _generate(
         self,
@@ -225,3 +223,9 @@ class HuggingFaceAutoService(ServiceBase):
         self.token_id_cache[seq] = token_id
 
         return token_id
+
+    def get_outputs_from_result(
+        self, generation_result: GenerationResult
+    ) -> t.List[str]:
+        ret = [i["text"] for i in generation_result.response_dict["generated_text"]]
+        return ret

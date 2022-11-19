@@ -317,11 +317,12 @@ class ServiceBase(ABC):
         outputs = self.get_outputs_from_result(generation_result)
 
         # TODO: Account for multiple response values
-        code_: str = outputs[0]
+        code_ = outputs[0]
 
-        # if not args.quiet:
+        # Print the generated code
         print(highlight_python(code_))
 
+        # Search for any missing modules
         missing_modules = get_missing_modules(code_)
 
         install_packages_yesno = False
