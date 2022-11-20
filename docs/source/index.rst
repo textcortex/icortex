@@ -13,11 +13,7 @@ tl;dr in goes English, out comes Python:
 .. video:: https://user-images.githubusercontent.com/2453968/199964302-0dbe1d7d-81c9-4244-a9f2-9d959775e471.mp4
    :width: 100%
 
-ICortex enables you to develop **soft programs**:
-
-   *Soft program:* a set of instructions (i.e. prompts) `written in natural language <https://en.wikipedia.org/wiki/Natural-language_programming>`__ (e.g. English), processed by a language model that generates code at a lower layer of abstraction (e.g. Python), to perform work more flexibly than regular software.
-
-In other words, ICortex is a **natural language programming** (NLP) framework that enables you to write code in English, and then run it in Python. It aims to make programming more accessible to non-programmers.
+ICortex is a no-code development framework that lets you to develop Python programs using plain English. Simply create a recipe that breaks down step-by-step what you want to do in plain English. Our code generating AI will follow your instructions and develop a Python program that suits your needs.
 
 ICortex is designed to be …
 

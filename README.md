@@ -11,7 +11,7 @@
     <a href="https://twitter.com/TextCortex/"><img src="https://img.shields.io/twitter/url/https/twitter.com/cloudposse.svg?style=social&label=Follow%20%40TextCortex" alt="Twitter"></a>
     <br />
     <br />
-    <i>A <a href="https://en.wikipedia.org/wiki/Soft_computing">no-code</a> development framework — Let AI do the coding for you 🦾</i>
+    <i>A no-code development framework — Let AI do the coding for you 🦾</i>
 </p>
 <hr />
 
@@ -19,9 +19,9 @@ tl;dr in goes English, out comes Python:
 
 https://user-images.githubusercontent.com/2453968/199964302-0dbe1d7d-81c9-4244-a9f2-9d959775e471.mp4
 
-ICortex enables you to develop Python programs using plain English. Simply create a recipe [in natural language](https://en.wikipedia.org/wiki/Natural-language_programming) describing what you want to do. Our code generating AI handles the rest.
+ICortex is a no-code development framework that lets you to develop Python programs using plain English. Simply create a recipe that breaks down step-by-step what you want to do in plain English. Our code generating AI will follow your instructions and develop a Python program that suits your needs.
 
-[Create a TextCortex account](https://app.textcortex.com/user/signup?registration_source=icortex) to use ICortex and receive free starter credits. [Join our Discord](https://discord.textcortex.com/) to get help.
+[Create a TextCortex account](https://app.textcortex.com/user/signup?registration_source=icortex) to receive free starter credits and start using ICortex.
 
 ## Try it out
 
@@ -31,7 +31,7 @@ You can try out ICortex directly in your browser. Launch a Binder instance by cl
 
 Alternatively, you can use ICortex in Google Colab if you have an account. See [below](#on-google-colab).
 
-[Check out our docs](https://docs.icortex.ai/) to learn more.
+[Check out the documentation](https://docs.icortex.ai/) to learn more. [Join our Discord](https://discord.textcortex.com/) to get help.
 
 ## Installation
 
