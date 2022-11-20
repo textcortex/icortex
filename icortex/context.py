@@ -382,6 +382,8 @@ class ICortexContext:
         with open(dest_path, "w") as f:
             f.write(output)
 
+        print("Baked to", dest_path)
+
 
 def get_notebook_arg_parser(vars: t.List[Var]):
     parser = argparse.ArgumentParser(add_help=False)

@@ -13,6 +13,7 @@ def extract_quoted_string(s):
         surrounded = False
     return ret, rest, surrounded
 
+
 def extract_prompt(raw_prompt):
     raw_prompt, rest, surrounded = extract_quoted_string(raw_prompt)
     if surrounded:
