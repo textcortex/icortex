@@ -11,7 +11,7 @@
     <a href="https://twitter.com/TextCortex/"><img src="https://img.shields.io/twitter/url/https/twitter.com/cloudposse.svg?style=social&label=Follow%20%40TextCortex" alt="Twitter"></a>
     <br />
     <br />
-    <i>A Python library for <a href="https://en.wikipedia.org/wiki/Soft_computing">soft-code</a> development — program in plain English with AI code generation!</i>
+    <i>A no-code development framework — Let AI do the coding for you 🦾</i>
 </p>
 <hr />
 
@@ -19,31 +19,19 @@ tl;dr in goes English, out comes Python:
 
 https://user-images.githubusercontent.com/2453968/199964302-0dbe1d7d-81c9-4244-a9f2-9d959775e471.mp4
 
-ICortex enables you to develop **soft programs**:
+ICortex is a no-code development framework that lets you to develop Python programs using plain English. Simply create a recipe that breaks down step-by-step what you want to do in plain English. Our code generating AI will follow your instructions and develop a Python program that suits your needs.
 
-> *Soft program:* a set of instructions (i.e. prompts) [written in natural language](https://en.wikipedia.org/wiki/Natural-language_programming) (e.g. English), processed by a language model that generates code at a lower layer of abstraction (e.g. Python), to perform work more flexibly than regular software.
+[Create a TextCortex account](https://app.textcortex.com/user/signup?registration_source=icortex) to receive free starter credits and start using ICortex.
 
-In other words, ICortex is a **natural language programming** (NLP) framework that enables you to write code in English, and then run it in Python. It aims to make programming more accessible to non-programmers.
+## Try it out
 
-ICortex is designed to be …
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/textcortex/icortex-binder/HEAD?filepath=basic_example.ipynb)
 
-- a drop-in replacement for the [IPython kernel](https://ipython.org/). Prompts are executed via [magic commands](https://ipython.readthedocs.io/en/stable/interactive/magics.html) such as `%prompt`.
-- interactive—automatically install missing packages, decide whether to execute the generated code or not, and so on, directly in the Jupyter Notebook cell.
-- open source and fully extensible—ICortex introduces a [domain-specific language](https://en.wikipedia.org/wiki/Domain-specific_language) for orchestrating various code generation services. If you think we are missing a model or an API, you can request it by creating an issue, or implement it yourself by subclassing `ServiceBase` under [`icortex/services`](icortex/services).
+You can try out ICortex directly in your browser. Launch a Binder instance by clicking [here](https://mybinder.org/v2/gh/textcortex/icortex-binder/HEAD?filepath=basic_example.ipynb), and follow the [instructions in our docs](https://docs.icortex.ai/en/latest/quickstart.html#using-icortex) to get started.
 
-ICortex is similar to [Github Copilot](https://github.com/features/copilot) but with certain differences that make it stand out:
+Alternatively, you can use ICortex in Google Colab if you have an account. See [below](#on-google-colab).
 
-| Feature | GitHub Copilot | ICortex |
-|---|:---:|:---:|
-| Generates code ... | In the text editor | At runtime through a [Jupyter kernel](https://docs.jupyter.org/en/latest/projects/kernels.html) |
-| Control over code generation context ... | No | Yes |
-| Natural language instructions are a ... | Second-class citizen (Code comes first) | First-class citizen (Prompts *are* the program) |
-| The resulting program is ... | Static | Dynamic—adapts to the context |
-| Can connect to different code generation APIs | No | Yes |
-
-The main difference between ICortex and a code-generation plugin like GitHub Copilot is that ICortex is a new paradigm for [Natural Language Programming](https://en.wikipedia.org/wiki/Natural-language_programming) where the *prompt* is the first-class citizen. GitHub Copilot, on the other hand, enhances the existing paradigm that are already used by developers.
-
-ICortex is currently in alpha, so expect breaking changes. We are giving free credits to our first users—[join our Discord](https://discord.textcortex.com/) to request more if you finish the starter credits.
+[Check out the documentation](https://docs.icortex.ai/) to learn more. [Join our Discord](https://discord.textcortex.com/) to get help.
 
 ## Installation
 
@@ -66,9 +54,11 @@ python -m icortex.kernel.install
 import icortex.init
 ```
 
+Note that the package needs to be installed to every new Google Colab runtime—you may need to reinstall if it ever gets disconnected.
+
 ## Quickstart
 
-[Click here to visit the docs and get started using ICortex](https://icortex.readthedocs.io/en/latest/quickstart.html).
+[Click here to get started using ICortex](https://icortex.readthedocs.io/en/latest/quickstart.html).
 
 ## Getting help
 
