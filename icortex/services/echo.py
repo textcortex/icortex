@@ -1,9 +1,9 @@
-import shlex
 import typing as t
+from icortex.context import ICortexContext
 from icortex.defaults import *
 from icortex.services import ServiceBase, ServiceVariable
 from icortex.helper import escape_quotes
-
+from icortex.services.generation_result import GenerationResult
 
 class EchoService(ServiceBase):
     name = "echo"
@@ -21,16 +21,9 @@ class EchoService(ServiceBase):
     def generate(
         self,
         prompt: str,
-        context: t.Dict[str, t.Any] = {},
-    ) -> t.List[t.Dict[t.Any, t.Any]]:
-        argv = shlex.split(prompt)
-
-        # Remove the module name flag from the prompt
-        # Argparse adds this automatically, so we need to sanitize user input
-        if "-m" in argv:
-            argv.remove("-m")
-
-        args = self.prompt_parser.parse_args(argv)
+        args,
+        context: ICortexContext = None,
+    ) -> GenerationResult:
 
         # Prepare request data
         payload = {
@@ -44,21 +37,19 @@ class EchoService(ServiceBase):
             "data": payload,
         }
 
-        # If the the same request is found in the cache, return the cached response
-        if not args.regenerate:
-            cached_response = self.find_cached_response(
-                cached_request_dict, cache_path=DEFAULT_CACHE_PATH
-            )
-            if cached_response is not None:
-                return cached_response["generated_text"]
-
         desired_output = args.prefix + " ".join(args.prompt)
         code = 'print("""' + escape_quotes(desired_output) + '""")'
 
         response_dict = {"generated_text": [{"text": code}]}
 
-        self.cache_response(
+        self.cache_interaction(
             cached_request_dict, response_dict, cache_path=DEFAULT_CACHE_PATH
         )
 
-        return response_dict["generated_text"]
+        return GenerationResult(cached_request_dict, response_dict)
+
+    def get_outputs_from_result(
+        self, generation_result: GenerationResult
+    ) -> t.List[str]:
+        ret = [i["text"] for i in generation_result.response_dict["generated_text"]]
+        return ret

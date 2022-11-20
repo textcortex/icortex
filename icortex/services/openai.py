@@ -1,11 +1,12 @@
 import openai
-import shlex
 
 import typing as t
 
 from icortex.defaults import *
 from icortex.services import ServiceBase, ServiceVariable
+from icortex.context import ICortexContext
 from icortex.helper import unescape
+from icortex.services.generation_result import GenerationResult
 
 MISSING_API_KEY_MSG = """The ICortex prompt requires an API key from OpenAI in order to work.
 
@@ -20,7 +21,7 @@ api_key = "your-api-key-goes-here"
 """
 
 
-def create_prompt(input: str, prefix: str, suffix: str):
+def build_prompt(input: str, prefix: str, suffix: str):
     return prefix + input + suffix
 
 
@@ -108,19 +109,12 @@ class OpenAIService(ServiceBase):
     def generate(
         self,
         prompt: str,
-        context: t.Dict[str, t.Any] = {},
-    ) -> t.List[t.Dict[t.Any, t.Any]]:
+        args,
+        context: ICortexContext = None,
+    ) -> GenerationResult:
 
-        argv = shlex.split(prompt)
-
-        # Remove the module name flag from the prompt
-        # Argparse adds this automatically, so we need to sanitize user input
-        if "-m" in argv:
-            argv.remove("-m")
-
-        args = self.prompt_parser.parse_args(argv)
-        openai_prompt = create_prompt(
-            " ".join(args.prompt),
+        openai_prompt = build_prompt(
+            prompt,
             unescape(args.prompt_prefix),
             unescape(args.prompt_suffix),
         )
@@ -144,17 +138,19 @@ class OpenAIService(ServiceBase):
 
         # If the the same request is found in the cache, return the cached response
         if not args.regenerate:
-            cached_response = self.find_cached_response(
+            cached_interaction = self.find_cached_interaction(
                 cached_request_dict, cache_path=DEFAULT_CACHE_PATH
             )
-            if cached_response is not None:
-                return cached_response["choices"]
+            if cached_interaction is not None:
+                if cached_interaction.execute == True:
+                    return cached_interaction.generation_result
 
         # Otherwise, make the API call
         response = openai.Completion.create(**request_dict)
+        return GenerationResult(cached_request_dict, response)
 
-        self.cache_response(
-            cached_request_dict, response, cache_path=DEFAULT_CACHE_PATH
-        )
-
-        return response["choices"]
+    def get_outputs_from_result(
+        self, generation_result: GenerationResult
+    ) -> t.List[str]:
+        ret = [i["text"] for i in generation_result.response_dict["choices"]]
+        return ret

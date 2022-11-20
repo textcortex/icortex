@@ -2,6 +2,7 @@ import os
 import shlex
 import sys
 import argparse
+from icortex.context import ICortexContext
 from icortex.services import get_available_services
 from icortex.defaults import DEFAULT_ICORTEX_CONFIG_PATH
 from icortex.kernel.install import is_kernel_installed, main as install_kernel
@@ -36,6 +37,49 @@ def get_parser(prog=None):
         type=str,
         help="Path to the configuration TOML file.",
         default=DEFAULT_ICORTEX_CONFIG_PATH,
+    )
+
+    ##############################
+    # Run a notebook as a script #
+    ##############################
+
+    # icortex run
+    parser_run = subparsers.add_parser(
+        "run",
+        help="Run an ICortex notebook",
+        add_help=False,
+    )
+
+    # Check whether the notebook exists
+    parser_run.add_argument(
+        "notebook",
+        type=str,
+        help="Path to the ICortex notebook to be run",
+    )
+    # A catch-all for the rest of the arguments
+    parser_run.add_argument("notebook_args", nargs=argparse.REMAINDER)
+
+    ########################################
+    # Bake a notebook into a Python script #
+    ########################################
+
+    # icortex bake
+    parser_bake = subparsers.add_parser(
+        "bake",
+        help="Bake an ICortex notebook into a Python script",
+        add_help=False,
+    )
+
+    parser_bake.add_argument(
+        "notebook",
+        type=str,
+        help="Path of the ICortex notebook to be run",
+    )
+
+    parser_bake.add_argument(
+        "destination",
+        type=str,
+        help="Path of the destination Python file",
     )
 
     ##########################
@@ -183,6 +227,12 @@ def main(argv=None, prog=None, kernel=None):
             parser_service.print_help()
     elif args.command == "help":
         parser.print_help()
+    elif args.command == "run":
+        context = ICortexContext.from_file(args.notebook)
+        context.run(args.notebook_args)
+    elif args.command == "bake":
+        context = ICortexContext.from_file(args.notebook)
+        context.bake(args.destination)
     elif args.command == "shell" or args.command is None:
         from icortex.kernel import get_icortex
         from icortex.kernel.app import ZMQTerminalICortexApp

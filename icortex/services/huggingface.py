@@ -1,10 +1,11 @@
 import re
-import shlex
 import typing as t
 
 from icortex.defaults import *
 from icortex.helper import unescape
 from icortex.services import ServiceBase, ServiceVariable
+from icortex.context import ICortexContext
+from icortex.services.generation_result import GenerationResult
 
 # TODO
 # [x] Keep the ServiceBase object in memory and don't create a new one at every request
@@ -13,7 +14,7 @@ from icortex.services import ServiceBase, ServiceVariable
 DEFAULT_MODEL = "TextCortex/codegen-350M-optimized"
 
 
-def create_prompt(input: str, prefix: str, suffix: str):
+def build_prompt(input: str, prefix: str, suffix: str):
     return prefix + input + suffix
 
 
@@ -133,19 +134,12 @@ class HuggingFaceAutoService(ServiceBase):
     def generate(
         self,
         prompt: str,
-        context: t.Dict[str, t.Any] = {},
-    ) -> t.List[t.Dict[t.Any, t.Any]]:
-        argv = shlex.split(prompt)
+        args,
+        context: ICortexContext = None,
+    ) -> GenerationResult:
 
-        # Remove the module name flag from the prompt
-        # Argparse adds this automatically, so we need to sanitize user input
-        if "-m" in argv:
-            argv.remove("-m")
-
-        args = self.prompt_parser.parse_args(argv)
-
-        prompt_text = create_prompt(
-            " ".join(args.prompt),
+        prompt_text = build_prompt(
+            prompt,
             unescape(args.prompt_prefix),
             unescape(args.prompt_suffix),
         )
@@ -167,21 +161,18 @@ class HuggingFaceAutoService(ServiceBase):
 
         # If the the same request is found in the cache, return the cached response
         if not args.regenerate:
-            cached_response = self.find_cached_response(
+            cached_interaction = self.find_cached_interaction(
                 cached_request_dict, cache_path=DEFAULT_CACHE_PATH
             )
-            if cached_response is not None:
-                return cached_response["generated_text"]
+            if cached_interaction is not None:
+                if cached_interaction.execute == True:
+                    return cached_interaction.generation_result
 
         # Inference
         code = self._generate(**payload)
         response_dict = {"generated_text": [{"text": code}]}
 
-        self.cache_response(
-            cached_request_dict, response_dict, cache_path=DEFAULT_CACHE_PATH
-        )
-
-        return response_dict["generated_text"]
+        return GenerationResult(cached_request_dict, response_dict)
 
     def _generate(
         self,
@@ -224,3 +215,9 @@ class HuggingFaceAutoService(ServiceBase):
         self.token_id_cache[seq] = token_id
 
         return token_id
+
+    def get_outputs_from_result(
+        self, generation_result: GenerationResult
+    ) -> t.List[str]:
+        ret = [i["text"] for i in generation_result.response_dict["generated_text"]]
+        return ret

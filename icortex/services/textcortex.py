@@ -1,12 +1,14 @@
+import os
 import requests
 import json
 import copy
-import shlex
 
 import typing as t
+from icortex.context import ICortexContext
 
 from icortex.defaults import *
 from icortex.services import ServiceBase, ServiceVariable
+from icortex.services.generation_result import GenerationResult
 
 ICORTEX_ENDPOINT_URI = "https://api.textcortex.com/hemingwai/generate_text_v3"
 MISSING_API_KEY_MSG = """The ICortex prompt requires an API key from TextCortex in order to work.
@@ -22,9 +24,19 @@ service = "textcortex"
 api_key = "your-api-key-goes-here"
 """
 
+# Load alternative URI from the environment
+try:
+    from dotenv import load_dotenv
+
+    load_dotenv()
+    ICORTEX_ENDPOINT_URI = os.environ.get("ICORTEX_ENDPOINT_URI", ICORTEX_ENDPOINT_URI)
+except:
+    pass
+
 
 class TextCortexService(ServiceBase):
     """Interface to TextCortex's code generation service"""
+
     name = "textcortex"
     description = "TextCortex Python code generator"
     variables = {
@@ -71,24 +83,17 @@ class TextCortexService(ServiceBase):
     def generate(
         self,
         prompt: str,
-        context: t.Dict[str, t.Any] = {},
+        args,
+        context: ICortexContext = None,
     ) -> t.List[t.Dict[t.Any, t.Any]]:
         """"""
-        argv = shlex.split(prompt)
 
-        # Remove the module name flag from the prompt
-        # Argparse adds this automatically, so we need to sanitize user input
-        if "-m" in argv:
-            argv.remove("-m")
-
-        args = self.prompt_parser.parse_args(argv)
-        prompt_text = " ".join(args.prompt)
         # Prepare request data
         payload = {
             "template_name": "icortex",
             "prompt": {
-                "instruction": prompt_text,
-                "context": context,
+                "instruction": prompt,
+                "context": context.to_dict() if context else {},
             },
             "temperature": args.temperature,
             "token_count": args.token_count,
@@ -103,6 +108,7 @@ class TextCortexService(ServiceBase):
         del cached_payload["api_key"]
         # Delete the whole context for now:
         del cached_payload["prompt"]["context"]
+
         cached_request_dict = {
             "service": self.name,
             "params": {
@@ -115,11 +121,12 @@ class TextCortexService(ServiceBase):
 
         # If the the same request is found in the cache, return the cached response
         if not args.regenerate:
-            cached_response = self.find_cached_response(
+            cached_interaction = self.find_cached_interaction(
                 cached_request_dict, cache_path=DEFAULT_CACHE_PATH
             )
-            if cached_response is not None:
-                return cached_response["generated_text"]
+            if cached_interaction is not None:
+                if cached_interaction.execute == True:
+                    return cached_interaction.generation_result
 
         # Otherwise, make the API call
         response = requests.request(
@@ -127,12 +134,16 @@ class TextCortexService(ServiceBase):
         )
 
         response_dict = response.json()
-        if response_dict["status"] == "success":
-            self.cache_response(
-                cached_request_dict, response_dict, cache_path=DEFAULT_CACHE_PATH
-            )
-            return response_dict["generated_text"]
-        elif response_dict["status"] == "fail":
+        if response_dict.get("status") == "success":
+            return GenerationResult(cached_request_dict, response_dict)
+            # return response_dict["generated_text"]
+        else:
             raise Exception(
-                f"There was an issue with generation: {response_dict['message']}"
+                f"There was an issue with generation: {response_dict.get('message', 'No message provided')}"
             )
+
+    def get_outputs_from_result(
+        self, generation_result: GenerationResult
+    ) -> t.List[str]:
+        ret = [i["text"] for i in generation_result.response_dict["generated_text"]]
+        return ret

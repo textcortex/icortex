@@ -31,6 +31,8 @@ extensions = [
 templates_path = ["_templates"]
 exclude_patterns = []
 
+# For autodoc
+add_module_names = False
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
@@ -39,10 +41,10 @@ html_theme = "furo"
 html_static_path = ["_static"]
 
 html_theme_options = {
-    "source_repository": "https://github.com/textcortex/ICortex/",
+    "source_repository": "https://github.com/textcortex/icortex/",
     "source_branch": "main",
     "source_directory": "docs/source/",
-    "top_of_page_button": None,
+    # "top_of_page_button": None,
     "light_logo": "logo-bottom-light-bg.svg",
     "dark_logo": "logo-bottom-dark-bg.svg",
     "announcement": "TextCortex loves Open Source ❤️ <a href='https://discord.textcortex.com' target='_blank'>Join our Discord</a> to become part of our developer community!",

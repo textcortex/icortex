@@ -2,11 +2,20 @@ import os
 import argparse
 import json
 import typing as t
-from abc import ABC, abstractmethod
+from abc import ABC, abstractclassmethod
 
-from icortex.defaults import DEFAULT_CACHE_PATH
-from icortex.helper import prompt_input
-
+from icortex.defaults import (
+    DEFAULT_AUTO_EXECUTE,
+    DEFAULT_AUTO_INSTALL_PACKAGES,
+    DEFAULT_CACHE_PATH,
+    DEFAULT_QUIET,
+)
+from icortex.context import ICortexContext
+from icortex.helper import escape_quotes, highlight_python, prompt_input, yes_no_input
+from icortex.pypi import get_missing_modules, install_missing_packages
+from icortex.services.generation_result import GenerationResult
+from icortex.services.service_interaction import ServiceInteraction
+from icortex.parser import lex_prompt
 
 def is_str_repr(s: str):
     quotes = ["'", '"']
@@ -30,6 +39,7 @@ class ServiceVariable:
             the prompt parser will raise an error if the variable is not specified.
             Defaults to False.
     """
+
     def __init__(
         self,
         type_: type,
@@ -132,7 +142,7 @@ class ServiceBase(ABC):
             "-e",
             "--execute",
             action="store_true",
-            required=False,
+            required=DEFAULT_AUTO_EXECUTE,
             help="Execute the Python code returned by TextCortex API directly.",
         )
         self.prompt_parser.add_argument(
@@ -143,35 +153,14 @@ class ServiceBase(ABC):
             help="Make the kernel ignore cached responses and make a new request to TextCortex API.",
         )
         self.prompt_parser.add_argument(
-            "-i",
-            "--include-history",
-            action="store_true",
-            required=False,
-            help="Submit notebook history along with the prompt.",
-        )
-        self.prompt_parser.add_argument(
             "-p",
             "--auto-install-packages",
             action="store_true",
-            required=False,
+            required=DEFAULT_AUTO_INSTALL_PACKAGES,
             help="Auto-install packages that are imported in the generated code but missing in the active Python environment.",
         )
-        self.prompt_parser.add_argument(
-            "-o",
-            "--nonint",
-            action="store_true",
-            required=False,
-            help=f"Non-interactive, do not ask any questions.",
-        )
-        self.prompt_parser.add_argument(
-            "-q",
-            "--quiet",
-            action="store_true",
-            required=False,
-            help="Do not print the generated code.",
-        )
         self.prompt_parser.usage = (
-            "%%prompt your prompt goes here [-e] [-r] [-i] [-p] ..."
+            "%%prompt your prompt goes here [-e] [-r] [-p] ..."
         )
 
         self.prompt_parser.description = self.description
@@ -190,35 +179,36 @@ class ServiceBase(ABC):
                     **var.argparse_kwargs,
                 )
 
-    def find_cached_response(
+    def find_cached_interaction(
         self,
         request_dict: t.Dict,
         cache_path: str = DEFAULT_CACHE_PATH,
-    ):
+    ) -> ServiceInteraction:
         cache = self._read_cache(cache_path)
         # If the the same request is found in the cache, return the cached response
         # Return the latest found response by default
         for dict_ in reversed(cache):
-            if dict_["request"] == request_dict:
-                return dict_["response"]
+            interaction = ServiceInteraction.from_dict(dict_)
+            if interaction.generation_result.request_dict == request_dict:
+                return interaction
         return None
 
-    def cache_response(
+    def cache_interaction(
         self,
-        request_dict: t.Dict,
-        response_dict: t.Dict,
+        interaction: ServiceInteraction,
         cache_path: str = DEFAULT_CACHE_PATH,
     ):
         cache = self._read_cache(DEFAULT_CACHE_PATH)
-        cache.append({"request": request_dict, "response": response_dict})
+        cache.append(interaction.to_dict())
         return self._write_cache(cache, cache_path)
 
-    @abstractmethod
+    @abstractclassmethod
     def generate(
         self,
         prompt: str,
-        context: t.Dict[str, t.Any] = {},
-    ) -> t.List[t.Dict[t.Any, t.Any]]:
+        args,
+        context: ICortexContext = None,
+    ) -> GenerationResult:
         """Implement the logic that generates code from user prompts here.
 
         Args:
@@ -229,6 +219,20 @@ class ServiceBase(ABC):
 
         Returns:
             List[Dict[Any, Any]]: A list that contains code generation results. Should ideally be valid Python code.
+        """
+        raise NotImplementedError
+
+    @abstractclassmethod
+    def get_outputs_from_result(
+        self, generation_result: GenerationResult
+    ) -> t.List[str]:
+        """Given a GenerationResult, return a dict that contains the response.
+
+        Args:
+            generation_result (GenerationResult): The result of the generation
+
+        Returns:
+            Dict[str, Any]: The response dict
         """
         raise NotImplementedError
 
@@ -295,3 +299,84 @@ class ServiceBase(ABC):
         with open(cache_path, "w") as f:
             json.dump(cache, f, indent=2)
         return True
+
+    def eval_prompt(self, raw_prompt: str, context) -> ServiceInteraction:
+        # Print help if the user has typed `/help`
+        argv = lex_prompt(raw_prompt)
+        args = self.prompt_parser.parse_args(argv)
+
+        args.prompt = " ".join(args.prompt)
+
+        # Otherwise, generate with the prompt
+        generation_result = self.generate(
+            args.prompt,
+            args,
+            context=context,
+        )
+        outputs = self.get_outputs_from_result(generation_result)
+
+        # TODO: Account for multiple response values
+        code_ = outputs[0]
+
+        # Print the generated code
+        print(highlight_python(code_))
+
+        # Search for any missing modules
+        missing_modules = get_missing_modules(code_)
+
+        install_packages_yesno = False
+        if len(missing_modules) > 0 and not args.auto_install_packages:
+            install_packages_yesno = yes_no_input(
+                f"The following modules are missing in your environment: {', '.join(missing_modules)}\nAttempt to find and install corresponding PyPI packages?"
+            )
+        install_packages = args.auto_install_packages or install_packages_yesno
+
+        unresolved_modules = []
+        if install_packages:
+            # Unresolved modules are modules that cannot be mapped
+            # to any PyPI packages according to the local data in this library
+            unresolved_modules = install_missing_packages(code_)
+            if len(unresolved_modules) > 0:
+                print(
+                    f"""The following imported modules could not be resolved to PyPI packages: {', '.join(unresolved_modules)}
+        Install them manually and try again.
+        """
+                )
+
+        # Modules that are still missing regardless of
+        # whether the user tried to auto-install them or not:
+        still_missing_modules = get_missing_modules(code_)
+
+        execute_yesno = False
+        if not args.execute and len(still_missing_modules) == 0:
+            execute_yesno = yes_no_input("Proceed to execute?")
+
+        execute = args.execute or execute_yesno
+
+        if execute and len(still_missing_modules) > 0:
+            execute = False
+            if args.auto_install_packages:
+                bermuda_modules = [
+                    module
+                    for module in still_missing_modules
+                    if module not in unresolved_modules
+                ]
+                print(
+                    f"""These modules should have been installed at this point, but they are still missing:  {', '.join(bermuda_modules)}
+    This might be due to an installer issue, please resolve manually.""",
+                )
+            print(
+                f"Skipping execution due to missing modules: {', '.join(still_missing_modules)}."
+            )
+
+        ret = ServiceInteraction(
+            name=self.name,
+            args=args.__dict__,
+            generation_result=generation_result,
+            execute=execute,
+            outputs=[code_],
+            install_packages=install_packages,
+            missing_modules=missing_modules,
+        )
+        self.cache_interaction(ret, cache_path=DEFAULT_CACHE_PATH)
+        return ret

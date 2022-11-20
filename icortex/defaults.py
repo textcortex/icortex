@@ -6,4 +6,4 @@ DEFAULT_AUTO_INSTALL_PACKAGES = False
 DEFAULT_AUTO_EXECUTE = False
 DEFAULT_QUIET = False
 DEFAULT_SERVICE = "textcortex"
-DEFAULT_HISTORY_VAR = "_icortex_history"
+DEFAULT_CONTEXT_VAR = "_icortex_context"
