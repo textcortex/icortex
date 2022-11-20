@@ -58,7 +58,7 @@ Note that the package needs to be installed to every new Google Colab runtime—
 
 ## Quickstart
 
-[Click here to visit the docs and get started using ICortex](https://icortex.readthedocs.io/en/latest/quickstart.html).
+[Click here to get started using ICortex](https://icortex.readthedocs.io/en/latest/quickstart.html).
 
 ## Getting help
 
