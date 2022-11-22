@@ -26,9 +26,9 @@ api_key = "your-api-key-goes-here"
 
 # Load alternative URI from the environment
 try:
-    from dotenv import load_dotenv
+    from dotenv import load_dotenv, find_dotenv
 
-    load_dotenv()
+    load_dotenv(find_dotenv(usecwd=True))
     ICORTEX_ENDPOINT_URI = os.environ.get("ICORTEX_ENDPOINT_URI", ICORTEX_ENDPOINT_URI)
 except:
     pass
