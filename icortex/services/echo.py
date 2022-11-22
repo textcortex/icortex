@@ -5,6 +5,7 @@ from icortex.services import ServiceBase, ServiceVariable
 from icortex.helper import escape_quotes
 from icortex.services.generation_result import GenerationResult
 
+
 class EchoService(ServiceBase):
     name = "echo"
     description = "Service used for testing"

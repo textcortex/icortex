@@ -374,6 +374,7 @@ class ICortexContext:
         # Run black over output
         if format:
             import black
+
             try:
                 output = black.format_str(output, mode=black.FileMode())
             except:
