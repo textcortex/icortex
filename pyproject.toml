@@ -48,8 +48,8 @@ python = ">=3.7.1,<4"
 toml = "^0.10.2"
 importlib-metadata = ">=4.0.0"
 # ipykernel = "^5.5.5"
-requests = "^2.28.1"
-urllib3 = "^1.26.12"
+requests = "^2.0"
+urllib3 = "^1.0"
 ipykernel = "^6.16.0"
 ipython = ">=7.0.0"
 entrypoints = "^0.4"
@@ -65,7 +65,7 @@ onnx = { version = "^1.12.0", optional = true }
 optimum = { version = "^1.4.0", optional = true }
 transformers = { version = "^4.23.1", optional = true }
 torch = { version = "^1.12.1", optional = true }
-black = "^22.10.0"
+black = "^22.1"
 
 [tool.poetry.extras]
 openai = ["openai"]
