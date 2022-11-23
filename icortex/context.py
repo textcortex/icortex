@@ -284,11 +284,14 @@ class ICortexContext:
             raise FileNotFoundError(f"File {path} does not exist")
 
         with open(path, "r") as f:
-            dict_ = json.load(f)
+            context_dict = json.load(f)
 
+        return ICortexContext.from_dict(context_dict, scope)
+
+    def from_dict(context_dict: t.Dict[str, t.Any], scope: t.Dict[str, t.Any] = None):
         ret = ICortexContext(scope=scope)
 
-        for cell_dict in dict_["cells"]:
+        for cell_dict in context_dict["cells"]:
             if cell_dict["metadata"]["source_type"] == "code":
                 cell = CodeCell.from_dict(cell_dict)
             elif cell_dict["metadata"]["source_type"] == "var":
@@ -301,7 +304,7 @@ class ICortexContext:
                 )
             ret._cells.append(cell)
 
-        ret._vars = [Var.from_dict(v) for v in dict_["metadata"]["variables"]]
+        ret._vars = [Var.from_dict(v) for v in context_dict["metadata"]["variables"]]
 
         return ret
 
@@ -333,24 +336,20 @@ class ICortexContext:
                 # Execute the returned code
                 exec(code, scope)
 
-    def bake(self, dest_path: str, format=True):
-        """Bake the notebook to a Python script"""
+    def get_code(self, argparsify=False):
+        """Aggregates the code for the notebook"""
 
-        # Warn if the extension is not .py
-        if not dest_path.endswith(".py"):
-            print(
-                f"Warning: {dest_path} does not have the .py extension. "
-                "It is recommended that you use the .py extension for "
-                "frozen files."
-            )
+        output = ""
+        if argparsify:
+            # scope = locals()
+            vars = self.vars
 
-        vars = self.vars
-        scope = locals()
-
-        output = "import argparse\n\nparser = argparse.ArgumentParser()\n"
-        for var in vars:
-            output += f"parser.add_argument({var.arg!r}, type={var._type.__name__})\n"
-        output += "args = parser.parse_args()\n\n"
+            output += "import argparse\n\nparser = argparse.ArgumentParser()\n"
+            for var in vars:
+                output += (
+                    f"parser.add_argument({var.arg!r}, type={var._type.__name__})\n"
+                )
+            output += "args = parser.parse_args()\n\n"
 
         for cell in self.iter_cells():
             if cell.success:
@@ -358,8 +357,11 @@ class ICortexContext:
                     var = cell.var
                     # Change the value to that of the parsed argument
                     # var.value = var._type(getattr(parsed_args, var.arg))
-                    code = f"{var.name} = args.{var.arg}\n\n"
-                    # code = var.get_code()
+                    if argparsify:
+                        code = f"{var.name} = args.{var.arg}\n\n"
+                    else:
+                        code = var.get_code()
+
                 elif isinstance(cell, CodeCell):
                     if not is_magic(cell.get_code()):
                         code = cell.get_code().rstrip() + "\n\n"
@@ -371,9 +373,25 @@ class ICortexContext:
                 # Execute the returned code
                 output += code
 
+        return output
+
+    def bake(self, dest_path: str, format=True):
+        """Bake the notebook to a Python script"""
+
+        # Warn if the extension is not .py
+        if not dest_path.endswith(".py"):
+            print(
+                f"Warning: {dest_path} does not have the .py extension. "
+                "It is recommended that you use the .py extension for "
+                "frozen files."
+            )
+
+        output = self.get_code(argparsify=True)
+
         # Run black over output
         if format:
             import black
+
             try:
                 output = black.format_str(output, mode=black.FileMode())
             except:

@@ -154,3 +154,5 @@ lite/jupyterlite-icortex/LICENSE
 node_modules/
 *.tsbuildinfo
 *_backup
+misc/
+/icortex.toml

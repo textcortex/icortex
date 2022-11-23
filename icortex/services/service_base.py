@@ -17,6 +17,7 @@ from icortex.services.generation_result import GenerationResult
 from icortex.services.service_interaction import ServiceInteraction
 from icortex.parser import lex_prompt
 
+
 def is_str_repr(s: str):
     quotes = ["'", '"']
     return len(s) >= 2 and s[0] in quotes and s[-1] in quotes
@@ -159,9 +160,7 @@ class ServiceBase(ABC):
             required=DEFAULT_AUTO_INSTALL_PACKAGES,
             help="Auto-install packages that are imported in the generated code but missing in the active Python environment.",
         )
-        self.prompt_parser.usage = (
-            "%%prompt your prompt goes here [-e] [-r] [-p] ..."
-        )
+        self.prompt_parser.usage = "%%prompt your prompt goes here [-e] [-r] [-p] ..."
 
         self.prompt_parser.description = self.description
 
